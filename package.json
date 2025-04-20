@@ -1,5 +1,5 @@
 {
-  "name": "be_skillpractice",
+  "name": "Marhaen-BE",
   "type": "module",
   "version": "1.0.0",
   "main": "server.js",
@@ -18,15 +18,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JorLojor/BE_skillpractice.git"
+    "url": "git+https://github.com/nevmock/Marhaen-BE.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/JorLojor/BE_skillpractice/issues"
+    "url": "https://github.com/nevmock/Marhaen-BE/issues"
   },
-  "homepage": "https://github.com/JorLojor/BE_skillpractice#readme",
+  "homepage": "https://github.com/nevmock/Marhaen-BE#readme",
   "description": "",
   "dependencies": {
     "@joi/date": "^2.1.1",
