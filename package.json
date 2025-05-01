@@ -1,8 +1,8 @@
 {
-  "name": "be_skillpractice",
+  "name": "marhein-be",
   "type": "module",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/server.js",
   "jest": {
     "transform": {
       "^.+\\.[t|j]sx?$": "babel-jest"
