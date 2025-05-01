@@ -1,34 +1,25 @@
 import BaseError from "../../base_classes/base-error.js";
-import User from "../../models/user.js";
+
 import { generateVerifEmail } from "../../utils/bodyEmail.js";
 import generateToken from "../../utils/generateToken.js";
 import sendEmail from "../../utils/sendEmail.js";
 import { parseJWT } from "../../utils/parseToken.js";
 import joi from "joi";
+import db from "../../config/db.js";
 
 class AuthService {
-    async login(username, password) {
-        let user = await User.findOne({
-            username
-        });
-
-        if (!user) {
-            user = await User.findOne({
-                email: username
-            });
-
-            if (!user) {
-                throw BaseError.badRequest("Invalid credentials");
+    async login(email, password) {
+        let user = await db.user.findUnique({
+            where: {
+                email: email
             }
-        }
+        })
 
         const isMatch = await user.matchPassword(password);
 
         if (!isMatch) {
             throw BaseError.badRequest("Invalid credentials");
         }
-
-        
 
         if (!user.verifiedAt){
             const token = generateToken(user._id, "5m");
