@@ -70,16 +70,16 @@ export const errorHandler = (err, req, res, _next) => {
   // method
   const method = req.method;
 
-  const newLog = new SystemLog({
-    userId : user._id,
-    action : url,
-    ipAddress : ip,
-    device : device,
-    method : method,
-    description : err.message
+  const newLog = db.systemLog.create({
+    data: {
+      userId: user.id,
+      action: url,
+      ipAddress: ip,
+      device: device,
+      method: method,
+      description: err.message
+    }
   });
-
-  newLog.save();
 
   return res.status(StatusCodes.INTERNAL_SERVER.code).json({
     code: 500,

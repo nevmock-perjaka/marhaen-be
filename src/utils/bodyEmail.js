@@ -111,7 +111,7 @@ function generateEmailEnglishTemplate(verificationUrl) {
     `;
 }
 
-function generateVerifEmail(verificationUrl) {
+function generateVerifEmail(otp) {
     return `
       <!DOCTYPE html>
       <html lang="id">
@@ -155,11 +155,11 @@ function generateVerifEmail(verificationUrl) {
           </head>
           <body>
               <div class="container">
-                  <img src="/public/assets/images/logo.png" class="logo" alt="Logo">
+                  <img src="${process.env.BE_URL}/assets/images/logo.png" class="logo" alt="Logo">
                   <h2>Email Verification</h2>
                   <p>We are excited to have you on board! Please verify your email to activate your account.</p>
-                  <a href="${verificationUrl}" class="btn">Verify Email</a>
-                  <p>This link will expired on 5 minute</p>
+                  <h1>${otp}</h1>
+                  <p>This code will expired on 5 minute</p>
                   <p>If you didn’t request this, you can safely ignore this email.</p>
               </div>
           </body>

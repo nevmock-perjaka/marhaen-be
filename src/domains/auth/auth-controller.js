@@ -3,9 +3,9 @@ import AuthService from "./auth-service.js";
 
 class AuthController {
     async login(req, res) {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
-        const token = await AuthService.login(username, password);
+        const token = await AuthService.login(email, password);
 
         if (!token) {
             throw Error("Failed to login");
@@ -15,9 +15,9 @@ class AuthController {
     }
 
     async register(req, res) {
-        const { name, username, email, password, phone_number } = req.body;
+        const { name, username, email, password, phone_number, otp_verification } = req.body;
 
-        const message = await AuthService.register({ name, username, email, password, phone_number });
+        const message = await AuthService.register({ name, username, email, password, phone_number, otp_verification });
 
         if (!message) {
             throw Error("Failed to register");
@@ -26,17 +26,16 @@ class AuthController {
         return successResponse(res, message);
     }
 
-    async verify(req, res) {
-        const { token } = req.params;
+    async refreshToken(req, res) {
+        const { refresh_token } = req.body;
 
-        const response = await AuthService.verify(token);
+        const token = await AuthService.refreshToken(refresh_token);
 
-        if (response.status !== 200) {
-            return res.redirect(`${process.env.FE_URL}/login?verify=failed&message=${response.message}`);
+        if (!token) {
+            throw Error("Failed to refresh token");
         }
 
-        return res.redirect(`${process.env.FE_URL}/login?verify=success`);
-
+        return successResponse(res, { access_token: token });
     }
 
     async getProfile(req, res){
@@ -59,6 +58,18 @@ class AuthController {
         }
 
         return successResponse(res, user);
+    }
+
+    async sendOtp(req, res) {
+        const { email } = req.body;
+
+        const message = await AuthService.sendOtp(email);
+
+        if (!message) {
+            throw Error("Failed to send OTP");
+        }
+
+        return successResponse(res, message);
     }
 }
 

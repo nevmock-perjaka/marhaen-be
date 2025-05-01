@@ -9,11 +9,11 @@ import errorHandler from "./middlewares/error-handler-middleware.js";
 import express from "express";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
-// import morgan from "morgan";
 import multer from "multer";
 import path from "path";
 
 import BaseError from "./base_classes/base-error.js";
+import authRoutes from "./domains/auth/auth-routes.js";
 
 class ExpressApplication {
   app;
@@ -81,6 +81,8 @@ class ExpressApplication {
   }
   setupRoute() {
     // this.app.use("/api/v1/menu", menuRoutes);
+
+    this.app.use("/api/v1/auth", authRoutes);
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");
