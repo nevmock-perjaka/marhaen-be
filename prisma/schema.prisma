@@ -14,42 +14,224 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String 
-  email     String   @unique
-  password  String
-  phone_number String?
-  is_banned Boolean @default(false)
+  id              String      @id @default(uuid())
+  name            String
+  email           String      @unique
+  password        String
+  phone_number    String?
+  is_banned       Boolean     @default(false)
   subs_expired_at DateTime?
-  subs_level Int @default(0)
-  tax_percentage Float @default(0)
-  verified_at DateTime?
+  subs_level      Int         @default(0)
+  tax_percentage  Float       @default(0)
+  verified_at     DateTime?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
 
-  system_logs SystemLog[]
+  system_logs     SystemLog[]
+  accounts        Account[]
+  transactions    Transaction[]
+  withdrawals     Withdrawal[]
+  user_products   UserProduct[]
+  Subscription    Subscription[]
+  Affiliate       Affiliate[]
+  Feedback        Feedback[]
+  Notification    Notification[]
+  PromoRedemption PromoRedemption[]
 }
 
 model SystemLog {
-  id        String      @id @default(uuid())
-  user_id String?
-  ip_address String?
-  device String?
-  action String?
-  method String?
-  description String?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id              String   @id @default(uuid())
+  user_id         String?
+  ip_address      String?
+  device          String?
+  action          String?
+  method          String?
+  description     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  user User? @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user            User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Otp {
-  id        String      @id @default(uuid())
-  email String
-  otp_code Int
-  expired_at DateTime
+  id              String   @id @default(uuid())
+  email           String
+  otp_code        Int
+  expired_at      DateTime
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model Account {
+  id              String   @id @default(uuid())
+  user_id         String
+  balance         Float    @default(0)
+  bank_name       String
+  bank_number     String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model Transaction {
+  id              String   @id @default(uuid())
+  user_id         String
+  amount          Float
+  type            String   // e.g. "deposit", "purchase"
+  status          String   // e.g. "pending", "completed"
+  description     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model Withdrawal {
+  id              String   @id @default(uuid())
+  user_id         String
+  amount          Float
+  status          String   // "pending", "approved", "rejected"
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  name            String
+  category_id     String
+  price           Float
+  description     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  category        Category @relation(fields: [category_id], references: [id])
+  user_products   UserProduct[]
+}
+
+model Category {
+  id              String   @id @default(uuid())
+  name            String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  products        Product[]
+}
+
+model UserProduct {
+  id              String   @id @default(uuid())
+  user_id         String
+  product_id      String
+  quantity        Int
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+  product         Product  @relation(fields: [product_id], references: [id])
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  user_id         String
+  level           Int
+  start_date      DateTime
+  end_date        DateTime
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+  logs            SubscriptionLog[]
+}
+
+model SubscriptionLog {
+  id              String   @id @default(uuid())
+  subscription_id String
+  action          String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  subscription    Subscription @relation(fields: [subscription_id], references: [id])
+}
+
+model Affiliate {
+  id              String   @id @default(uuid())
+  user_id         String
+  code            String   @unique
+  referral_count  Int  @default(0)
+  commission      Float    @default(0)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  user            User     @relation(fields: [user_id], references: [id])
+  logs            AffiliateLog[]
+}
+
+model AffiliateLog {
+  id               String   @id @default(uuid())
+  affiliate_id     String
+  referred_user_id String
+  commission       Float
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  affiliate        Affiliate @relation(fields: [affiliate_id], references: [id])
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  user_id    String
+  message    String
+  rating     Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  user_id    String
+  title      String
+  body       String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Setting {
+  id         String   @id @default(uuid())
+  key        String   @unique
+  value      String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+model Promo {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  discount      Float
+  description   String?
+  is_active     Boolean  @default(true)
+  valid_until   DateTime?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  PromoRedemption PromoRedemption[]
+}
+
+model PromoRedemption {
+  id          String   @id @default(uuid())
+  promo_id    String
+  user_id     String
+  redeemed_at DateTime @default(now())
+
+  promo      Promo    @relation(fields: [promo_id], references: [id])
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+
