@@ -31,6 +31,15 @@ model User {
   system_logs SystemLog[]
 }
 
+model Otp {
+  id        String      @id @default(uuid())
+  email String
+  otp_code Int
+  expired_at DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model SystemLog {
   id        String      @id @default(uuid())
   user_id String?
@@ -43,13 +52,4 @@ model SystemLog {
   updated_at DateTime @updatedAt
 
   user User? @relation(fields: [user_id], references: [id], onDelete: Cascade)
-}
-
-model Otp {
-  id        String      @id @default(uuid())
-  email String
-  otp_code Int
-  expired_at DateTime
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 }
