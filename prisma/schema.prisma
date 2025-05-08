@@ -14,19 +14,19 @@ datasource db {
 }
 
 model User {
-  id              String      @id @default(uuid())
+  id              String   @id @default(uuid())
   name            String
-  email           String      @unique
+  email           String   @unique
   password        String
   phone_number    String?
-  is_banned       Boolean     @default(false)
+  is_banned       Boolean  @default(false)
   subs_expired_at DateTime?
-  subs_level      Int         @default(0)
-  tax_percentage  Float       @default(0)
+  subs_level      Int      @default(0)
+  tax_percentage  Float    @default(0)
   verified_at     DateTime?
 
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
 
   system_logs     SystemLog[]
   accounts        Account[]
@@ -38,6 +38,7 @@ model User {
   Feedback        Feedback[]
   Notification    Notification[]
   PromoRedemption PromoRedemption[]
+  employees       Employee[]
 }
 
 model SystemLog {
@@ -234,11 +235,31 @@ model PromoRedemption {
   user       User     @relation(fields: [user_id], references: [id])
 }
 
+model Employee {
+  id         String   @id @default(uuid())
+  user_id    String
+  shift_id   String?
+
+  name       String
+  email      String?  @unique
+  phone      String?
+  position   String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id])
+  shift      Shift?   @relation(fields: [shift_id], references: [id])
+}
+
 model Shift {
   id         String   @id @default(uuid())
   name       String
-  start_time String   // atau DateTime kalau kamu ingin jam yang bisa dihitung
-  end_time   String   // atau DateTime
+  start_time DateTime
+  end_time   DateTime
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  employees  Employee[] // satu shift bisa banyak karyawan
 }
+

@@ -4,9 +4,11 @@ import authToken from './middlewares/auth-token-middleware.js';
 
 import authRoutes from './domains/auth/auth-routes.js';
 import stockRoutes from './domains/stock/stock-routes.js';
-import shiftRoutes from './domains/shift/shift-routes.js';
 import productRoutes from './domains/product/product-routes.js';
 import transactionRoutes from './domains/transaction/transaction-routes.js';
+import employeeRoutes from './domains/employee/employee-routes.js';
+import shiftRoutes from './domains/shift/shift-routes.js';
+import categoryRoutes from './domains/category/category-routes.js';
 
 const router = express.Router();
 
@@ -30,16 +32,24 @@ const appsRoutes = [
     route: stockRoutes,
   },
   {
-    path: '/shift',
-    route: shiftRoutes,
-  },
-  {
     path: '/product',
     route: productRoutes,
   },
   {
     path: '/transaction',
     route: transactionRoutes,
+  },
+  {
+    path: '/employee',
+    route: employeeRoutes,
+  },
+  {
+    path: '/shift',
+    route: shiftRoutes,
+  },
+  {
+    path: '/category',
+    route: categoryRoutes,
   }
 ];
 
