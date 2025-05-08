@@ -234,4 +234,11 @@ model PromoRedemption {
   user       User     @relation(fields: [user_id], references: [id])
 }
 
-
+model Shift {
+  id         String   @id @default(uuid())
+  name       String
+  start_time String   // atau DateTime kalau kamu ingin jam yang bisa dihitung
+  end_time   String   // atau DateTime
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

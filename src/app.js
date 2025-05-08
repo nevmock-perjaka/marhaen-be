@@ -15,6 +15,8 @@ import path from "path";
 import BaseError from "./base_classes/base-error.js";
 import authRoutes from "./domains/auth/auth-routes.js";
 
+import routes from "./routes.js";
+
 class ExpressApplication {
   app;
   fileStorage;
@@ -82,11 +84,13 @@ class ExpressApplication {
   setupRoute() {
     // this.app.use("/api/v1/menu", menuRoutes);
 
-    this.app.use("/api/v1/auth", authRoutes);
+    // this.app.use("/api/v1/auth", authRoutes.v1);
 
-    this.app.use("/*", () => {
-      throw BaseError.notFound("Route not found");
-    });
+    this.app.use("/api", routes);
+    
+    this.app.use("*", (req, res,  next) => {
+      next(BaseError.notFound("Route not found"));
+    });    
   }
 
   configureAssets() {
