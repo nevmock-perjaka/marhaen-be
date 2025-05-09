@@ -31,9 +31,9 @@ jobs:
       run: npm install
     - name: Build project
       run: npm run build
-
+        
   deploy:
-    if: github.ref == 'refs/heads/main'  # Only run on main branch
+    if: github.ref == 'refs/heads/main'  # Only deploy on main branch
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -55,5 +55,8 @@ jobs:
           git reset --hard HEAD
           git pull origin main --rebase
           npm install
-          npm run build          
+          npm run build
+          npx prisma migrate deploy 
           pm2 restart marhaen-be:service
+
+          

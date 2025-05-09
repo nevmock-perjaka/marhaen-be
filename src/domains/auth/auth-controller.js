@@ -15,9 +15,9 @@ class AuthController {
     }
 
     async register(req, res) {
-        const { name, username, email, password, phone_number, otp_verification } = req.body;
+        const { name, email, password, phone_number, otp_verification } = req.body;
 
-        const message = await AuthService.register({ name, username, email, password, phone_number, otp_verification });
+        const message = await AuthService.register({ name, email, password, phone_number, otp_verification });
 
         if (!message) {
             throw Error("Failed to register");
@@ -39,7 +39,8 @@ class AuthController {
     }
 
     async getProfile(req, res){
-        const user = await AuthService.getProfile(req.app.locals.user.id);
+        // console.log(req.app);
+        const user = await AuthService.getProfile(req.user.id);
 
         if (!user) {
             throw Error("Failed to get user profile");
@@ -49,9 +50,9 @@ class AuthController {
     }
 
     async updateProfile(req, res){
-        const { name, email, phone_number } = req.body;
+        const { name, phone_number } = req.body;
 
-        const user = await AuthService.updateProfile(req.app.locals.user.id, { name, email, phone_number });
+        const user = await AuthService.updateProfile(req.user.id, { name, phone_number });
 
         if (!user) {
             throw Error("Failed to update user profile");

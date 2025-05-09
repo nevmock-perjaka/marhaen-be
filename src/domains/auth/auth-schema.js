@@ -63,6 +63,13 @@ const profileSchema = Joi.object({
             "string.empty": "Name is required.",
             "string.min": "Name must be at least 4 characters long."
         }),
+    phone_number : Joi.string()
+        .required()
+        .regex(/^\+?[0-9]{10,15}$/)
+        .messages({
+            "string.empty": "Phone number is required.",
+            "string.pattern.base": "Phone number must be a valid phone number."
+    }),
 }) 
 
 const sendOtpSchema = Joi.object({

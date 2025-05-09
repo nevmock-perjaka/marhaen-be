@@ -160,6 +160,11 @@ class AuthService {
                 name: true,
                 email: true,
                 phone_number: true,
+                is_banned: true,
+                subs_expired_at: true,
+                subs_level: true,
+                tax_percentage: true,
+                verified_at: true,
                 created_at: true,
                 updated_at: true
             }
@@ -176,14 +181,6 @@ class AuthService {
         const user = await db.user.findUnique({
             where: {
                 id: id
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                phone_number: true,
-                created_at: true,
-                updated_at: true
             }
         });
 
@@ -195,10 +192,19 @@ class AuthService {
             where: {
                 id: id
             },
-            data: {
-                name: data.name,
-                email: data.email,
-                phone_number: data.phone_number
+            data: data,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone_number: true,
+                is_banned: true,
+                subs_expired_at: true,
+                subs_level: true,
+                tax_percentage: true,
+                verified_at: true,
+                created_at: true,
+                updated_at: true
             }
         });
 
