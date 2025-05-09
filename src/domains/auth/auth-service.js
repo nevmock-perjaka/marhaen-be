@@ -67,46 +67,46 @@ class AuthService {
             throw new joi.ValidationError(validation, stack);
         }
 
-        // const otpExist = await db.otp.findFirst({
-        //     where: {
-        //         email: data.email,
-        //         otp_code: data.otp_verification
-        //     }
-        // })
+        const otpExist = await db.otp.findFirst({
+            where: {
+                email: data.email,
+                otp_code: data.otp_verification
+            }
+        })
 
-        // if (!otpExist) {
-        //     let validation = "";
-        //     let stack = [];
+        if (!otpExist) {
+            let validation = "";
+            let stack = [];
 
-        //     validation += "Invalid OTP.";
+            validation += "Invalid OTP.";
 
-        //     stack.push({
-        //         message: "Invalid OTP.",
-        //         path: ["otp_verification"]
-        //     });
+            stack.push({
+                message: "Invalid OTP.",
+                path: ["otp_verification"]
+            });
 
-        //     throw new joi.ValidationError(validation, stack);
-        // }
+            throw new joi.ValidationError(validation, stack);
+        }
 
-        // if (otpExist.expired_at < new Date()) {
-        //     let validation = "";
-        //     let stack = [];
+        if (otpExist.expired_at < new Date()) {
+            let validation = "";
+            let stack = [];
 
-        //     validation += "OTP expired.";
+            validation += "OTP expired.";
 
-        //     stack.push({
-        //         message: "OTP expired.",
-        //         path: ["otp_verification"]
-        //     });
+            stack.push({
+                message: "OTP expired.",
+                path: ["otp_verification"]
+            });
 
-        //     throw new joi.ValidationError(validation, stack);
-        // }
+            throw new joi.ValidationError(validation, stack);
+        }
 
-        // await db.otp.delete({
-        //     where: {
-        //         id: otpExist.id
-        //     }
-        // })
+        await db.otp.delete({
+            where: {
+                id: otpExist.id
+            }
+        })
 
         const createdUser = await db.user.create({
             data: {
