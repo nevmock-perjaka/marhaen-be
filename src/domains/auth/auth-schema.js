@@ -28,7 +28,6 @@ const registerSchema = Joi.object({
         }),
     otp_verification : Joi.number()
         .required()
-        
         .messages({
             "string.empty": "OTP verification is required."
         }),
