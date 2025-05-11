@@ -1,6 +1,5 @@
 import transactionService from "./transaction-service.js";
 import { successResponse } from "../../utils/response.js"
-import BaseError from "../../base_classes/base-error.js";
 
 class TransactionController {
     async webhook(req, res) {
