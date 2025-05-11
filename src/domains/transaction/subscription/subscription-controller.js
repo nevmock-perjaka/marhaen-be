@@ -1,5 +1,5 @@
 import { successResponse } from "../../../utils/response.js";
-import planService from "../../plan/plan-service.js";
+
 import subscriptionService from "./subscription-service.js";
 
 class SubscriptionController {
