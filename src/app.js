@@ -13,11 +13,7 @@ import multer from "multer";
 import path from "path";
 
 import BaseError from "./base_classes/base-error.js";
-
-import authRoutes from "./domains/auth/auth-routes.js";
-import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
-import planRoutes from "./domains/plan/plan-routes.js";
-import transactionRoutes from "./domains/transaction/transaction-routes.js";
+import router from "./routes.js";
 
 class ExpressApplication {
   app;
@@ -84,16 +80,11 @@ class ExpressApplication {
     });
   }
   setupRoute() {
-    // this.app.use("/api/v1/menu", menuRoutes);
-
-    this.app.use("/api/v1/auth", authRoutes);
-    this.app.use("/api/v1/plan", planRoutes);
-    this.app.use("/api/v1/subscription", subscriptionRoutes);
-    this.app.use("/api/v1/transaction", transactionRoutes);
-
-    this.app.use("/*", () => {
-      throw BaseError.notFound("Route not found");
-    });
+    this.app.use("/api", router);
+    
+    this.app.use("*", (req, res,  next) => {
+      next(BaseError.notFound("Route not found"));
+    });    
   }
 
   configureAssets() {
