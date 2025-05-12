@@ -14,7 +14,9 @@
     "prod": "cross-env NODE_ENV=production && node dist/server.js",
     "build": "npx babel src --out-dir dist --extensions \".js,.jsx\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "make:domain": "node src/utils/cli make:domain"
+    "make:domain": "node src/utils/cli make:domain",
+
+    "seed": "node prisma/seed.js"
   },
   "repository": {
     "type": "git",
