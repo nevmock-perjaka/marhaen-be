@@ -14,24 +14,14 @@ import planRoutes from "./domains/plan/plan-routes.js";
 
 const router = express.Router();
 
-const RoutesV1 = [
-  {
-    path: '/auth',
-    route: authRoutes.v1,
-  }
-];
-
-const RoutesV2 = [
-  {
-    path: '/auth',
-    route: authRoutes.v2
-  }
-]
-
 const appsRoutes = [
   {
     path: '/auth',
     route: authRoutes,
+  },
+  {
+    path: '/plan',
+    route: planRoutes
   },
   {
     path: '/stock',
@@ -48,7 +38,7 @@ const appsRoutes = [
   {
     path: '/subscription',
     route: subscriptionRoutes,
-  }
+  },
   {
     path: '/employee',
     route: employeeRoutes,
@@ -64,7 +54,7 @@ const appsRoutes = [
 ];
 
 appsRoutes.forEach(({ path, route }) => {
-  router.use(`/v1/${path}`, route);
+  router.use(`/v1${path}`, route);
 });
 
 // RoutesV2.forEach(({ path, route }) => {
