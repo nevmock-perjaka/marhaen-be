@@ -41,7 +41,8 @@ class SubscriptionService {
                     phone: user.phone_number,
                 },
                 enabled_payments: [
-                    'other_qris'
+                    'other_qris',
+                    'bank_transfer'
                 ],
                 item_details: [
                     {
