@@ -8,35 +8,20 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String 
-  email     String   @unique
-  password  String
-  phone_number String?
-  is_banned Boolean @default(false)
-  subs_expired_at DateTime?
-  subs_level Int @default(0)
-  tax_percentage Float @default(0)
-  verified_at DateTime?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  system_logs SystemLog[]
+  id                        String                     @id @default(uuid())
+  name                      String
+  email                     String                     @unique
+  password                  String
+  phone_number              String
+  is_banned                 Boolean
+  subs_expired_at           DateTime?
+  subs_level                Int
+  tax_percentage            Float
+  created_at                DateTime
+  updated_at                DateTime
+  Subscription_transaction  Subscription_transaction[]
+  Allowed_user              Allowed_user[]
   subscription_transactions SubscriptionTransaction[]
-  id                       String                     @id @default(uuid())
-  name                     String
-  email                    String                     @unique
-  password                 String
-  phone_number             String
-  is_banned                Boolean
-  subs_expired_at          DateTime?
-  subs_level               Int
-  tax_percentage           Float
-  created_at               DateTime
-  updated_at               DateTime
-  Subscription_transaction Subscription_transaction[]
-  Allowed_user             Allowed_user[]
 }
 
 model Product {
@@ -326,11 +311,11 @@ model Product_discount {
 }
 
 model Plan {
-  id String @id @default(uuid())
-  name String
-  days Int @default(30)
-  price Int @default(0)
-  level Int
+  id        String  @id @default(uuid())
+  name      String
+  days      Int     @default(30)
+  price     Int     @default(0)
+  level     Int
   is_active Boolean @default(false)
 
   created_at DateTime @default(now())
@@ -338,25 +323,25 @@ model Plan {
 }
 
 model SubscriptionTransaction {
-  id                String             @id @default(uuid())
-  user_id           String
+  id      String @id @default(uuid())
+  user_id String
 
-  level             Int                // Subscription level
-  days              Int                // Subscription duration in days
+  level Int // Subscription level
+  days  Int // Subscription duration in days
 
-  order_id          String?             @unique  // Midtrans order_id
-  transaction_token String?            // Snap token
-  redirect_url      String?            // URL to redirect to payment page
+  order_id          String? @unique // Midtrans order_id
+  transaction_token String? // Snap token
+  redirect_url      String? // URL to redirect to payment page
 
-  gross_amount     Float?              // Amount in IDR
-  admin_fee        Float?              // Admin fee in IDR
-  payment_method   String?             // e.g., 'bank_transfer', 'credit_card', etc.
-  status           String?             // e.g., 'pending', 'settlement', 'cancel', etc.
+  gross_amount   Float? // Amount in IDR
+  admin_fee      Float? // Admin fee in IDR
+  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
+  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
 
-  created_at        DateTime           @default(now())
-  updated_at        DateTime           @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  user             User               @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
 }
 
 model Systemlog {
@@ -377,8 +362,8 @@ model Allowed_user {
   role       String
   created_at DateTime
   updated_at DateTime
-  created_by DateTime
-  updated_by DateTime
+  created_by String
+  updated_by String
   owned_by   String
   user       User     @relation(fields: [user_id], references: [id])
 }
