@@ -40,30 +40,4 @@ class AuthRoutes extends BaseRoutes {
     }
 }
 
-class AuthV2Routes extends BaseRoutes {
-    routes() {
-        this.router.post("/register", [
-            validateCredentials(registerSchema),
-            tryCatch(AuthController.register)
-        ]);
-        this.router.post("/login", [
-            validateCredentials(loginSchema),
-            tryCatch(AuthController.login)
-        ]);
-        this.router.get("/verify/:token", [
-            tryCatch(AuthController.verify)
-        ]);
-        this.router.get("/me", [
-            authToken,
-            tryCatch(AuthController.getProfile)
-        ]);
-        this.router.put("/me/update", [
-            authToken,
-            validateCredentials(profileSchema),
-            tryCatch(AuthController.updateProfile)
-        ]);
-    }
-}
-
-export const authV1 = new AuthRoutes().router;
-export const authV2 = new AuthV2Routes().router;
+export default new AuthRoutes().router;
