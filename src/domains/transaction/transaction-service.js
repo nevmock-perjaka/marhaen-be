@@ -1,96 +1,27 @@
 import BaseError from "../../base_classes/base-error.js";
-import db from "../../config/db.js";
-import joi from "joi";
+import subscriptionService from "./subscription/subscription-service.js";
 
-class TransactionService {
-    async getAll() {
-        return await db.transaction.findMany({
-            include: {
-                user: true
-            }
-        });
-    }
+import crypto from "crypto";
 
-    async getById(id) {
-        const trx = await db.transaction.findUnique({
-            where: { id },
-            include: {
-                user: true
-            }
-        });
+class TransactionServices {
+    async notificationSnap(data) {
+        const hash = crypto.createHash('sha512').update(`${data.order_id}${data.status_code}${data.gross_amount}${process.env.MIDTRANS_SERVER_KEY}`).digest('hex');
+        console.log("Response Midtrans : ", data);
 
-        if (!trx) {
-            throw BaseError.notFound("Transaction not found");
+        if  (data.signature_key !== hash){
+            return true;
         }
 
-        return trx;
-    }
-
-    async create(data) {
-        const user = await db.user.findUnique({
-            where: { id: data.user_id }
-        });
-
-        if (!user) {
-            const stack = [{
-                message: "User not found.",
-                path: ["user_id"]
-            }];
-            throw new joi.ValidationError("Invalid user", stack);
+        if (!data.metadata){
+            return true;
         }
 
-        const created = await db.transaction.create({ data });
-
-        if (!created) {
-            throw BaseError.badRequest("Failed to create transaction");
+        if (data.metadata.type == 'subscription'){
+            return await subscriptionService.updateSubscriptionTransaction(data);
         }
 
-        return {
-            message: "Transaction created successfully",
-            data: created
-        };
-    }
-
-    async update(id, data) {
-        const trx = await db.transaction.findUnique({ where: { id } });
-
-        if (!trx) {
-            throw BaseError.notFound("Transaction not found");
-        }
-
-        const updated = await db.transaction.update({
-            where: { id },
-            data
-        });
-
-        if (!updated) {
-            throw BaseError.badRequest("Failed to update transaction");
-        }
-
-        return {
-            message: "Transaction updated successfully",
-            data: updated
-        };
-    }
-
-    async delete(id) {
-        const trx = await db.transaction.findUnique({ where: { id } });
-
-        if (!trx) {
-            throw BaseError.notFound("Transaction not found");
-        }
-
-        const deleted = await db.transaction.delete({ where: { id } });
-
-        if (!deleted) {
-            throw BaseError.badRequest("Failed to delete transaction");
-        }
-
-        return {
-            message: "Transaction deleted successfully",
-            data: deleted
-        };
-    }
+        return true;
+    }  
 }
 
-export default new TransactionService();
+export default new TransactionServices();
