@@ -1,18 +1,95 @@
+-- CreateEnum
+CREATE TYPE "Role" AS ENUM ('OWNER', 'STAFF', 'CASHIER');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "phone_number" TEXT NOT NULL,
-    "is_banned" BOOLEAN NOT NULL,
+    "phone_number" TEXT,
+    "is_banned" BOOLEAN NOT NULL DEFAULT false,
     "subs_expired_at" TIMESTAMP(3),
-    "subs_level" INTEGER NOT NULL,
-    "tax_percentage" DOUBLE PRECISION NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
+    "subs_level" INTEGER NOT NULL DEFAULT 0,
+    "tax_percentage" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "verified_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Profile" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "role" "Role" NOT NULL,
+    "pin" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Profile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Otp" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "otp_code" INTEGER NOT NULL,
+    "expired_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Otp_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Plan" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "days" INTEGER NOT NULL DEFAULT 30,
+    "price" INTEGER NOT NULL DEFAULT 0,
+    "level" INTEGER NOT NULL,
+    "is_active" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Plan_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Subscription_transaction" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "level" INTEGER NOT NULL,
+    "days" INTEGER NOT NULL,
+    "order_id" TEXT,
+    "transaction_token" TEXT,
+    "redirect_url" TEXT,
+    "gross_amount" DOUBLE PRECISION,
+    "admin_fee" DOUBLE PRECISION,
+    "payment_method" TEXT,
+    "status" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Subscription_transaction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "System_log" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT,
+    "ip_address" TEXT,
+    "device" TEXT,
+    "action" TEXT,
+    "method" TEXT,
+    "description" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "userId" TEXT,
+
+    CONSTRAINT "System_log_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -24,261 +101,13 @@ CREATE TABLE "Product" (
     "category" TEXT NOT NULL,
     "image_uri" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "created_by" TEXT NOT NULL,
     "updated_by" TEXT NOT NULL,
     "owned_by" TEXT NOT NULL,
 
     CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Product_config" (
-    "id" TEXT NOT NULL,
-    "product_id" TEXT NOT NULL,
-    "inventory_id" TEXT NOT NULL,
-    "operation" TEXT NOT NULL,
-    "value" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Product_config_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Add_on" (
-    "id" TEXT NOT NULL,
-    "add_on_group_id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Add_on_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Add_on_group" (
-    "id" TEXT NOT NULL,
-    "product_id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "is_required" BOOLEAN NOT NULL,
-    "max_selection" INTEGER NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Add_on_group_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Add_on_config" (
-    "id" TEXT NOT NULL,
-    "add_on_id" TEXT NOT NULL,
-    "inventory_id" TEXT NOT NULL,
-    "operation" TEXT NOT NULL,
-    "value" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Add_on_config_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Inventory" (
-    "id" TEXT NOT NULL,
-    "product_name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "category" TEXT NOT NULL,
-    "unit_type" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Inventory_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Input_history" (
-    "id" TEXT NOT NULL,
-    "supplier_id" TEXT NOT NULL,
-    "inventory_id" TEXT NOT NULL,
-    "shipping_fee" DOUBLE PRECISION NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "total_stock" INTEGER NOT NULL,
-    "current_stock" INTEGER NOT NULL,
-    "input_datetime" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Input_history_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Supplier" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "address" TEXT NOT NULL,
-    "phone_number" TEXT NOT NULL,
-    "Status" BOOLEAN NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Supplier_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Order" (
-    "id" TEXT NOT NULL,
-    "order_by" TEXT NOT NULL,
-    "phone_number" TEXT,
-    "status" TEXT NOT NULL,
-    "total_gross" DOUBLE PRECISION NOT NULL,
-    "table_id" TEXT,
-    "discount_id" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Order_item" (
-    "id" TEXT NOT NULL,
-    "order_id" TEXT NOT NULL,
-    "product_id" TEXT NOT NULL,
-    "quantity" INTEGER NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "note" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Order_item_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Table" (
-    "id" TEXT NOT NULL,
-    "min_capacity" INTEGER NOT NULL,
-    "max_capacity" INTEGER NOT NULL,
-    "image_uri" TEXT,
-    "identifier_table" TEXT NOT NULL,
-    "is_outdoor" BOOLEAN NOT NULL,
-    "is_active" BOOLEAN NOT NULL,
-    "barcode" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Table_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Order_item_add_on" (
-    "id" TEXT NOT NULL,
-    "order_id" TEXT NOT NULL,
-    "product_id" TEXT NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Order_item_add_on_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Staff" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "phone_number" TEXT NOT NULL,
-    "is_active" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Staff_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Staff_log" (
-    "id" TEXT NOT NULL,
-    "staff_id" TEXT NOT NULL,
-    "start_timestamp" TIMESTAMP(3) NOT NULL,
-    "end_timestamp" TIMESTAMP(3) NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Staff_log_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Order_transaction" (
-    "id" TEXT NOT NULL,
-    "transaction_id" TEXT NOT NULL,
-    "order_id" TEXT NOT NULL,
-    "gross_amount" DOUBLE PRECISION NOT NULL,
-    "payment_method" TEXT NOT NULL,
-    "admin_fee" DOUBLE PRECISION NOT NULL,
-    "status" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Order_transaction_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "Subscription_transaction" (
-    "id" TEXT NOT NULL,
-    "transaction_id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "gross_amount" DOUBLE PRECISION NOT NULL,
-    "payment_method" TEXT NOT NULL,
-    "admin_fee" DOUBLE PRECISION NOT NULL,
-    "status" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TEXT NOT NULL,
-    "updated_by" TEXT NOT NULL,
-    "owned_by" TEXT NOT NULL,
-
-    CONSTRAINT "Subscription_transaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -318,42 +147,258 @@ CREATE TABLE "Product_discount" (
 );
 
 -- CreateTable
-CREATE TABLE "Systemlog" (
+CREATE TABLE "Product_config" (
     "id" TEXT NOT NULL,
-    "user_id" TEXT,
-    "ip_address" TEXT,
-    "device" TEXT,
-    "action" TEXT,
-    "method" TEXT,
-    "description" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL,
+    "product_id" TEXT NOT NULL,
+    "inventory_id" TEXT NOT NULL,
+    "operation" TEXT NOT NULL,
+    "value" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
 
-    CONSTRAINT "Systemlog_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Product_config_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Allowed_user" (
+CREATE TABLE "Add_on" (
     "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
-    "role" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL,
+    "add_on_group_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "created_by" TIMESTAMP(3) NOT NULL,
-    "updated_by" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
     "owned_by" TEXT NOT NULL,
 
-    CONSTRAINT "Allowed_user_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Add_on_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Add_on_group" (
+    "id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "is_required" BOOLEAN NOT NULL,
+    "max_selection" INTEGER NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Add_on_group_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Add_on_config" (
+    "id" TEXT NOT NULL,
+    "add_on_id" TEXT NOT NULL,
+    "inventory_id" TEXT NOT NULL,
+    "operation" TEXT NOT NULL,
+    "value" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Add_on_config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Inventory" (
+    "id" TEXT NOT NULL,
+    "product_name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "unit_type" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Inventory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Input_history" (
+    "id" TEXT NOT NULL,
+    "supplier_id" TEXT NOT NULL,
+    "inventory_id" TEXT NOT NULL,
+    "shipping_fee" DOUBLE PRECISION NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "total_stock" INTEGER NOT NULL,
+    "current_stock" INTEGER NOT NULL,
+    "input_datetime" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Input_history_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Supplier" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "phone_number" TEXT NOT NULL,
+    "Status" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Supplier_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Table" (
+    "id" TEXT NOT NULL,
+    "min_capacity" INTEGER NOT NULL,
+    "max_capacity" INTEGER NOT NULL,
+    "image_uri" TEXT,
+    "identifier_table" TEXT NOT NULL,
+    "is_outdoor" BOOLEAN NOT NULL,
+    "is_active" BOOLEAN NOT NULL,
+    "barcode" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Table_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Order" (
+    "id" TEXT NOT NULL,
+    "order_by" TEXT NOT NULL,
+    "phone_number" TEXT,
+    "status" TEXT NOT NULL,
+    "total_gross" DOUBLE PRECISION NOT NULL,
+    "table_id" TEXT,
+    "discount_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Order_item" (
+    "id" TEXT NOT NULL,
+    "order_id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "note" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Order_item_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Order_item_add_on" (
+    "id" TEXT NOT NULL,
+    "order_id" TEXT NOT NULL,
+    "product_id" TEXT NOT NULL,
+    "price" DOUBLE PRECISION NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Order_item_add_on_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Order_transaction" (
+    "id" TEXT NOT NULL,
+    "transaction_id" TEXT NOT NULL,
+    "order_id" TEXT NOT NULL,
+    "gross_amount" DOUBLE PRECISION NOT NULL,
+    "payment_method" TEXT NOT NULL,
+    "admin_fee" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_by" TEXT NOT NULL,
+    "updated_by" TEXT NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Order_transaction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Staff" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "phone_number" TEXT NOT NULL,
+    "is_active" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Staff_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Staff_log" (
+    "id" TEXT NOT NULL,
+    "staff_id" TEXT NOT NULL,
+    "start_timestamp" TIMESTAMP(3) NOT NULL,
+    "end_timestamp" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "owned_by" TEXT NOT NULL,
+
+    CONSTRAINT "Staff_log_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Order_transaction_transaction_id_key" ON "Order_transaction"("transaction_id");
+CREATE UNIQUE INDEX "Subscription_transaction_order_id_key" ON "Subscription_transaction"("order_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subscription_transaction_transaction_id_key" ON "Subscription_transaction"("transaction_id");
+CREATE UNIQUE INDEX "Order_transaction_transaction_id_key" ON "Order_transaction"("transaction_id");
+
+-- AddForeignKey
+ALTER TABLE "Profile" ADD CONSTRAINT "Profile_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Subscription_transaction" ADD CONSTRAINT "Subscription_transaction_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "System_log" ADD CONSTRAINT "System_log_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product_discount" ADD CONSTRAINT "Product_discount_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product_discount" ADD CONSTRAINT "Product_discount_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "Discount"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Product_config" ADD CONSTRAINT "Product_config_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -398,19 +443,7 @@ ALTER TABLE "Order_item_add_on" ADD CONSTRAINT "Order_item_add_on_order_id_fkey"
 ALTER TABLE "Order_item_add_on" ADD CONSTRAINT "Order_item_add_on_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Staff_log" ADD CONSTRAINT "Staff_log_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Order_transaction" ADD CONSTRAINT "Order_transaction_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Subscription_transaction" ADD CONSTRAINT "Subscription_transaction_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product_discount" ADD CONSTRAINT "Product_discount_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Product_discount" ADD CONSTRAINT "Product_discount_discount_id_fkey" FOREIGN KEY ("discount_id") REFERENCES "Discount"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Allowed_user" ADD CONSTRAINT "Allowed_user_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Staff_log" ADD CONSTRAINT "Staff_log_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "Staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

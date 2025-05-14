@@ -6,7 +6,7 @@
 GET http://localhost:9990/api/v1/product/product
 
 ### GET product by ID
-GET http://localhost:9990/api/v1/product/product/fd593ce6-e9c2-4ce6-a73a-b781ecea8261
+GET http://localhost:9990/api/v1/product/product/0c886c16-939b-4897-9128-3bcc151a8d06
 
 ### CREATE new product
 POST http://localhost:9990/api/v1/product/product
@@ -56,7 +56,7 @@ POST http://localhost:9990/api/v1/product/addon-group
 Content-Type: application/json
 
 {
-  "product_id": ":productId",
+  "product_id": "0c886c16-939b-4897-9128-3bcc151a8d06",
   "name": "Topping Wajib",
   "is_required": true,
   "max_selection": 2,
@@ -97,7 +97,7 @@ POST http://localhost:9990/api/v1/product/addon
 Content-Type: application/json
 
 {
-  "add_on_group_id": ":groupId",
+  "add_on_group_id": "79199bae-64b5-4f7f-92fe-9880c5822bf0",
   "name": "Keju",
   "price": 5000,
   "is_active": true,

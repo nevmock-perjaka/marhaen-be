@@ -14,7 +14,7 @@ import path from "path";
 
 import BaseError from "./base_classes/base-error.js";
 
-import { authV1, authV2 } from "./domains/auth/auth-routes.js";
+import authRoutes from "./domains/auth/auth-routes.js";
 import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
 import planRoutes from "./domains/plan/plan-routes.js";
 import transactionRoutes from "./domains/transaction/transaction-routes.js";
@@ -100,9 +100,7 @@ class ExpressApplication {
   setupRoute() {
     // this.app.use("/api/v1/menu", menuRoutes);
 
-    // this.app.use("/api/v1/auth", authRoutes);
-    this.app.use("/api/v1/auth", authV1);
-    this.app.use("/api/v2/auth", authV2);
+    this.app.use("/api/v1/auth", authRoutes);
     
     this.app.use("/api/v1/plan", planRoutes);
     this.app.use("/api/v1/subscription", subscriptionRoutes);
