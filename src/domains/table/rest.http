@@ -1,0 +1,41 @@
+### ============================
+### 🍽️ TABLE
+### ============================
+
+### GET all tables
+GET http://localhost:9990/api/v1/table
+
+### GET table by ID
+GET http://localhost:9990/api/v1/table/28fc9cd9-7de7-446e-b460-9f509f0a23c9
+
+### CREATE new table
+POST http://localhost:9990/api/v1/table
+Content-Type: application/json
+
+{
+  "min_capacity": 2,
+  "max_capacity": 4,
+  "image_uri": "http://localhost:9990/image/table1.jpg",
+  "identifier_table": "A-01",
+  "is_outdoor": false,
+  "is_active": true,
+  "barcode": "TABLE-A-01-QR",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE table
+PUT http://localhost:9990/api/v1/table/:tableId
+Content-Type: application/json
+
+{
+  "max_capacity": 6,
+  "identifier_table": "A-01 (updated)",
+  "updated_by": "admin"
+}
+
+### DELETE table (soft delete)
+DELETE http://localhost:9990/api/v1/table/:tableId

@@ -65,7 +65,5 @@ class AuthV2Routes extends BaseRoutes {
     }
 }
 
-export default { 
-    "v1": new AuthRoutes().router,
-    "v2": new AuthV2Routes().router
-};
+export const authV1 = new AuthRoutes().router;
+export const authV2 = new AuthV2Routes().router;

@@ -1,0 +1,80 @@
+### ============================
+### 🎟️ DISCOUNT
+### ============================
+
+### GET all discounts
+GET http://localhost:9990/api/v1/discount/discount
+
+### GET discount by ID
+GET http://localhost:9990/api/v1/discount/discount/:discountId
+
+### CREATE discount
+POST http://localhost:9990/api/v1/discount/discount
+Content-Type: application/json
+
+{
+  "name": "DISKON LEBARAN",
+  "is_percentage": true,
+  "value": 10,
+  "min_order_amount": 50000,
+  "shareable_code": "LEBARAN10",
+  "max_use": 100,
+  "used": 0,
+  "start_at": "2025-05-15T00:00:00.000Z",
+  "expired_at": "2025-05-30T00:00:00.000Z",
+  "is_active": true,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE discount
+PUT http://localhost:9990/api/v1/discount/discount/c20a994f-94f9-4dff-82a6-f673165395a4
+Content-Type: application/json
+
+{
+  "value": 15,
+  "updated_by": "admin"
+}
+
+### DELETE discount (soft delete)
+DELETE http://localhost:9990/api/v1/discount/discount/:discountId
+
+---
+
+### ============================
+### 🔗 PRODUCT DISCOUNT
+### ============================
+
+### GET all product-discount relations
+GET http://localhost:9990/api/v1/discount/product-discount
+
+### GET product-discount by ID
+GET http://localhost:9990/api/v1/discount/product-discount/:productDiscountId
+
+### CREATE product-discount relation
+POST http://localhost:9990/api/v1/discount/product-discount
+Content-Type: application/json
+
+{
+  "product_id": "d8307ba5-abae-4ead-8109-9379673353b4",
+  "discount_id": "c20a994f-94f9-4dff-82a6-f673165395a4",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE product-discount relation
+PUT http://localhost:9990/api/v1/discount/product-discount/:productDiscountId
+Content-Type: application/json
+
+{
+  "updated_by": "admin"
+}
+
+### DELETE product-discount relation
+DELETE http://localhost:9990/api/v1/discount/product-discount/:productDiscountId

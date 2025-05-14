@@ -1,0 +1,39 @@
+### ============================
+### 💳 ORDER TRANSACTION
+### ============================
+
+### GET all order transactions
+GET http://localhost:9990/api/v1/order-transaction
+
+### GET order transaction by ID
+GET http://localhost:9990/api/v1/order-transaction/:orderTransactionId
+
+### CREATE order transaction
+POST http://localhost:9990/api/v1/order-transaction
+Content-Type: application/json
+
+{
+  "transaction_id": "TRX-000001",
+  "order_id": "dd78ca37-67fb-4900-8aea-1e334333a137",
+  "gross_amount": 58000,
+  "payment_method": "QRIS",
+  "admin_fee": 2000,
+  "status": "pending",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE order transaction
+PUT http://localhost:9990/api/v1/order-transaction/e5ea8e1c-540d-4667-b81a-7652a31612c8
+Content-Type: application/json
+
+{
+  "status": "paid",
+  "updated_by": "admin"
+}
+
+### DELETE order transaction
+DELETE http://localhost:9990/api/v1/order-transaction/:orderTransactionId

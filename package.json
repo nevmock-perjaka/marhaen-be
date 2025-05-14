@@ -15,7 +15,6 @@
     "build": "npx babel src --out-dir dist --extensions \".js,.jsx\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "make:domain": "node src/utils/cli make:domain",
-
     "seed": "node prisma/seed.js"
   },
   "repository": {
@@ -35,7 +34,7 @@
     "@prisma/client": "^6.7.0",
     "@types/express": "^5.0.0",
     "apicache": "^1.6.3",
-    "babel": "^5.8.38",
+    "babel": "^6.23.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "body-parser": "^2.2.0",

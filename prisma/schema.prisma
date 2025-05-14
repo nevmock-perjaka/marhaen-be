@@ -154,6 +154,23 @@ model Supplier {
   Input_history Input_history[]
 }
 
+model Table {
+  id               String   @id @default(uuid())
+  min_capacity     Int
+  max_capacity     Int
+  image_uri        String?
+  identifier_table String
+  is_outdoor       Boolean
+  is_active        Boolean
+  barcode          String
+  created_at       DateTime
+  updated_at       DateTime
+  created_by       String
+  updated_by       String
+  owned_by         String
+  Order            Order[]
+}
+
 model Order {
   id                String              @id @default(uuid())
   order_by          String
@@ -190,23 +207,6 @@ model Order_item {
   product    Product  @relation(fields: [product_id], references: [id])
 }
 
-model Table {
-  id               String   @id @default(uuid())
-  min_capacity     Int
-  max_capacity     Int
-  image_uri        String?
-  identifier_table String
-  is_outdoor       Boolean
-  is_active        Boolean
-  barcode          String
-  created_at       DateTime
-  updated_at       DateTime
-  created_by       String
-  updated_by       String
-  owned_by         String
-  Order            Order[]
-}
-
 model Order_item_add_on {
   id         String   @id @default(uuid())
   order_id   String
@@ -219,6 +219,22 @@ model Order_item_add_on {
   owned_by   String
   order      Order    @relation(fields: [order_id], references: [id])
   product    Product  @relation(fields: [product_id], references: [id])
+}
+
+model Order_transaction {
+  id             String   @id @default(uuid())
+  transaction_id String   @unique
+  order_id       String
+  gross_amount   Float
+  payment_method String
+  admin_fee      Float
+  status         String
+  created_at     DateTime
+  updated_at     DateTime
+  created_by     String
+  updated_by     String
+  owned_by       String
+  order          Order    @relation(fields: [order_id], references: [id])
 }
 
 model Staff {
@@ -241,22 +257,6 @@ model Staff_log {
   updated_at      DateTime
   owned_by        String
   staff           Staff    @relation(fields: [staff_id], references: [id])
-}
-
-model Order_transaction {
-  id             String   @id @default(uuid())
-  transaction_id String   @unique
-  order_id       String
-  gross_amount   Float
-  payment_method String
-  admin_fee      Float
-  status         String
-  created_at     DateTime
-  updated_at     DateTime
-  created_by     String
-  updated_by     String
-  owned_by       String
-  order          Order    @relation(fields: [order_id], references: [id])
 }
 
 model Subscription_transaction {
