@@ -1,7 +1,7 @@
 import express from "express";
-import InventoryRoutes from "./routes/inventory.routes.js";
-import InputHistoryRoutes from "./routes/inputHistory.routes.js";
-import SupplierRoutes from "./routes/supplier.routes.js";
+import InventoryRoutes from "./inventory-routes.js";
+import InputHistoryRoutes from "./inputHistory/inputHistory-routes.js";
+import SupplierRoutes from "./supplier/supplier-routes.js";
 
 const router = express.Router();
 

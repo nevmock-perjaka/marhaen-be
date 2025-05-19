@@ -1,5 +1,5 @@
 import express from "express";
-import TableRoutes from "./routes/table.routes.js";
+import TableRoutes from "./table-routes.js";
 
 const router = express.Router();
 

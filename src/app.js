@@ -19,19 +19,7 @@ import subscriptionRoutes from "./domains/transaction/subscription/subscription-
 import planRoutes from "./domains/plan/plan-routes.js";
 import transactionRoutes from "./domains/transaction/transaction-routes.js";
 
-import productModuleRaw from "./domains/product/index.js";
-import inventoryModuleRaw from "./domains/inventory/index.js";
-import discountModuleRaw from "./domains/discount/index.js";
-import tableModuleRaw from "./domains/table/index.js";
-import orderModuleRaw from "./domains/order/index.js";
-import orderTransactionModuleRaw from "./domains/order_transaction/index.js";
-
-const productModule = productModuleRaw?.default || productModuleRaw;
-const inventoryModule = inventoryModuleRaw?.default || inventoryModuleRaw;
-const discountModule = discountModuleRaw?.default || discountModuleRaw;
-const tableModule = tableModuleRaw?.default || tableModuleRaw;
-const orderModule = orderModuleRaw?.default || orderModuleRaw;
-const orderTransactionModule = orderTransactionModuleRaw?.default || orderTransactionModuleRaw;
+import routes from "./routes.js";
 
 class ExpressApplication {
   app;
@@ -102,16 +90,11 @@ class ExpressApplication {
 
     this.app.use("/api/v1/auth", authRoutes);
     
-    this.app.use("/api/v1/plan", planRoutes);
-    this.app.use("/api/v1/subscription", subscriptionRoutes);
-    this.app.use("/api/v1/transaction", transactionRoutes);
+    // this.app.use("/api/v1/plan", planRoutes);
+    // this.app.use("/api/v1/subscription", subscriptionRoutes);
+    // this.app.use("/api/v1/transaction", transactionRoutes);
 
-    this.app.use("/api/v1/product", productModule);
-    this.app.use("/api/v1/inventory", inventoryModule);
-    this.app.use("/api/v1/discount", discountModule);
-    this.app.use("/api/v1/table", tableModule);
-    this.app.use("/api/v1/order", orderModule);
-    this.app.use("/api/v1/order-transaction", orderTransactionModule);
+    this.app.use("/api/", routes);
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");

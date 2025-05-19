@@ -1,7 +1,7 @@
 import express from "express";
-import OrderRoutes from "./routes/order.routes.js";
-import OrderItemRoutes from "./routes/orderItem.routes.js";
-import OrderItemAddonRoutes from "./routes/orderItemAddon.routes.js";
+import OrderRoutes from "./order-routes.js";
+import OrderItemRoutes from "./orderItem/orderItem-routes.js";
+import OrderItemAddonRoutes from "./orderItemAddon/orderItemAddon-routes.js";
 
 const router = express.Router();
 

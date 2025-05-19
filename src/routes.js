@@ -3,14 +3,12 @@ import express from 'express';
 import authToken from './middlewares/auth-token-middleware.js';
 
 import authRoutes from './domains/auth/auth-routes.js';
-import stockRoutes from './domains/stock/stock-routes.js';
-import productRoutes from './domains/product/product-routes.js';
 import transactionRoutes from './domains/transaction/transaction-routes.js';
-import employeeRoutes from './domains/employee/employee-routes.js';
-import shiftRoutes from './domains/shift/shift-routes.js';
-import categoryRoutes from './domains/category/category-routes.js';
 import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
 import planRoutes from "./domains/plan/plan-routes.js";
+
+import inventoryRoutes from './domains/inventory/index.js';
+import productRoutes from './domains/product/index.js';
 
 const router = express.Router();
 
@@ -24,14 +22,6 @@ const appsRoutes = [
     route: planRoutes
   },
   {
-    path: '/stock',
-    route: stockRoutes,
-  },
-  {
-    path: '/product',
-    route: productRoutes,
-  },
-  {
     path: '/transaction',
     route: transactionRoutes,
   },
@@ -40,16 +30,12 @@ const appsRoutes = [
     route: subscriptionRoutes,
   },
   {
-    path: '/employee',
-    route: employeeRoutes,
+    path: '/inventory',
+    route: inventoryRoutes
   },
   {
-    path: '/shift',
-    route: shiftRoutes,
-  },
-  {
-    path: '/category',
-    route: categoryRoutes,
+    path: '/product',
+    route: productRoutes
   }
 ];
 
