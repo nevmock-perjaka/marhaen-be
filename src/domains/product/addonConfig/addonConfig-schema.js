@@ -5,7 +5,7 @@ const addonConfigSchema = {
     create: Joi.object({
         add_on_id: Joi.string().required(),
         inventory_id: Joi.string().required(),
-        operation: Joi.string().valid("plus", "minus").required(),
+        operation: Joi.string().valid("add", "reduce").required(),
         value: Joi.number().integer().min(1).required(),
         created_by: Joi.string().required(),
         updated_by: Joi.string().required(),
@@ -16,7 +16,7 @@ const addonConfigSchema = {
 
     // Schema untuk update Add_on_config
     update: Joi.object({
-        operation: Joi.string().valid("plus", "minus").optional(),
+        operation: Joi.string().valid("add", "reduce").optional(),
         value: Joi.number().integer().min(1).optional(),
         updated_by: Joi.string().required(),
         updated_at: Joi.date().default(() => new Date())

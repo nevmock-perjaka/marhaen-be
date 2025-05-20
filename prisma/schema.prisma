@@ -192,7 +192,7 @@ model Add_on {
   updated_by String
   owned_by   String
 
-  add_on_group   Add_on_group    @relation(fields: [add_on_group_id], references: [id])
+  add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id])
   Add_on_config Add_on_config[]
 }
 
@@ -211,7 +211,7 @@ model Add_on_group {
   owned_by   String
 
   product Product  @relation(fields: [product_id], references: [id])
-  Add_on Add_on[]
+  Add_on  Add_on[]
 }
 
 model Add_on_config {
@@ -244,7 +244,7 @@ model Inventory {
   updated_by String
   owned_by   String
 
-  Input_history Input_history[]
+  Input_history  Input_history[]
   Product_config Product_config[]
   Add_on_config  Add_on_config[]
 }
@@ -267,6 +267,8 @@ model Input_history {
 
   supplier  Supplier?  @relation(fields: [supplier_id], references: [id])
   inventory Inventory? @relation(fields: [inventory_id], references: [id])
+
+  Stock_log Stock_log[]
 }
 
 model Supplier {
@@ -320,11 +322,13 @@ model Order {
   updated_by String
   owned_by   String
 
-  table              Table?              @relation(fields: [table_id], references: [id])
-  discount           Discount?           @relation(fields: [discount_id], references: [id])
+  table             Table?              @relation(fields: [table_id], references: [id])
+  discount          Discount?           @relation(fields: [discount_id], references: [id])
   Order_item        Order_item[]
   Order_item_add_on Order_item_add_on[]
   Order_transaction Order_transaction[]
+
+  Stock_log Stock_log[]
 }
 
 model Order_item {
@@ -402,4 +406,17 @@ model Staff_log {
   owned_by   String
 
   staff Staff @relation(fields: [staff_id], references: [id])
+}
+
+model Stock_log {
+  id       String  @id @default(uuid())
+  action   String // 'REDUCE' | 'ADD'
+  order_id String? @unique
+  input_id String? @unique
+  note     String? // Optional: keterangan manual/otomatis
+
+  created_at DateTime @default(now())
+
+  order        Order?         @relation(fields: [order_id], references: [id])
+  inputHistory Input_history? @relation(fields: [input_id], references: [id])
 }

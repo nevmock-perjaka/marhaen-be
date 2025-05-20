@@ -10,6 +10,8 @@ import planRoutes from "./domains/plan/plan-routes.js";
 import inventoryRoutes from './domains/inventory/index.js';
 import productRoutes from './domains/product/index.js';
 
+import stockRoutes from './domains/stock/stock-routes.js';
+
 const router = express.Router();
 
 const appsRoutes = [
@@ -36,6 +38,10 @@ const appsRoutes = [
   {
     path: '/product',
     route: productRoutes
+  },
+  {
+    path: '/stock',
+    route: stockRoutes
   }
 ];
 
