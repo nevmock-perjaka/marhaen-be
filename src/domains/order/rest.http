@@ -1,0 +1,119 @@
+### ============================
+### 🧾 ORDER
+### ============================
+
+### GET all orders
+GET http://localhost:9990/api/v1/order/order
+
+### GET order by ID
+GET http://localhost:9990/api/v1/order/order/:orderId
+
+### CREATE new order
+POST http://localhost:9990/api/v1/order/order
+Content-Type: application/json
+
+{
+  "order_by": "Ismail",
+  "phone_number": "08123456789",
+  "status": "pending",
+  "total_gross": 58000,
+  "table_id": null,
+  "discount_id": null,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE order
+PUT http://localhost:9990/api/v1/order/order/:orderId
+Content-Type: application/json
+
+{
+  "status": "paid",
+  "total_gross": 60000,
+  "updated_by": "admin"
+}
+
+### DELETE order
+DELETE http://localhost:9990/api/v1/order/order/:orderId
+
+
+### ============================
+### 🍽️ ORDER ITEM
+### ============================
+
+### GET all order items
+GET http://localhost:9990/api/v1/order/order-item
+
+### GET order item by ID
+GET http://localhost:9990/api/v1/order/order-item/:orderItemId
+
+### CREATE order item
+POST http://localhost:9990/api/v1/order/order-item
+Content-Type: application/json
+
+{
+  "order_id": "dd78ca37-67fb-4900-8aea-1e334333a137",
+  "product_id": "fd593ce6-e9c2-4ce6-a73a-b781ecea8261",
+  "quantity": 2,
+  "price": 25000,
+  "note": "Tanpa cabe",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE order item
+PUT http://localhost:9990/api/v1/order/order-item/:orderItemId
+Content-Type: application/json
+
+{
+  "quantity": 3,
+  "note": "Pedas sedang",
+  "updated_by": "admin"
+}
+
+### DELETE order item
+DELETE http://localhost:9990/api/v1/order/order-item/:orderItemId
+
+
+### ============================
+### ➕ ORDER ITEM ADD-ON
+### ============================
+
+### GET all order item add-ons
+GET http://localhost:9990/api/v1/order/order-item-addon
+
+### GET order item add-on by ID
+GET http://localhost:9990/api/v1/order/order-item-addon/:orderItemAddonId
+
+### CREATE order item add-on
+POST http://localhost:9990/api/v1/order/order-item-addon
+Content-Type: application/json
+
+{
+  "order_id": "dd78ca37-67fb-4900-8aea-1e334333a137",
+  "product_id": "fd593ce6-e9c2-4ce6-a73a-b781ecea8261",
+  "price": 5000,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE order item add-on
+PUT http://localhost:9990/api/v1/order/order-item-addon/:orderItemAddonId
+Content-Type: application/json
+
+{
+  "price": 6000,
+  "updated_by": "admin"
+}
+
+### DELETE order item add-on
+DELETE http://localhost:9990/api/v1/order/order-item-addon/:orderItemAddonId

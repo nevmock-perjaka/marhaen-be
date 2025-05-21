@@ -1,0 +1,10 @@
+### 🔻 Kurangi stok berdasarkan order (reduce stock)
+POST http://localhost:9990/api/v1/stock/reduce/{{orderId}}
+Content-Type: application/json
+
+### 🔺 Tambah stok berdasarkan inputHistory (add stock)
+POST http://localhost:9990/api/v1/stock/add/{{inputHistoryId}}
+Content-Type: application/json
+
+### 📦 Lihat stok terbaru dari suatu inventory
+GET http://localhost:9990/api/v1/stock/{{inventoryId}}

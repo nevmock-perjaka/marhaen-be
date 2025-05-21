@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,77 +8,415 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String 
-  email     String   @unique
-  password  String
-  phone_number String?
-  is_banned Boolean @default(false)
+  id              String    @id @default(uuid())
+  name            String
+  email           String    @unique
+  password        String
+  phone_number    String?
+  is_banned       Boolean   @default(false)
   subs_expired_at DateTime?
-  subs_level Int @default(0)
-  tax_percentage Float @default(0)
-  verified_at DateTime?
+  subs_level      Int       @default(0)
+  tax_percentage  Float     @default(0)
+  verified_at     DateTime?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  system_logs SystemLog[]
-  subscription_transactions SubscriptionTransaction[]
+  profiles                  Profile[]
+  system_logs               System_log[]
+  subscription_transactions Subscription_transaction[]
+}
+
+model Profile {
+  id      String  @id @default(uuid())
+  user_id String
+  role    Role
+  pin     String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+enum Role {
+  OWNER
+  STAFF
+  CASHIER
 }
 
 model Otp {
-  id        String      @id @default(uuid())
-  email String
-  otp_code Int
+  id         String   @id @default(uuid())
+  email      String
+  otp_code   Int
   expired_at DateTime
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
 model Plan {
-  id String @id @default(uuid())
-  name String
-  days Int @default(30)
-  price Int @default(0)
-  level Int
+  id        String  @id @default(uuid())
+  name      String
+  days      Int     @default(30)
+  price     Int     @default(0)
+  level     Int
   is_active Boolean @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
-model SubscriptionTransaction {
-  id                String             @id @default(uuid())
-  user_id           String
+model Subscription_transaction {
+  id      String @id @default(uuid())
+  user_id String
 
-  level             Int                // Subscription level
-  days              Int                // Subscription duration in days
+  level Int // Subscription level
+  days  Int // Subscription duration in days
 
-  order_id          String?             @unique  // Midtrans order_id
-  transaction_token String?            // Snap token
-  redirect_url      String?            // URL to redirect to payment page
+  order_id          String? @unique // Midtrans order_id
+  transaction_token String? // Snap token
+  redirect_url      String? // URL to redirect to payment page
 
-  gross_amount     Float?              // Amount in IDR
-  admin_fee        Float?              // Admin fee in IDR
-  payment_method   String?             // e.g., 'bank_transfer', 'credit_card', etc.
-  status           String?             // e.g., 'pending', 'settlement', 'cancel', etc.
+  gross_amount   Float? // Amount in IDR
+  admin_fee      Float? // Admin fee in IDR
+  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
+  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
 
-  created_at        DateTime           @default(now())
-  updated_at        DateTime           @updatedAt
-
-  user             User               @relation(fields: [user_id], references: [id])
-}
-
-model SystemLog {
-  id        String      @id @default(uuid())
-  user_id String?
-  ip_address String?
-  device String?
-  action String?
-  method String?
-  description String?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  user User? @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model System_log {
+  id          String  @id @default(uuid())
+  user_id     String?
+  ip_address  String?
+  device      String?
+  action      String?
+  method      String?
+  description String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  price       Float
+  description String
+  category    String
+  image_uri   String
+  is_active   Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Order_item        Order_item[]
+  Add_on_group      Add_on_group[]
+  Product_config    Product_config[]
+  Order_item_add_on Order_item_add_on[]
+  Product_discount  Product_discount[]
+}
+
+model Discount {
+  id               String   @id @default(uuid())
+  name             String
+  is_percentage    Boolean?
+  value            Float
+  min_order_amount Float
+  shareable_code   String
+  max_use          Int?
+  used             Int
+  start_at         DateTime
+  expired_at       DateTime
+  is_active        Boolean
+  created_at       DateTime
+  updated_at       DateTime
+  created_by       String
+  updated_by       String
+  owned_by         String
+
+  Product_discount Product_discount[]
+  Order            Order[]
+}
+
+model Product_discount {
+  id          String   @id @default(uuid())
+  product_id  String
+  discount_id String
+  created_at  DateTime
+  updated_at  DateTime
+  created_by  String
+  updated_by  String
+  owned_by    String
+
+  product  Product  @relation(fields: [product_id], references: [id])
+  discount Discount @relation(fields: [discount_id], references: [id])
+}
+
+model Product_config {
+  id           String @id @default(uuid())
+  product_id   String
+  inventory_id String
+  operation    String
+  value        Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  product   Product   @relation(fields: [product_id], references: [id])
+  inventory Inventory @relation(fields: [inventory_id], references: [id])
+}
+
+model Add_on {
+  id              String  @id @default(uuid())
+  add_on_group_id String
+  name            String
+  price           Float
+  is_active       Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id])
+  Add_on_config Add_on_config[]
+}
+
+model Add_on_group {
+  id            String  @id @default(uuid())
+  product_id    String
+  name          String
+  is_required   Boolean
+  max_selection Int
+  is_active     Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  product Product  @relation(fields: [product_id], references: [id])
+  Add_on  Add_on[]
+}
+
+model Add_on_config {
+  id           String @id @default(uuid())
+  add_on_id    String
+  inventory_id String
+  operation    String
+  value        Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  add_on    Add_on    @relation(fields: [add_on_id], references: [id])
+  inventory Inventory @relation(fields: [inventory_id], references: [id])
+}
+
+model Inventory {
+  id           String @id @default(uuid())
+  product_name String
+  description  String
+  category     String
+  unit_type    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Input_history  Input_history[]
+  Product_config Product_config[]
+  Add_on_config  Add_on_config[]
+}
+
+model Input_history {
+  id             String   @id @default(uuid())
+  supplier_id    String
+  inventory_id   String
+  shipping_fee   Float
+  price          Float
+  total_stock    Int
+  current_stock  Int
+  input_datetime DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  supplier  Supplier?  @relation(fields: [supplier_id], references: [id])
+  inventory Inventory? @relation(fields: [inventory_id], references: [id])
+
+  Stock_log Stock_log[]
+}
+
+model Supplier {
+  id           String  @id @default(uuid())
+  name         String
+  description  String
+  address      String
+  phone_number String
+  Status       Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Input_history Input_history[]
+}
+
+model Table {
+  id               String  @id @default(uuid())
+  min_capacity     Int
+  max_capacity     Int
+  image_uri        String?
+  identifier_table String
+  is_outdoor       Boolean
+  is_active        Boolean
+  barcode          String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Order Order[]
+}
+
+model Order {
+  id           String  @id @default(uuid())
+  order_by     String
+  phone_number String?
+  status       String
+  total_gross  Float
+  table_id     String?
+  discount_id  String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  table             Table?              @relation(fields: [table_id], references: [id])
+  discount          Discount?           @relation(fields: [discount_id], references: [id])
+  Order_item        Order_item[]
+  Order_item_add_on Order_item_add_on[]
+  Order_transaction Order_transaction[]
+
+  Stock_log Stock_log[]
+}
+
+model Order_item {
+  id         String  @id @default(uuid())
+  order_id   String
+  product_id String
+  quantity   Int
+  price      Float
+  note       String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  order   Order   @relation(fields: [order_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+}
+
+model Order_item_add_on {
+  id         String @id @default(uuid())
+  order_id   String
+  product_id String
+  price      Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  order   Order   @relation(fields: [order_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+}
+
+model Order_transaction {
+  id             String   @id @default(uuid())
+  transaction_id String   @unique
+  order_id       String
+  gross_amount   Float
+  payment_method String
+  admin_fee      Float
+  status         String
+  created_at     DateTime
+  updated_at     DateTime
+  created_by     String
+  updated_by     String
+  owned_by       String
+
+  order Order @relation(fields: [order_id], references: [id])
+}
+
+model Staff {
+  id           String @id @default(uuid())
+  name         String
+  phone_number String
+  is_active    Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  owned_by   String
+
+  Staff_log Staff_log[]
+}
+
+model Staff_log {
+  id              String   @id @default(uuid())
+  staff_id        String
+  start_timestamp DateTime
+  end_timestamp   DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  owned_by   String
+
+  staff Staff @relation(fields: [staff_id], references: [id])
+}
+
+model Stock_log {
+  id       String  @id @default(uuid())
+  action   String // 'REDUCE' | 'ADD'
+  order_id String? @unique
+  input_id String? @unique
+  note     String? // Optional: keterangan manual/otomatis
+
+  created_at DateTime @default(now())
+
+  order        Order?         @relation(fields: [order_id], references: [id])
+  inputHistory Input_history? @relation(fields: [input_id], references: [id])
 }

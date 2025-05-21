@@ -1,0 +1,202 @@
+### ============================
+### 🛒 PRODUCT
+### ============================
+
+### GET all products
+GET http://localhost:9990/api/v1/product/product
+
+### GET product by ID
+GET http://localhost:9990/api/v1/product/product/0c886c16-939b-4897-9128-3bcc151a8d06
+
+### CREATE new product
+POST http://localhost:9990/api/v1/product/product
+Content-Type: application/json
+
+{
+  "name": "Nasi Goreng Kambing",
+  "price": 25000,
+  "description": "Porsi jumbo + telur",
+  "category": "makanan",
+  "image_uri": "http://localhost:9990/image/nasi-goreng.jpg",
+  "is_active": true,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE product
+PUT http://localhost:9990/api/v1/product/product/:productId
+Content-Type: application/json
+
+{
+  "name": "Nasi Goreng Spesial",
+  "price": 28000,
+  "updated_by": "admin"
+}
+
+### DELETE product
+DELETE http://localhost:9990/api/v1/product/product/:productId
+
+---
+
+### ============================
+### 🧩 ADD-ON GROUP
+### ============================
+
+### GET all add-on groups
+GET http://localhost:9990/api/v1/product/addon-group
+
+### GET add-on group by ID
+GET http://localhost:9990/api/v1/product/addon-group/:groupId
+
+### CREATE add-on group
+POST http://localhost:9990/api/v1/product/addon-group
+Content-Type: application/json
+
+{
+  "product_id": "0c886c16-939b-4897-9128-3bcc151a8d06",
+  "name": "Topping Wajib",
+  "is_required": true,
+  "max_selection": 2,
+  "is_active": true,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE add-on group
+PUT http://localhost:9990/api/v1/product/addon-group/:groupId
+Content-Type: application/json
+
+{
+  "name": "Topping Wajib (updated)",
+  "updated_by": "admin"
+}
+
+### DELETE add-on group (soft delete)
+DELETE http://localhost:9990/api/v1/product/addon-group/:groupId
+
+---
+
+### ============================
+### 🧂 ADD-ON
+### ============================
+
+### GET all add-ons
+GET http://localhost:9990/api/v1/product/addon
+
+### GET add-on by ID
+GET http://localhost:9990/api/v1/product/addon/bb2ec747-7c8f-441e-b647-9860d7d09bd9
+
+### CREATE add-on
+POST http://localhost:9990/api/v1/product/addon
+Content-Type: application/json
+
+{
+  "add_on_group_id": "79199bae-64b5-4f7f-92fe-9880c5822bf0",
+  "name": "Keju",
+  "price": 5000,
+  "is_active": true,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE add-on
+PUT http://localhost:9990/api/v1/product/addon/:addonId
+Content-Type: application/json
+
+{
+  "name": "Keju (updated)",
+  "price": 6000,
+  "updated_by": "admin"
+}
+
+### DELETE add-on (soft delete)
+DELETE http://localhost:9990/api/v1/product/addon/:addonId
+
+---
+
+### ============================
+### ⚙️ PRODUCT CONFIG
+### ============================
+
+### GET all product config
+GET http://localhost:9990/api/v1/product/product-config
+
+### GET product config by ID
+GET http://localhost:9990/api/v1/product/product-config/:configId
+
+### CREATE product config
+POST http://localhost:9990/api/v1/product/product-config
+Content-Type: application/json
+
+{
+  "product_id": "fd593ce6-e9c2-4ce6-a73a-b781ecea8261",
+  "inventory_id": "6c5d1151-aa4a-401c-83aa-f43d20705ee9",
+  "operation": "minus",
+  "value": 5,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE product config
+PUT http://localhost:9990/api/v1/product/product-config/3c2e23f9-ac33-4cff-ab51-1fbc91870ee3
+Content-Type: application/json
+
+{
+  "value": 5,
+  "updated_by": "admin"
+}
+
+### DELETE product config
+DELETE http://localhost:9990/api/v1/product/product-config/:configId
+
+---
+
+### ============================
+### 🔧 ADD-ON CONFIG
+### ============================
+
+### GET all add-on config
+GET http://localhost:9990/api/v1/product/addon-config
+
+### GET add-on config by ID
+GET http://localhost:9990/api/v1/product/addon-config/:addonConfigId
+
+### CREATE add-on config
+POST http://localhost:9990/api/v1/product/addon-config
+Content-Type: application/json
+
+{
+  "add_on_id": "bb2ec747-7c8f-441e-b647-9860d7d09bd9",
+  "inventory_id": "6c5d1151-aa4a-401c-83aa-f43d20705ee9",
+  "operation": "plus",
+  "value": 1,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001",
+  "created_at": "2025-05-14T00:00:00.000Z",
+  "updated_at": "2025-05-14T00:00:00.000Z"
+}
+
+### UPDATE add-on config
+PUT http://localhost:9990/api/v1/product/addon-config/487be138-76ea-4add-8d24-afdeade14b2c
+Content-Type: application/json
+
+{
+  "value": 1,
+  "updated_by": "admin"
+}
+
+### DELETE add-on config
+DELETE http://localhost:9990/api/v1/product/addon-config/:addonConfigId

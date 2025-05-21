@@ -19,6 +19,8 @@ import subscriptionRoutes from "./domains/transaction/subscription/subscription-
 import planRoutes from "./domains/plan/plan-routes.js";
 import transactionRoutes from "./domains/transaction/transaction-routes.js";
 
+import routes from "./routes.js";
+
 class ExpressApplication {
   app;
   fileStorage;
@@ -87,9 +89,12 @@ class ExpressApplication {
     // this.app.use("/api/v1/menu", menuRoutes);
 
     this.app.use("/api/v1/auth", authRoutes);
-    this.app.use("/api/v1/plan", planRoutes);
-    this.app.use("/api/v1/subscription", subscriptionRoutes);
-    this.app.use("/api/v1/transaction", transactionRoutes);
+    
+    // this.app.use("/api/v1/plan", planRoutes);
+    // this.app.use("/api/v1/subscription", subscriptionRoutes);
+    // this.app.use("/api/v1/transaction", transactionRoutes);
+
+    this.app.use("/api/", routes);
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");

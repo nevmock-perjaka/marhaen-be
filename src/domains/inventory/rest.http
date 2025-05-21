@@ -1,0 +1,115 @@
+### ============================
+### 📦 INVENTORY
+### ============================
+
+### GET all inventory
+GET http://localhost:9990/api/v1/inventory/inventory
+
+### GET inventory by ID
+GET http://localhost:9990/api/v1/inventory/inventory/6c5d1151-aa4a-401c-83aa-f43d20705ee9
+
+### CREATE inventory
+POST http://localhost:9990/api/v1/inventory/inventory
+Content-Type: application/json
+
+{
+  "product_name": "Tepung Terigu",
+  "description": "Bahan dasar roti",
+  "category": "Bahan Baku",
+  "unit_type": "kg",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001"
+}
+
+### UPDATE inventory
+PUT http://localhost:9990/api/v1/inventory/inventory/6c5d1151-aa4a-401c-83aa-f43d20705ee9
+Content-Type: application/json
+
+{
+  "product_name": "Tepung Terigu Segitiga Biru (Updated)",
+  "updated_by": "admin"
+}
+
+### DELETE inventory
+DELETE http://localhost:9990/api/v1/inventory/inventory/:inventoryId
+
+---
+
+### ============================
+### 📥 INPUT HISTORY
+### ============================
+
+### GET all input history
+GET http://localhost:9990/api/v1/inventory/input-history
+
+### GET input history by ID
+GET http://localhost:9990/api/v1/inventory/input-history/:historyId
+
+### CREATE input history
+POST http://localhost:9990/api/v1/inventory/input-history
+Content-Type: application/json
+
+{
+  "supplier_id": "0860f186-c938-403f-9607-5efe3300970e",
+  "inventory_id": "6c5d1151-aa4a-401c-83aa-f43d20705ee9",
+  "shipping_fee": 10000,
+  "price": 20000,
+  "total_stock": 100,
+  "current_stock": 100,
+  "input_datetime": "2025-05-14T08:00:00.000Z",
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001"
+}
+
+### UPDATE input history
+PUT http://localhost:9990/api/v1/inventory/input-history/1a71adeb-4ed2-4523-920e-8574c0a6c07e
+Content-Type: application/json
+
+{
+  "current_stock": 200,
+  "updated_by": "admin"
+}
+
+### DELETE input history
+DELETE http://localhost:9990/api/v1/inventory/input-history/:historyId
+
+---
+
+### ============================
+### 🚚 SUPPLIER
+### ============================
+
+### GET all suppliers
+GET http://localhost:9990/api/v1/inventory/supplier
+
+### GET supplier by ID
+GET http://localhost:9990/api/v1/inventory/supplier/0860f186-c938-403f-9607-5efe3300970e
+
+### CREATE supplier
+POST http://localhost:9990/api/v1/inventory/supplier
+Content-Type: application/json
+
+{
+  "name": "PT Sumber Pangan",
+  "description": "Distributor tepung dan gula",
+  "address": "Jl. Cendrawasih No.88",
+  "phone_number": "+628123456789",
+  "Status": true,
+  "created_by": "admin",
+  "updated_by": "admin",
+  "owned_by": "tenant-001"
+}
+
+### UPDATE supplier
+PUT http://localhost:9990/api/v1/inventory/supplier/0860f186-c938-403f-9607-5efe3300970e
+Content-Type: application/json
+
+{
+  "address": "Jl. Cendrawasih No.99 (Updated)",
+  "updated_by": "admin"
+}
+
+### DELETE supplier (soft delete)
+DELETE http://localhost:9990/api/v1/inventory/supplier/:supplierId
