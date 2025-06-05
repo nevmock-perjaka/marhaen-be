@@ -8,7 +8,79 @@ import { parseJWT, generateToken } from "../../utils/jwtTokenConfig.js";
 import { matchPassword, hashPassword } from "../../utils/passwordConfig.js";
 
 class ProfileService {
-    
+    async findMany(user_id) {
+        let profiles = await db.profile.findMany({
+            where: {
+                user_id: user_id,
+            }
+        });
+
+        profiles = profiles.map(profile => ({
+            ...profile,
+            pin: !!profile.pin,
+        }));
+
+        return profiles;
+    }
+
+    async login(user_id, profile_id, pin) {
+        const profile = await db.profile.findUnique({
+            where: {
+                id: profile_id,
+                user_id: user_id,
+            }
+        });
+
+        if (!profile) {
+            throw BaseError.badRequest("Profile not found");
+        }
+
+        if (profile.pin && profile.pin !== pin) {
+            throw BaseError.badRequest("Invalid PIN");
+        }
+
+        const token = generateToken({
+            id: user_id,
+            profile_id: profile.id,
+            type: "access"
+        }, "1d");
+
+        return token;
+    }
+
+    async getProfile(profile_id) {
+        const profile = await db.profile.findFirst({
+            where: {
+                id: profile_id,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        phone_number: true,
+                        is_banned: true,
+                        subs_expired_at: true,
+                        subs_level: true,
+                        tax_percentage: true,
+                        verified_at: true,
+                        created_at: true,
+                        updated_at: true
+                    }
+                },
+            }
+        });
+
+        if (!profile) {
+            throw BaseError.notFound("Profile not found");
+        }
+
+        return {
+            ...profile,
+            pin: !!profile.pin,
+        };
+    }
 }
 
 export default new ProfileService();

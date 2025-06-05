@@ -102,6 +102,25 @@ class AuthMiddleware {
         };
     }
 
+    authenticateProfile = (req, res, next) => {
+        const user = req.user;
+        const profile = req.profile;
+
+        if (!user) {
+            return next(
+                new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', 'User Not Authenticated')
+            );
+        }
+
+        if (!profile) {
+            return next(
+                new BaseError(403, statusCodes.FORBIDDEN.message, 'FORBIDDEN', 'Wrong Token, Profile Not Found')
+            );
+        }
+
+        next();
+    };
+
     authorizeRoles = (...roles) => {
         return (req, res, next) => {
             const user = req.user;
