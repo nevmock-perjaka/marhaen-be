@@ -11,7 +11,7 @@ class AuthController {
             throw Error("Failed to login");
         }
 
-        return successResponse(res, { token });
+        return successResponse(res, token);
     }
 
     async register(req, res) {

@@ -11,6 +11,7 @@ import inventoryRoutes from './domains/inventory/index.js';
 import productRoutes from './domains/product/index.js';
 
 import stockRoutes from './domains/stock/stock-routes.js';
+import profileRoutes from './domains/profile/profile-routes.js';
 
 const router = express.Router();
 
@@ -18,6 +19,10 @@ const appsRoutes = [
   {
     path: '/auth',
     route: authRoutes,
+  },
+  {
+    path: '/profile',
+    route: profileRoutes,
   },
   {
     path: '/plan',

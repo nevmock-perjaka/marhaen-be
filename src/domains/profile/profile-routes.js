@@ -3,8 +3,8 @@ import ProfileController from "./profile-controller.js";
 
 import tryCatch from "../../utils/tryCatcher.js";
 import validateCredentials from '../../middlewares/validate-credentials-middleware.js';
-import { registerSchema, loginSchema, profileSchema, sendOtpSchema, refreshTokenSchema } from './profile-schema.js';
 import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
+import { loginSchema } from "./profile-schema.js";
 
 class ProfileRoutes extends BaseRoutes {
     routes() {
@@ -13,12 +13,17 @@ class ProfileRoutes extends BaseRoutes {
             tryCatch(ProfileController.getAll)
         ])
 
-        this.router.get("/:id", [
+        this.router.post("/login", [
             authTokenMiddleware.authenticate,
-            tryCatch(ProfileController.getById)
+            validateCredentials(loginSchema),
+            tryCatch(ProfileController.login)
         ]);
 
-        
+        this.router.get("/me", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.checkProfile,
+            tryCatch(ProfileController.getProfile)
+        ]);
     }
 }
 
