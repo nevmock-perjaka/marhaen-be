@@ -102,7 +102,7 @@ class AuthMiddleware {
         };
     }
 
-    checkProfile = (req, res, next) => {
+    authenticateProfile = (req, res, next) => {
         const user = req.user;
         const profile = req.profile;
 

@@ -21,7 +21,7 @@ class ProfileRoutes extends BaseRoutes {
 
         this.router.get("/me", [
             authTokenMiddleware.authenticate,
-            authTokenMiddleware.checkProfile,
+            authTokenMiddleware.authenticateProfile,
             tryCatch(ProfileController.getProfile)
         ]);
     }
