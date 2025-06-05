@@ -40,8 +40,15 @@ class AuthService {
             throw BaseError.badRequest("Email not verified, Please check your email to verify your account.");
         }
 
-        const accessToken = generateToken(user.id, "1d");
-        const refreshToken = generateToken(user.id, "365d");
+        const accessToken = generateToken({
+            id: user.id,
+            type: "access"
+        }, "1d");
+
+        const refreshToken = generateToken({
+            id: user.id,
+            type: "refresh"
+        }, "365d");
 
         return { access_token: accessToken, refresh_token: refreshToken };
     }
@@ -114,7 +121,22 @@ class AuthService {
                 email: data.email,
                 password: await hashPassword(data.password),
                 phone_number: data.phone_number,
-                verified_at: new Date()
+                verified_at: new Date(),
+                profiles: {
+                    createMany: {
+                        data: [
+                            {
+                                role: "OWNER"
+                            },
+                            {
+                                role: "STAFF"
+                            },
+                            {
+                                role: "CASHIER"
+                            }
+                        ]
+                    }
+                }
             }
         })
         
@@ -122,8 +144,15 @@ class AuthService {
             throw Error("Failed to register");
         }
 
-        const accessToken = generateToken(createdUser.id, "1d");
-        const refreshToken = generateToken(createdUser.id, "365d");
+        const accessToken = generateToken({
+            id: createdUser.id,
+            type: "access"
+        }, "1d");
+
+        const refreshToken = generateToken({
+            id: createdUser.id,
+            type: "refresh"
+        }, "365d");
 
         return { message: "User register successfully", access_token: accessToken, refresh_token: refreshToken };
     }
