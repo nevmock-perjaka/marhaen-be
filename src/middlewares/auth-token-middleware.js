@@ -77,7 +77,7 @@ class AuthMiddleware {
             if (err.message === 'jwt expired') message = 'Token Expired';
 
             return next(
-                new BaseError(401, "test", 'UNAUTHORIZED', message)
+                new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', message)
             );
         }
     };

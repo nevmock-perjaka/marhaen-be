@@ -1,54 +1,48 @@
+import { createdResponse, successResponse } from "../../../utils/response.js";
 import staffService from "./staff-service.js";
 
 class StaffController {
-    async createStaff(req, res, next) {
-        try {
-            const data = req.body;
-            const staff = await staffService.createStaff(data);
-            res.status(201).json({ message: "Staff berhasil dibuat.", data: staff });
-        } catch (err) {
-            next(err);
-        }
+    async create(req, res) {
+        const value = req.body;
+
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
+
+        const created = await staffService.create(value);
+        return createdResponse(res, created);
     }
 
-    async getStaffs(req, res, next) {
-        try {
-            const staffs = await staffService.getStaffs();
-            res.json(staffs);
-        } catch (err) {
-            next(err);
-        }
+    async getAll(req, res) {
+        const userId = req.user.id;
+        const staffs = await staffService.findAll(userId);
+        return successResponse(res, staffs);
     }
 
-    async getStaffById(req, res, next) {
-        try {
-            const { staffId } = req.params;
-            const staff = await staffService.getStaffById(staffId);
-            res.json(staff);
-        } catch (err) {
-            next(err);
-        }
+    async getById(req, res) {
+        const { staffId } = req.params;
+        const userId = req.user.id;
+        const staff = await staffService.getById(staffId, userId);
+        return successResponse(res, staff);
     }
 
-    async updateStaff(req, res, next) {
-        try {
-            const { staffId } = req.params;
-            const data = req.body;
-            const updated = await staffService.updateStaff(staffId, data);
-            res.json({ message: "Staff berhasil diupdate.", data: updated });
-        } catch (err) {
-            next(err);
-        }
+    async update(req, res) {
+        const { staffId } = req.params;
+        let value = req.body;
+
+        value.updated_by = req.profile.id;
+        value.owned_by = req.user.id;
+
+
+        const updated = await staffService.update(staffId, data);
+        return successResponse(res, updated);
     }
 
-    async deleteStaff(req, res, next) {
-        try {
-            const { staffId } = req.params;
-            await staffService.deleteStaff(staffId);
-            res.json({ message: "Staff berhasil dihapus." });
-        } catch (err) {
-            next(err);
-        }
+    async delete(req, res) {
+        const { staffId } = req.params;
+        const userId = req.user.id;
+        const deleted = await staffService.deleteStaff(staffId, userId);
+        return successResponse(res, deleted);
     }
 }
 
