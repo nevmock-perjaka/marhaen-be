@@ -24,7 +24,7 @@ class InventoryRoutes extends BaseRoutes {
         this.router.put("/:id", [
             authTokenMiddleware.authenticate,
             authTokenMiddleware.authorizeRoles(['STAFF']),
-            validateCredentials(inventorySchema.create),
+            validateCredentials(inventorySchema.update),
             tryCatch(InventoryController.update)
         ]);
         this.router.delete("/:id", [
