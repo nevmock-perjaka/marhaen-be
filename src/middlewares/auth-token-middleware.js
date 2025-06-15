@@ -77,7 +77,7 @@ class AuthMiddleware {
             if (err.message === 'jwt expired') message = 'Token Expired';
 
             return next(
-                new BaseError(403, statusCodes.FORBIDDEN.message, 'FORBIDDEN', message)
+                new BaseError(401, "test", 'UNAUTHORIZED', message)
             );
         }
     };
@@ -121,10 +121,15 @@ class AuthMiddleware {
         next();
     };
 
-    authorizeRoles = (...roles) => {
+    authorizeRoles = (roles) => {
+        // OWNER
+        // STAFF
+        // CASHIER
         return (req, res, next) => {
             const user = req.user;
             const profile = req.profile;
+
+            // console.log(roles.includes(profile.role));
 
             if (!user) {
                 return next(
