@@ -14,8 +14,6 @@ const addonSchema = {
         name: Joi.string().min(1).max(100).optional(),
         price: Joi.number().precision(2).min(0).optional(),
         is_active: Joi.boolean().optional(),
-        updated_by: Joi.string().required(),
-        updated_at: Joi.date().default(() => new Date())
     })
 };
 

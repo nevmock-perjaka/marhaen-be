@@ -175,8 +175,8 @@ model Product_config {
   updated_by String
   owned_by   String
 
-  product   Product   @relation(fields: [product_id], references: [id])
-  inventory Inventory @relation(fields: [inventory_id], references: [id])
+  product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventory_id], references: [id], onDelete: Cascade)
 }
 
 model Add_on {
@@ -192,7 +192,7 @@ model Add_on {
   updated_by String
   owned_by   String
 
-  add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id])
+  add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id], onDelete: Cascade)
   Add_on_config Add_on_config[]
 }
 
@@ -210,7 +210,7 @@ model Add_on_group {
   updated_by String
   owned_by   String
 
-  product Product  @relation(fields: [product_id], references: [id])
+  product Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
   Add_on  Add_on[]
 }
 
@@ -227,7 +227,7 @@ model Add_on_config {
   updated_by String
   owned_by   String
 
-  add_on    Add_on    @relation(fields: [add_on_id], references: [id])
+  add_on    Add_on    @relation(fields: [add_on_id], references: [id], onDelete: Cascade)
   inventory Inventory @relation(fields: [inventory_id], references: [id])
 }
 

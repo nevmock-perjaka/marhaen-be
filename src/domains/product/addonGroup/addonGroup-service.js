@@ -30,16 +30,63 @@ class AddonGroupService {
     }
 
     async create(data) {
-        return await db.add_on_group.create({ data });
+        return await db.add_on_group.create({ 
+            data,
+            include: {
+                Add_on: true,
+                product: true
+            }
+        });
     }
 
-    async update(id, data) {
+    async update(id, data, updateAddOn, createAddOn) {
         await this.checkPermission(id, data.owned_by);
 
-        return await db.add_on_group.update({
+        let updatedGroup = await db.add_on_group.update({
             where: { id },
-            data
+            data,
+            include: {
+                Add_on: true,
+                product: true
+            }
         });
+
+        await Promise.all(updateAddOn.map(async (addon) => {
+            await db.add_on.update({
+                where: { 
+                    id: addon.id,
+                    add_on_group_id: updatedGroup.id
+                },
+                data: {
+                    name: addon.name,
+                    price: addon.price,
+                    is_active: addon.is_active,
+                    updated_by: data.updated_by,
+                }
+            });
+        }));
+
+        await db.add_on.createMany({
+            data: createAddOn.map(addon => ({
+                name: addon.name,
+                price: addon.price,
+                is_active: addon.is_active,
+                owned_by: updatedGroup.owned_by,
+                created_by: data.updated_by,
+                updated_by: data.updated_by,
+                add_on_group_id: updatedGroup.id,
+            })),
+        })
+
+        updatedGroup = await db.add_on_group.findUnique({
+            where: { id },
+            include: {
+                Add_on: true,
+                product: true
+            }
+        });
+
+        return updatedGroup;
     }
 
     async delete(id, userId) {

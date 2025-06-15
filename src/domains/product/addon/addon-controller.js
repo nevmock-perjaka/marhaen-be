@@ -2,63 +2,53 @@ import db from "../../../config/db.js";
 import { successResponse, createdResponse } from "../../../utils/response.js";
 import BaseError from "../../../base_classes/base-error.js";
 import addonSchema from "./addon-schema.js";
+import AddonService from "./addon-service.js";
 
 class AddonController {
     async getAll(req, res) {
-        const addons = await db.add_on.findMany({
-            where: { is_active: true },
-            include: {
-                add_on_group: true,
-                Add_on_config: true
-            }
-        });
+        const userId = req.user.id;
+        const addons = await AddonService.findAll(userId);
 
         return successResponse(res, addons);
     }
 
     async getById(req, res) {
         const { id } = req.params;
+        const userId = req.user.id;
 
-        const addon = await db.add_on.findUnique({
-            where: { id },
-            include: {
-                add_on_group: true,
-                Add_on_config: true
-            }
-        });
+        const addon = await AddonService.findById(id, userId);
 
-        if (!addon) throw BaseError.notFound("Add-on tidak ditemukan.");
         return successResponse(res, addon);
     }
 
     async create(req, res) {
-        const { error, value } = addonSchema.create.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        const value = req.body;
 
-        const created = await db.add_on.create({ data: value });
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
+
+        const created = await AddonService.create(value);
         return createdResponse(res, created);
     }
 
     async update(req, res) {
         const { id } = req.params;
-        const { error, value } = addonSchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        let value = req.body;
 
-        const updated = await db.add_on.update({
-            where: { id },
-            data: value
-        });
+        value.updated_by = req.profile.id;
+        value.owned_by = req.user.id;
+
+        const updated = await AddonService.update(id, value);
 
         return successResponse(res, updated);
     }
 
     async delete(req, res) {
         const { id } = req.params;
-
-        const deleted = await db.add_on.update({
-            where: { id },
-            data: { is_active: false }
-        });
+        const userId = req.user.id;
+        
+        const deleted = await AddonService.delete(id, userId);
 
         return successResponse(res, deleted);
     }

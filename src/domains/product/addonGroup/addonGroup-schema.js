@@ -8,6 +8,11 @@ const addonGroupSchema = {
         is_required: Joi.boolean().required(),
         max_selection: Joi.number().integer().min(1).required(),
         is_active: Joi.boolean().default(true),
+        add_ons: Joi.array().items(Joi.object({
+            name: Joi.string().required(),
+            price: Joi.number().precision(2).min(0).required(),
+            is_active: Joi.boolean().default(true),
+        })),
     }),
 
     // Schema untuk update Add_on_group
@@ -16,6 +21,12 @@ const addonGroupSchema = {
         is_required: Joi.boolean().optional(),
         max_selection: Joi.number().integer().min(1).optional(),
         is_active: Joi.boolean().optional(),
+        add_ons: Joi.array().items(Joi.object({
+            id: Joi.string().optional(),
+            name: Joi.string().required(),
+            price: Joi.number().precision(2).min(0).required(),
+            is_active: Joi.boolean().default(true),
+        })),
     }),
 };
 

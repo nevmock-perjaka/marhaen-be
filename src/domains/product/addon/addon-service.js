@@ -2,8 +2,11 @@ import db from "../../../config/db.js";
 import BaseError from "../../../base_classes/base-error.js";
 
 class AddonService {
-    async findAll() {
+    async findAll(userId) {
         return await db.add_on.findMany({
+            where: {
+                owned_by: userId
+            },
             include: {
                 add_on_group: true,
                 Add_on_config: true
@@ -11,7 +14,7 @@ class AddonService {
         });
     }
 
-    async findById(id) {
+    async findById(id, userId) {
         const addon = await db.add_on.findUnique({
             where: { id },
             include: {
@@ -20,7 +23,9 @@ class AddonService {
             }
         });
 
-        if (!addon) throw BaseError.notFound("Add-on tidak ditemukan.");
+        if (!addon) throw BaseError.notFound("Add-on not found.");
+        if (addon.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this add-on.");
+
         return addon;
     }
 
@@ -29,17 +34,27 @@ class AddonService {
     }
 
     async update(id, data) {
+        await this.checkPermission(id, data.owned_by);
         return await db.add_on.update({
             where: { id },
             data
         });
     }
 
-    async softDelete(id) {
-        return await db.add_on.update({
-            where: { id },
-            data: { is_active: false }
+    async delete(id, userId) {
+        await this.checkPermission(id, userId);
+        return await db.add_on.delete({
+            where: { id }
         });
+    }
+
+    async checkPermission(id, userId) {
+        const addon = await db.add_on.findUnique({
+            where: { id },
+        });
+
+        if (!addon) throw BaseError.notFound("Add-on not found.");
+        if (addon.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this add-on.");
     }
 }
 

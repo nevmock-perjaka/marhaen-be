@@ -23,6 +23,18 @@ class AddonGroupController {
         value.owned_by = req.user.id;
         value.created_by = req.profile.id;
         value.updated_by = req.profile.id;
+        
+        value.Add_on = {};
+        value.Add_on.createMany = {
+            data: value.add_ons.map(addon => {
+                addon.owned_by = req.user.id;
+                addon.created_by = req.profile.id;
+                addon.updated_by = req.profile.id;
+                return addon;
+            })
+        };
+
+        delete value.add_ons; // remove add_ons from value as it is now in Add_on.createMany
 
         const created = await AddonGroupService.create(value);
         return createdResponse(res, created);
@@ -35,7 +47,12 @@ class AddonGroupController {
         value.updated_by = req.profile.id;
         value.owned_by = req.user.id;
 
-        const updated = await AddonGroupService.update(id, value);
+        const updateAddOn = value.add_ons.filter(addon => addon.id);
+        const createAddOn = value.add_ons.filter(addon => !addon.id);
+
+        delete value.add_ons; // remove add_ons from value as it will be handled separately
+
+        const updated = await AddonGroupService.update(id, value, updateAddOn, createAddOn);
 
         return successResponse(res, updated);
     }
