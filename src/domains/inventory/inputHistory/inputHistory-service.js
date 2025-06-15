@@ -70,7 +70,7 @@ class InputHistoryService {
             where: { id },
         });
 
-        if (inputHistory) {
+        if (!inputHistory) {
             throw BaseError.notFound("Input History not found.");
         }
 

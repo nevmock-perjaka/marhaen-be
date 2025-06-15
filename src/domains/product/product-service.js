@@ -57,7 +57,6 @@ class ProductService {
         });
 
         if (!product) throw BaseError.notFound("Product not found.");
-
         if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
     }
 }

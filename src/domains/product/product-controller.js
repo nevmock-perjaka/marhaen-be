@@ -14,6 +14,7 @@ class ProductController {
     async getById(req, res) {
         const { id } = req.params;
         const userId = req.user.id;
+        
         const product = await ProductService.findById(id, userId);
 
         return successResponse(res, product);
