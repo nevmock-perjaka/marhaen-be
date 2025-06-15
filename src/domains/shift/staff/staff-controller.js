@@ -22,7 +22,7 @@ class StaffController {
     async getById(req, res) {
         const { staffId } = req.params;
         const userId = req.user.id;
-        const staff = await staffService.getById(staffId, userId);
+        const staff = await staffService.findById(staffId, userId);
         return successResponse(res, staff);
     }
 
@@ -34,14 +34,14 @@ class StaffController {
         value.owned_by = req.user.id;
 
 
-        const updated = await staffService.update(staffId, data);
+        const updated = await staffService.update(staffId, value);
         return successResponse(res, updated);
     }
 
     async delete(req, res) {
         const { staffId } = req.params;
         const userId = req.user.id;
-        const deleted = await staffService.deleteStaff(staffId, userId);
+        const deleted = await staffService.delete(staffId, userId);
         return successResponse(res, deleted);
     }
 }

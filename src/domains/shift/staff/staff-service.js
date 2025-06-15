@@ -12,7 +12,7 @@ class StaffService {
                 owned_by: userId 
             },
             include: {
-                Shift: true,
+                Staff_log: true,
             },
         });
     }
@@ -21,8 +21,7 @@ class StaffService {
         const staff = await db.staff.findUnique({ 
             where: { id },
             include: {
-                Shift: true,
-                Order: true,
+                Staff_log: true
             }
         });
         if (!staff) throw BaseError.notFound("Staff not found.");

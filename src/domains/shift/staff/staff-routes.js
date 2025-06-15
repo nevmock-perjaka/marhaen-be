@@ -9,28 +9,28 @@ const router = express.Router();
 
 router.get("/", [
     authTokenMiddleware.authenticate,
-    tryCatch(staffController.getStaffs)
+    tryCatch(staffController.getAll)
 ]);
 router.get("/:staffId", [
     authTokenMiddleware.authenticate,
-    tryCatch(staffController.getStaffById)
+    tryCatch(staffController.getById)
 ]);
 router.post("/", [
     authTokenMiddleware.authenticate,
     authTokenMiddleware.authorizeRoles(['STAFF']),
     validateCredentials(staffSchema.create),
-    tryCatch(staffController.createStaff)
+    tryCatch(staffController.create)
 ]);
 router.put("/:staffId", [
     authTokenMiddleware.authenticate,
     authTokenMiddleware.authorizeRoles(['STAFF']),
     validateCredentials(staffSchema.update),
-    tryCatch(staffController.updateStaff)
+    tryCatch(staffController.update)
 ]);
 router.delete("/:staffId", [
     authTokenMiddleware.authenticate,
     authTokenMiddleware.authorizeRoles(['STAFF']),
-    tryCatch(staffController.deleteStaff)
+    tryCatch(staffController.delete)
 ]);
 
 export default router;
