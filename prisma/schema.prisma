@@ -277,7 +277,7 @@ model Supplier {
   description  String
   address      String
   phone_number String
-  Status       Boolean
+  status       Boolean
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

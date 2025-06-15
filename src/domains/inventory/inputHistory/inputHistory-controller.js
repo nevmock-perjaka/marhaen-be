@@ -2,22 +2,64 @@ import InputHistoryService from "./inputHistory-service.js";
 import { successResponse, createdResponse } from "../../../utils/response.js";
 import BaseError from "../../../base_classes/base-error.js";
 import inputHistorySchema from "./inputHistory-schema.js";
+import supplierService from "../supplier/supplier-service.js";
+import { PrismaClientValidationError } from "@prisma/client/runtime/library";
+import inventoryService from "../inventory-service.js";
+import Joi from "joi";
 
 class InputHistoryController {
     async getAll(req, res) {
-        const histories = await InputHistoryService.findAll();
+        const userId = req.user.id;
+        const histories = await InputHistoryService.findAll(userId);
         return successResponse(res, histories);
     }
 
     async getById(req, res) {
         const { id } = req.params;
-        const history = await InputHistoryService.findById(id);
+        const userId = req.user.id;
+        const history = await InputHistoryService.findById(id, userId);
         return successResponse(res, history);
     }
 
     async create(req, res) {
-        const { error, value } = inputHistorySchema.create.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        const value= req.body;
+
+        try {
+            await supplierService.findById(value.supplier_id, req.user.id);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Supplier not found.";
+
+            stack.push({
+                message: "Supplier not found.",
+                path: ["supplier_id"]
+            });
+
+            throw new Joi.ValidationError(validation, stack);
+        }
+
+        try {
+            await inventoryService.findById(value.inventory_id, req.user.id);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Inventory not found.";
+
+            stack.push({
+                message: "Inventory not found.",
+                path: ["inventory_id"]
+            });
+
+            throw new Joi.ValidationError(validation, stack);
+        }
+
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
+        value.current_stock = value.total_stock
 
         const created = await InputHistoryService.create(value);
         return createdResponse(res, created);
@@ -25,8 +67,42 @@ class InputHistoryController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { error, value } = inputHistorySchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        let value = req.body;
+
+        try {
+            await supplierService.findById(value.supplier_id, req.user.id);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Supplier not found.";
+
+            stack.push({
+                message: "Supplier not found.",
+                path: ["supplier_id"]
+            });
+
+            throw new Joi.ValidationError(validation, stack);
+        }
+
+        try {
+            await inventoryService.findById(value.inventory_id, req.user.id);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Inventory not found.";
+
+            stack.push({
+                message: "Inventory not found.",
+                path: ["inventory_id"]
+            });
+
+            throw new Joi.ValidationError(validation, stack);
+        }
+
+        value.updated_by = req.profile.id;
+        value.owned_by = req.user.id;
 
         const updated = await InputHistoryService.update(id, value);
         return successResponse(res, updated);
@@ -34,7 +110,9 @@ class InputHistoryController {
 
     async delete(req, res) {
         const { id } = req.params;
-        const deleted = await InputHistoryService.delete(id);
+        const userId = req.user.id;
+
+        const deleted = await InputHistoryService.delete(id, userId);
         return successResponse(res, deleted);
     }
 }
