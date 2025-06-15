@@ -70,7 +70,7 @@ export const errorHandler = (err, req, res, _next) => {
   // method
   const method = req.method;
 
-  const newLog = db.systemLog.create({
+  const newLog = db.system_log.create({
     data: {
       userId: user.id,
       action: url,

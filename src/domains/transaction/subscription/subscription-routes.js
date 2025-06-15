@@ -4,12 +4,13 @@ import SubscriptionController from "./subscription-controller.js";
 import tryCatch from "../../../utils/tryCatcher.js";
 import validateCredentials from '../../../middlewares/validate-credentials-middleware.js'
 import { createSubscriptionSchema } from "./subscription-schema.js";
-import authToken from "../../../middlewares/auth-token-middleware.js";
+
+import authTokenMiddleware from "../../../middlewares/auth-token-middleware.js";
 
 class SubscriptionRoutes extends BaseRoutes {
     routes() {
         this.router.post("/", [
-            authToken,
+            authTokenMiddleware.authenticate,
             validateCredentials(createSubscriptionSchema),
             tryCatch(SubscriptionController.create)
         ]);

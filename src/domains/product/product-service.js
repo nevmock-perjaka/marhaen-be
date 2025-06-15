@@ -2,9 +2,11 @@ import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
 
 class ProductService {
-    async findAll() {
+    async findAll(userId) {
         return await db.product.findMany({
-            where: { is_active: true },
+            where: { 
+                owned_by: userId,
+            },
             include: {
                 Add_on_group: true,
                 Product_config: true
@@ -12,7 +14,7 @@ class ProductService {
         });
     }
 
-    async findById(id) {
+    async findById(id, userId) {
         const product = await db.product.findUnique({
             where: { id },
             include: {
@@ -21,7 +23,10 @@ class ProductService {
             }
         });
 
-        if (!product) throw BaseError.notFound("Produk tidak ditemukan.");
+        if (!product) throw BaseError.notFound("Product not found.");
+
+        if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
+        
         return product;
     }
 
@@ -30,17 +35,29 @@ class ProductService {
     }
 
     async update(id, data) {
+        await this.checkPermission(id, data.owned_by)
+
         return await db.product.update({
             where: { id },
             data
         });
     }
 
-    async softDelete(id) {
-        return await db.product.update({
-            where: { id },
-            data: { is_active: false }
+    async delete(id, userId) {
+        await this.checkPermission(id, userId);
+
+        return await db.product.delete({
+            where: { id }
         });
+    }
+
+    async checkPermission(id, userId) {
+        const product = await db.product.findUnique({
+            where: { id },
+        });
+
+        if (!product) throw BaseError.notFound("Product not found.");
+        if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
     }
 }
 

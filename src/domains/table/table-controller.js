@@ -5,19 +5,24 @@ import tableSchema from "./table-schema.js";
 
 class TableController {
     async getAll(req, res) {
-        const tables = await TableService.findAll();
+        const userId = req.user.id;
+        const tables = await TableService.findAll(userId);
         return successResponse(res, tables);
     }
 
     async getById(req, res) {
         const { tableId } = req.params;
-        const table = await TableService.findById(tableId);
+        const userId = req.user.id;
+        const table = await TableService.findById(tableId, userId);
         return successResponse(res, table);
     }
 
     async create(req, res) {
-        const { error, value } = tableSchema.create.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        const value = req.body
+
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
 
         const created = await TableService.create(value);
         return createdResponse(res, created);
@@ -25,8 +30,10 @@ class TableController {
 
     async update(req, res) {
         const { tableId } = req.params;
-        const { error, value } = tableSchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        let value = req.body;
+
+        value.updated_by = req.profile.id;
+        value.owned_by = req.user.id;
 
         const updated = await TableService.update(tableId, value);
         return successResponse(res, updated);
@@ -34,7 +41,8 @@ class TableController {
 
     async delete(req, res) {
         const { tableId } = req.params;
-        const deleted = await TableService.softDelete(tableId);
+        const userId = req.user.id;
+        const deleted = await TableService.softDelete(tableId, userId);
         return successResponse(res, deleted);
     }
 }

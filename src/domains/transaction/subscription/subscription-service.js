@@ -1,3 +1,4 @@
+// import BaseError from '../../../base_classes/base-error.js';
 import BaseError from '../../../base_classes/base-error.js';
 import db from '../../../config/db.js';
 import { midtransSnap } from '../../../config/midtrans.js';
@@ -12,10 +13,10 @@ class SubscriptionService {
             });
 
             if (!plan) {
-                throw new BaseError.badRequest("Plan not found");
+                throw BaseError.badRequest("Plan not found");
             }
 
-            const subscription_transaction = await tx.subscriptionTransaction.create({
+            const subscription_transaction = await tx.subscription_transaction.create({
                 data: {
                     user_id: user.id,
                     level: plan.level,
@@ -24,7 +25,7 @@ class SubscriptionService {
             });
 
             if (!subscription_transaction) {
-                throw new BaseError.badRequest("Failed to create subscription transaction");
+                throw BaseError.badRequest("Failed to create subscription transaction");
             }
 
             const parameter = {
@@ -70,7 +71,7 @@ class SubscriptionService {
                 throw new Error("Failed to create snap");
             }
 
-            await tx.subscriptionTransaction.update({
+            await tx.subscription_transaction.update({
                 where: {
                     id: subscription_transaction.id
                 },
@@ -87,7 +88,7 @@ class SubscriptionService {
     }
 
     async updateSubscriptionTransaction(data){
-        const subscription_transaction = await db.subscriptionTransaction.findUnique({
+        const subscription_transaction = await db.subscription_transaction.findUnique({
             where: {
                 id: data.metadata.id
             }
@@ -95,12 +96,12 @@ class SubscriptionService {
         console.log(`Transaction notification received. Order ID: ${data.order_id}. Transaction status: ${data.transaction_status}. Fraud status: ${data.fraud_status}`);
 
         if (!subscription_transaction) {
-            throw new BaseError.badRequest("Subscription transaction not found");
+            throw BaseError.badRequest("Subscription transaction not found");
         }
 
         if (data.transaction_status === 'capture') {
             if (data.fraud_status === 'accept'){
-                await db.subscriptionTransaction.update({
+                await db.subscription_transaction.update({
                     where: {
                         id: subscription_transaction.id
                     },
@@ -137,7 +138,7 @@ class SubscriptionService {
                 })
             }
         } else if (data.transaction_status === 'settlement') {
-            await db.subscriptionTransaction.update({
+            await db.subscription_transaction.update({
                 where: {
                     id: subscription_transaction.id
                 },
@@ -173,7 +174,7 @@ class SubscriptionService {
             })
 
         } else if (data.transaction_status === 'cancel' || data.transaction_status === 'deny' || data.transaction_status === 'expire') {
-            await db.subscriptionTransaction.update({
+            await db.subscription_transaction.update({
                 where: {
                     id: subscription_transaction.id
                 },
@@ -183,7 +184,7 @@ class SubscriptionService {
             });
 
         } else if (data.transaction_status === 'pending') {
-            await db.subscriptionTransaction.update({
+            await db.subscription_transaction.update({
                 where: {
                     id: subscription_transaction.id
                 },

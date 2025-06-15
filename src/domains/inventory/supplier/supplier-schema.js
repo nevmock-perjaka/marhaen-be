@@ -7,12 +7,7 @@ const supplierSchema = {
         description: Joi.string().allow("").optional(),
         address: Joi.string().required(),
         phone_number: Joi.string().pattern(/^[0-9+\-\s]{7,15}$/).required(),
-        Status: Joi.boolean().default(true),
-        created_by: Joi.string().required(),
-        updated_by: Joi.string().required(),
-        owned_by: Joi.string().required(),
-        created_at: Joi.date().default(() => new Date()),
-        updated_at: Joi.date().default(() => new Date())
+        status: Joi.boolean().default(true)
     }),
 
     // Schema untuk update supplier
@@ -21,9 +16,7 @@ const supplierSchema = {
         description: Joi.string().allow("").optional(),
         address: Joi.string().optional(),
         phone_number: Joi.string().pattern(/^[0-9+\-\s]{7,15}$/).optional(),
-        Status: Joi.boolean().optional(),
-        updated_by: Joi.string().required(),
-        updated_at: Joi.date().default(() => new Date())
+        status: Joi.boolean().optional(),
     })
 };
 

@@ -1,64 +1,67 @@
-import db from "../../../config/db.js";
 import { successResponse, createdResponse } from "../../../utils/response.js";
-import BaseError from "../../../base_classes/base-error.js";
-import addonGroupSchema from "./addonGroup-schema.js";
+import AddonGroupService from "./addonGroup-service.js";
 
 class AddonGroupController {
     async getAll(req, res) {
-        const groups = await db.add_on_group.findMany({
-            where: { is_active: true },
-            include: {
-                Add_on: true,
-                product: true
-            }
-        });
+        const userId = req.user.id;
+        const groups = await AddonGroupService.findAll(userId)
 
         return successResponse(res, groups);
     }
 
     async getById(req, res) {
         const { id } = req.params;
+        const userId = req.user.id;
 
-        const group = await db.add_on_group.findUnique({
-            where: { id },
-            include: {
-                Add_on: true,
-                product: true
-            }
-        });
-
-        if (!group) throw BaseError.notFound("Grup add-on tidak ditemukan.");
+        const group = await AddonGroupService.findById(id, userId);
         return successResponse(res, group);
     }
 
     async create(req, res) {
-        const { error, value } = addonGroupSchema.create.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        const value = req.body;
+        
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
+        
+        value.Add_on = {};
+        value.Add_on.createMany = {
+            data: value.add_ons.map(addon => {
+                addon.owned_by = req.user.id;
+                addon.created_by = req.profile.id;
+                addon.updated_by = req.profile.id;
+                return addon;
+            })
+        };
 
-        const created = await db.add_on_group.create({ data: value });
+        delete value.add_ons; // remove add_ons from value as it is now in Add_on.createMany
+
+        const created = await AddonGroupService.create(value);
         return createdResponse(res, created);
     }
 
     async update(req, res) {
         const { id } = req.params;
-        const { error, value } = addonGroupSchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        let value = req.body;
 
-        const updated = await db.add_on_group.update({
-            where: { id },
-            data: value
-        });
+        value.updated_by = req.profile.id;
+        value.owned_by = req.user.id;
+
+        const updateAddOn = value.add_ons.filter(addon => addon.id);
+        const createAddOn = value.add_ons.filter(addon => !addon.id);
+
+        delete value.add_ons; // remove add_ons from value as it will be handled separately
+
+        const updated = await AddonGroupService.update(id, value, updateAddOn, createAddOn);
 
         return successResponse(res, updated);
     }
 
     async delete(req, res) {
         const { id } = req.params;
+        const userId = req.user.id;
 
-        const deleted = await db.add_on_group.update({
-            where: { id },
-            data: { is_active: false }
-        });
+        const deleted = await AddonGroupService.delete(id, userId);
 
         return successResponse(res, deleted);
     }

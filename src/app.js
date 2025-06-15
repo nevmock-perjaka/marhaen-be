@@ -86,14 +86,6 @@ class ExpressApplication {
     });
   }
   setupRoute() {
-    // this.app.use("/api/v1/menu", menuRoutes);
-
-    this.app.use("/api/v1/auth", authRoutes);
-    
-    // this.app.use("/api/v1/plan", planRoutes);
-    // this.app.use("/api/v1/subscription", subscriptionRoutes);
-    // this.app.use("/api/v1/transaction", transactionRoutes);
-
     this.app.use("/api/", routes);
 
     this.app.use("/*", () => {
