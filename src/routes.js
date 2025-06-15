@@ -12,6 +12,7 @@ import productRoutes from './domains/product/index.js';
 
 import stockRoutes from './domains/stock/stock-routes.js';
 import profileRoutes from './domains/profile/profile-routes.js';
+import tableRoutes from './domains/table/table-routes.js';
 
 const router = express.Router();
 
@@ -47,6 +48,10 @@ const appsRoutes = [
   {
     path: '/stock',
     route: stockRoutes
+  },
+  {
+    path: '/table',
+    route: tableRoutes
   }
 ];
 
