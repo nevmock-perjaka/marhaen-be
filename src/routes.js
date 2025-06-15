@@ -10,6 +10,7 @@ import planRoutes from "./domains/plan/plan-routes.js";
 import inventoryRoutes from './domains/inventory/index.js';
 import productRoutes from './domains/product/index.js';
 
+import shiftRoutes from './domains/shift/index.js';
 import stockRoutes from './domains/stock/stock-routes.js';
 import profileRoutes from './domains/profile/profile-routes.js';
 import tableRoutes from './domains/table/table-routes.js';
@@ -48,6 +49,10 @@ const appsRoutes = [
   {
     path: '/stock',
     route: stockRoutes
+  },
+  {
+    path: '/shift',
+    route: shiftRoutes
   },
   {
     path: '/table',

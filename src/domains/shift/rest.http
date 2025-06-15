@@ -1,0 +1,68 @@
+### === STAFF ===
+
+### ➕ Create staff
+POST http://localhost:9990/api/v1/shift/staff
+Content-Type: application/json
+
+{
+  "name": "Ismail",
+  "phone_number": "08123456789",
+  "is_active": 1,
+  "owned_by": "123456789"
+}
+
+### 📋 Get all staffs
+GET http://localhost:9990/api/v1/shift/staff
+
+### 🔍 Get staff by ID
+GET http://localhost:9990/api/v1/shift/staff/a1d724c7-196c-44a0-9cb2-565336a5845e
+
+### ✏️ Update staff
+PUT http://localhost:9990/api/v1/shift/staff/a1d724c7-196c-44a0-9cb2-565336a5845e
+Content-Type: application/json
+
+{
+  "name": "Ismail Updated",
+  "phone_number": "08123456789",
+  "is_active": 1,
+  "owned_by": "123456"
+}
+
+### ❌ Delete staff
+DELETE http://localhost:9990/api/v1/shift/staff/a1d724c7-196c-44a0-9cb2-565336a5845e
+
+
+### === STAFF LOG ===
+
+### 📋 Get all staff logs
+GET http://localhost:9990/api/v1/shift/staff_log
+
+### 🔍 Get staff log by ID
+GET http://localhost:9990/api/v1/shift/staff_log/{{staffLogId}}
+
+### ❌ Delete staff log
+DELETE http://localhost:9990/api/v1/shift/staff_log/{{staffLogId}}
+
+
+### === SHIFT SYSTEM (STAFF LOGIC) ===
+
+### Clock In (otomatis waktu backend)
+POST http://localhost:9990/api/v1/shift/clock-in
+Content-Type: application/json
+
+{
+  "staff_id": "a1d724c7-196c-44a0-9cb2-565336a5845e",
+  "owned_by": "123456789"
+}
+
+### Clock Out (otomatis waktu backend)
+POST http://localhost:9990/api/v1/shift/clock-out
+Content-Type: application/json
+
+{
+  "staff_id": "a1d724c7-196c-44a0-9cb2-565336a5845e",
+  "owned_by": "123456789"
+}
+
+### Get All Staff Logs
+GET http://localhost:9990/api/v1/shift/logs
