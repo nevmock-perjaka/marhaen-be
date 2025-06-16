@@ -69,38 +69,6 @@ class InputHistoryController {
         const { id } = req.params;
         let value = req.body;
 
-        try {
-            await supplierService.findById(value.supplier_id, req.user.id);
-        } catch (error) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Supplier not found.";
-
-            stack.push({
-                message: "Supplier not found.",
-                path: ["supplier_id"]
-            });
-
-            throw new Joi.ValidationError(validation, stack);
-        }
-
-        try {
-            await inventoryService.findById(value.inventory_id, req.user.id);
-        } catch (error) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Inventory not found.";
-
-            stack.push({
-                message: "Inventory not found.",
-                path: ["inventory_id"]
-            });
-
-            throw new Joi.ValidationError(validation, stack);
-        }
-
         value.updated_by = req.profile.id;
         value.owned_by = req.user.id;
 

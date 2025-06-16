@@ -14,6 +14,7 @@ import shiftRoutes from './domains/shift/index.js';
 import stockRoutes from './domains/stock/stock-routes.js';
 import profileRoutes from './domains/profile/profile-routes.js';
 import tableRoutes from './domains/table/table-routes.js';
+import orderRoutes from './domains/order/index.js'
 
 const router = express.Router();
 
@@ -57,6 +58,10 @@ const appsRoutes = [
   {
     path: '/table',
     route: tableRoutes
+  },
+  {
+    path: '/order',
+    route: orderRoutes
   }
 ];
 

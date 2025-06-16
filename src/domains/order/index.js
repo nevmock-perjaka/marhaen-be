@@ -5,8 +5,8 @@ import OrderItemAddonRoutes from "./orderItemAddon/orderItemAddon-routes.js";
 
 const router = express.Router();
 
-router.use("/order", OrderRoutes);
-router.use("/order-item", OrderItemRoutes);
-router.use("/order-item-addon", OrderItemAddonRoutes);
+router.use("/item/addon", OrderItemAddonRoutes);
+router.use("/item", OrderItemRoutes);
+router.use("/", OrderRoutes);
 
 export default router;

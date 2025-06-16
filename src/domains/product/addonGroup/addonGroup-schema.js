@@ -12,7 +12,7 @@ const addonGroupSchema = {
             name: Joi.string().required(),
             price: Joi.number().precision(2).min(0).required(),
             is_active: Joi.boolean().default(true),
-        })),
+        })).optional().default([]),
     }),
 
     // Schema untuk update Add_on_group

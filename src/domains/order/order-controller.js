@@ -5,37 +5,27 @@ import orderSchema from "./order-schema.js";
 
 class OrderController {
     async getAll(req, res) {
-        const orders = await OrderService.findAll();
+        const userId = req.user.id;
+        const orders = await OrderService.findAll(userId);
         return successResponse(res, orders);
     }
 
     async getById(req, res) {
         const { orderId } = req.params;
-        const order = await OrderService.findById(orderId);
+        const userId = req.user.id;
+        const order = await OrderService.findById(orderId, userId);
         return successResponse(res, order);
     }
 
     async create(req, res) {
-        const { error, value } = orderSchema.create.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        const value = req.body;
+        
+        value.owned_by = req.user.id;
+        value.created_by = req.profile.id;
+        value.updated_by = req.profile.id;
 
         const created = await OrderService.create(value);
         return createdResponse(res, created);
-    }
-
-    async update(req, res) {
-        const { orderId } = req.params;
-        const { error, value } = orderSchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
-
-        const updated = await OrderService.update(orderId, value);
-        return successResponse(res, updated);
-    }
-
-    async delete(req, res) {
-        const { orderId } = req.params;
-        const deleted = await OrderService.delete(orderId);
-        return successResponse(res, deleted);
     }
 }
 

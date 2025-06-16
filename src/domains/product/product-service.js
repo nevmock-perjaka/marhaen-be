@@ -8,7 +8,11 @@ class ProductService {
                 owned_by: userId,
             },
             include: {
-                Add_on_group: true,
+                Add_on_group: {
+                    include: {
+                        Add_on: true
+                    }
+                },
                 Product_config: true
             }
         });
@@ -18,7 +22,11 @@ class ProductService {
         const product = await db.product.findUnique({
             where: { id },
             include: {
-                Add_on_group: true,
+                Add_on_group: {
+                    include: {
+                        Add_on: true
+                    }
+                },
                 Product_config: true
             }
         });

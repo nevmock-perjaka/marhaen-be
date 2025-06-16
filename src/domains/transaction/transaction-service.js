@@ -8,7 +8,7 @@ class TransactionServices {
         const hash = crypto.createHash('sha512').update(`${data.order_id}${data.status_code}${data.gross_amount}${process.env.MIDTRANS_SERVER_KEY}`).digest('hex');
         console.log("Response Midtrans : ", data);
 
-        if  (data.signature_key !== hash){
+        if (data.signature_key !== hash){
             return true;
         }
 
@@ -18,6 +18,10 @@ class TransactionServices {
 
         if (data.metadata.type == 'subscription'){
             return await subscriptionService.updateSubscriptionTransaction(data);
+        }
+
+        if (data.metadata.type == 'order'){
+            // return await 
         }
 
         return true;

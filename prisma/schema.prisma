@@ -122,7 +122,6 @@ model Product {
   Order_item        Order_item[]
   Add_on_group      Add_on_group[]
   Product_config    Product_config[]
-  Order_item_add_on Order_item_add_on[]
   Product_discount  Product_discount[]
 }
 
@@ -194,6 +193,7 @@ model Add_on {
 
   add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id], onDelete: Cascade)
   Add_on_config Add_on_config[]
+  Order_item_add_on Order_item_add_on[]
 }
 
 model Add_on_group {
@@ -315,6 +315,7 @@ model Order {
   total_gross  Float
   table_id     String?
   discount_id  String?
+  staff_id     String
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -324,10 +325,9 @@ model Order {
 
   table             Table?              @relation(fields: [table_id], references: [id])
   discount          Discount?           @relation(fields: [discount_id], references: [id])
+  Staff             Staff               @relation(fields: [staff_id], references: [id])
   Order_item        Order_item[]
-  Order_item_add_on Order_item_add_on[]
   Order_transaction Order_transaction[]
-
   Stock_log Stock_log[]
 }
 
@@ -347,12 +347,13 @@ model Order_item {
 
   order   Order   @relation(fields: [order_id], references: [id])
   product Product @relation(fields: [product_id], references: [id])
+  Order_item_add_on Order_item_add_on[]
 }
 
 model Order_item_add_on {
   id         String @id @default(uuid())
-  order_id   String
-  product_id String
+  order_item_id   String
+  add_on_id String
   price      Float
 
   created_at DateTime @default(now())
@@ -361,18 +362,22 @@ model Order_item_add_on {
   updated_by String
   owned_by   String
 
-  order   Order   @relation(fields: [order_id], references: [id])
-  product Product @relation(fields: [product_id], references: [id])
+  order_item Order_item @relation(fields: [order_item_id], references: [id])
+  add_on     Add_on     @relation(fields: [add_on_id], references: [id])
 }
 
 model Order_transaction {
   id             String   @id @default(uuid())
-  transaction_id String   @unique
   order_id       String
-  gross_amount   Float
-  payment_method String
-  admin_fee      Float
-  status         String
+  transaction_id    String? @unique // Midtrans order_id
+  transaction_token String? // Snap token
+  redirect_url      String? // URL to redirect to payment page
+
+  gross_amount   Float? // Amount in IDR
+  admin_fee      Float? // Admin fee in IDR
+  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
+  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
+
   created_at     DateTime
   updated_at     DateTime
   created_by     String
@@ -395,6 +400,7 @@ model Staff {
   owned_by   String
 
   Staff_log Staff_log[]
+  Order    Order[]
 }
 
 model Staff_log {
