@@ -32,7 +32,21 @@ export function createdResponse(res, data = "Resource created successfully", rec
     });
 }
 
+/**
+ * Error response for failed operations
+ * @param {Response} res - Express response object
+ * @param {number} code - HTTP status code (e.g. 400, 404)
+ * @param {string} message - Error message
+ * @param {any} errors - Optional detailed errors (can be string, array, or object)
+ * @returns {object} - Formatted error response
+ */
+export function errorResponse(res, code = 500, message = "Internal Server Error", errors = null) {
+    const status = Object.values(statusCodes).find((item) => item.code === code)?.message || "Error";
 
-  
-
-  
+    return res.status(code).json({
+        code,
+        status,
+        data: null,
+        errors: errors || message,
+    });
+}

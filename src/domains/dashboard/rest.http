@@ -1,0 +1,37 @@
+### 1. Summary
+GET http://localhost:9990/api/v1/dashboard/summary?start=2025-06-01&end=2025-06-16
+
+###
+
+### 2. Net Profit (by range)
+GET http://localhost:9990/api/v1/dashboard/net-profit?start=2025-06-01&end=2025-06-16
+
+###
+
+### 3. Net Profit (comparison)
+GET http://localhost:9990/api/v1/dashboard/net-profit/comparison?mode=monthly
+
+###
+
+### 4. Sales Performance (by range)
+GET http://localhost:9990/api/v1/dashboard/sales-performance?start=2025-06-01&end=2025-06-16
+
+###
+
+### 5. Sales Performance (comparison)
+GET http://localhost:9990/api/v1/dashboard/sales-performance/comparison?mode=monthly
+
+###
+
+### 6. Ingredient Cost (by range)
+GET http://localhost:9990/api/v1/dashboard/ingredient-cost?start=2025-06-01&end=2025-06-16
+
+###
+
+### 7. Ingredient Cost (comparison)
+GET http://localhost:9990/api/v1/dashboard/ingredient-cost/comparison?mode=monthly
+
+###
+
+### 8. Transaction (by range)
+GET http://localhost:9990/api/v1/dashboard/transaction?start=2025-06-01&end=2025-06-16

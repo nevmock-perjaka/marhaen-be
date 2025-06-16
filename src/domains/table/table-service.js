@@ -35,24 +35,19 @@ class TableService {
 
     async create(data) {
         const identifier_table_exists = await db.table.findFirst({
-            where: { 
+            where: {
                 identifier_table: data.identifier_table,
                 owned_by: data.owned_by,
             }
         });
 
         if (identifier_table_exists) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Table with this identifier already exists.";
-
-            stack.push({
-                message: "Table with this identifier already exists.",
-                path: ["identifier_table"]
-            });
-
-            throw new Joi.ValidationError(validation, stack);
+            throw BaseError.badRequest("Table with this identifier already exists.", [
+                {
+                    message: "Table with this identifier already exists.",
+                    path: ["identifier_table"]
+                }
+            ]);
         }
 
         return await db.table.create({ data });

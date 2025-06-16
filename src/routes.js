@@ -16,6 +16,8 @@ import profileRoutes from './domains/profile/profile-routes.js';
 import tableRoutes from './domains/table/table-routes.js';
 import orderRoutes from './domains/order/index.js'
 
+import dashboardRoutes from './domains/dashboard/dashboard-routes.js';
+
 const router = express.Router();
 
 const appsRoutes = [
@@ -62,6 +64,10 @@ const appsRoutes = [
   {
     path: '/order',
     route: orderRoutes
+  },
+  {
+    path: '/dashboard',
+    route: dashboardRoutes
   }
 ];
 
