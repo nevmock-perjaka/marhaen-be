@@ -11,7 +11,7 @@ class IngredientCostController {
                 return errorResponse(res, 400, "start dan end date harus diisi");
             }
 
-            const result = await IngredientCostService.getIngredientCostInRange(start, end, ownedBy);
+            const result = await IngredientCostService.getChartData(start, end, ownedBy);
             return successResponse(res, result, "Biaya bahan berhasil diambil");
         } catch (error) {
             console.error("[IngredientCostController:getByRange]", error);

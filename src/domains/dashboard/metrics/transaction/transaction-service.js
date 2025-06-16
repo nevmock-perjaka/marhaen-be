@@ -1,7 +1,7 @@
 import prisma from "../../../../config/db.js";
 
 class TransactionService {
-    async getSoldProducts(start, end, ownedBy) {
+    async getChartData(start, end, ownedBy) {
         const items = await prisma.order_item.findMany({
             where: {
                 order: {

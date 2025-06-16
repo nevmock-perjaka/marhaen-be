@@ -1,6 +1,5 @@
 import BaseRoutes from "../../base_classes/base-routes.js";
 import tryCatch from "../../utils/tryCatcher.js";
-import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
 
 // Dashboard
 import DashboardController from "./dashboard-controller.js";
@@ -16,43 +15,43 @@ class DashboardRoutes extends BaseRoutes {
         // Dashboard summary
         this.router.get(
             "/summary",
-            [validateCredentials, tryCatch(DashboardController.index),]
+            [tryCatch(DashboardController.index)]
         );
 
         // Net Profit
         this.router.get(
             "/net-profit",
-            [validateCredentials, tryCatch(NetProfitController.getByRange)]
+            [tryCatch(NetProfitController.getByRange)]
         );
         this.router.get(
             "/net-profit/comparison",
-            [validateCredentials, tryCatch(NetProfitController.getComparison)]
+            [tryCatch(NetProfitController.getComparison)]
         );
 
         // Sales Performance
         this.router.get(
             "/sales-performance",
-            [validateCredentials, tryCatch(SalesPerformanceController.getByRange)]
+            [tryCatch(SalesPerformanceController.getByRange)]
         );
         this.router.get(
             "/sales-performance/comparison",
-            [validateCredentials, tryCatch(SalesPerformanceController.getComparison)]
+            [tryCatch(SalesPerformanceController.getComparison)]
         );
 
         // Ingredient Cost
         this.router.get(
             "/ingredient-cost",
-            [validateCredentials, tryCatch(IngredientCostController.getByRange)]
+            [tryCatch(IngredientCostController.getByRange)]
         );
         this.router.get(
             "/ingredient-cost/comparison",
-            [validateCredentials, tryCatch(IngredientCostController.getComparison)]
+            [tryCatch(IngredientCostController.getComparison)]
         );
 
         // Transaction (no comparison)
         this.router.get(
             "/transaction",
-            [validateCredentials, tryCatch(TransactionController.getByRange)]
+            [tryCatch(TransactionController.getByRange)]
         );
     }
 }

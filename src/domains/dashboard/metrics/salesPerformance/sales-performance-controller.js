@@ -2,11 +2,11 @@ import SalesPerformanceService from "./sales-performance-service.js";
 import { successResponse } from "../../../../utils/response.js";
 
 class SalesPerformanceController {
-    async getPerformanceChart(req, res) {
+    async getByRange(req, res) {
         const { start_date, end_date } = req.query;
         const ownedBy = req.user?.id || req.user.owned_by || "";
 
-        const data = await SalesPerformanceService.getSalesPerformanceInRange(
+        const data = await SalesPerformanceService.getChartData(
             start_date,
             end_date,
             ownedBy
@@ -15,7 +15,7 @@ class SalesPerformanceController {
         return res.json(successResponse({ data }));
     }
 
-    async comparePerformance(req, res) {
+    async getComparison(req, res) {
         const { mode } = req.query; // daily, weekly, monthly, yearly
         const ownedBy = req.user?.id || req.user.owned_by || "";
 

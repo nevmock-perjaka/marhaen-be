@@ -9,14 +9,14 @@ const router = Router();
 router.get(
     "/chart",
     validateCredentials,
-    tryCatch(SalesPerformanceController.getPerformanceChart)
+    tryCatch(SalesPerformanceController.getByRange)
 );
 
 // GET /dashboard/sales-performance/compare?mode=daily|weekly|monthly|yearly
 router.get(
     "/compare",
     validateCredentials,
-    tryCatch(SalesPerformanceController.comparePerformance)
+    tryCatch(SalesPerformanceController.getComparison)
 );
 
 export default router;

@@ -5,7 +5,14 @@ import validateCredentials from "../../../../middlewares/validate-credentials-mi
 
 const router = Router();
 
-router.get("/chart", validateCredentials, tryCatch(NetProfitController.chartView));
-router.get("/compare", validateCredentials, tryCatch(NetProfitController.compareView));
+router.get(
+    "/",
+    validateCredentials,
+    tryCatch(NetProfitController.getByRange));
+
+router.get(
+    "/compare",
+    validateCredentials,
+    tryCatch(NetProfitController.getComparison));
 
 export default router;
