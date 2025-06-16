@@ -24,6 +24,15 @@ class ProfileController {
 
         return successResponse(res, data);
     }
+
+    async updateProfilePin(req, res) {
+        const { id } = req.params;
+        const value = req.body;
+
+        const updatedProfile = await ProfileService.updateProfile(profile.id, value);
+
+        return successResponse(res, updatedProfile);
+    }
 }
 
 export default new ProfileController();
