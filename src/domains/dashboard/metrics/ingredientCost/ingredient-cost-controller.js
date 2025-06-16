@@ -5,7 +5,7 @@ class IngredientCostController {
     async getByRange(req, res) {
         try {
             const { start, end } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by;
+            const ownedBy = req.user?.id || req.user?.owned_by || "";
 
             if (!start || !end) {
                 return errorResponse(res, 400, "start dan end date harus diisi");
@@ -22,7 +22,7 @@ class IngredientCostController {
     async getComparison(req, res) {
         try {
             const { mode } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by;
+            const ownedBy = req.user?.id || req.user?.owned_by || "";
 
             if (!["daily", "weekly", "monthly", "yearly"].includes(mode)) {
                 return errorResponse(res, 400, "Mode harus salah satu dari: daily, weekly, monthly, yearly");

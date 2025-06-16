@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 
 class DashboardController {
     async index(req, res) {
-        const ownedBy = req.user.owned_by;
+        const ownedBy = req.user.owned_by || "";
         const { start, end } = req.query;
 
         const startDate = start ? dayjs(start).startOf("day").toDate() : dayjs().startOf("month").toDate();

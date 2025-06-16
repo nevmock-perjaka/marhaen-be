@@ -1,6 +1,3 @@
-const isAuthOn = process.env.AUTH_ON === "true";
-const applyAuth = (middleware) => (isAuthOn ? [middleware] : []);
-
 import BaseRoutes from "../../base_classes/base-routes.js";
 import tryCatch from "../../utils/tryCatcher.js";
 import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
@@ -16,41 +13,46 @@ import TransactionController from "./metrics/transaction/transaction-controller.
 
 class DashboardRoutes extends BaseRoutes {
     routes() {
+        // Dashboard summary
         this.router.get(
             "/summary",
-            [...applyAuth(validateCredentials), tryCatch(DashboardController.index)]
+            [validateCredentials, tryCatch(DashboardController.index),]
         );
 
+        // Net Profit
         this.router.get(
             "/net-profit",
-            [...applyAuth(validateCredentials), tryCatch(NetProfitController.getByRange)]
+            [validateCredentials, tryCatch(NetProfitController.getByRange)]
         );
         this.router.get(
             "/net-profit/comparison",
-            [...applyAuth(validateCredentials), tryCatch(NetProfitController.getComparison)]
+            [validateCredentials, tryCatch(NetProfitController.getComparison)]
         );
 
+        // Sales Performance
         this.router.get(
             "/sales-performance",
-            [...applyAuth(validateCredentials), tryCatch(SalesPerformanceController.getByRange)]
+            [validateCredentials, tryCatch(SalesPerformanceController.getByRange)]
         );
         this.router.get(
             "/sales-performance/comparison",
-            [...applyAuth(validateCredentials), tryCatch(SalesPerformanceController.getComparison)]
+            [validateCredentials, tryCatch(SalesPerformanceController.getComparison)]
         );
 
+        // Ingredient Cost
         this.router.get(
             "/ingredient-cost",
-            [...applyAuth(validateCredentials), tryCatch(IngredientCostController.getByRange)]
+            [validateCredentials, tryCatch(IngredientCostController.getByRange)]
         );
         this.router.get(
             "/ingredient-cost/comparison",
-            [...applyAuth(validateCredentials), tryCatch(IngredientCostController.getComparison)]
+            [validateCredentials, tryCatch(IngredientCostController.getComparison)]
         );
 
+        // Transaction (no comparison)
         this.router.get(
             "/transaction",
-            [...applyAuth(validateCredentials), tryCatch(TransactionController.getByRange)]
+            [validateCredentials, tryCatch(TransactionController.getByRange)]
         );
     }
 }

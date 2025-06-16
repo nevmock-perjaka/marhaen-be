@@ -5,7 +5,7 @@ class NetProfitController {
     async chartView(req, res) {
         try {
             const { start_date, end_date } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by; // asumsi pakai JWT dan ada user.id
+            const ownedBy = req.user?.id || req.user?.owned_by || ""; // asumsi pakai JWT dan ada user.id
 
             if (!start_date || !end_date) {
                 return errorResponse(res, 400, "start_date dan end_date harus diisi");
@@ -21,7 +21,7 @@ class NetProfitController {
     async compareView(req, res) {
         try {
             const { mode } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by;
+            const ownedBy = req.user?.id || req.user?.owned_by || "";
 
             if (!["daily", "weekly", "monthly", "yearly"].includes(mode)) {
                 return errorResponse(res, 400, "Mode harus salah satu dari: daily, weekly, monthly, yearly");
