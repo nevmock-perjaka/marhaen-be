@@ -17,6 +17,7 @@ Content-Type: application/json
   "max_capacity": 4,
   "image_uri": "http://localhost:9990/image/table1.jpg",
   "identifier_table": "A-01",
+  "table_desc": "Table A-01",
   "is_outdoor": false,
   "is_active": true,
   "barcode": "TABLE-A-01-QR",

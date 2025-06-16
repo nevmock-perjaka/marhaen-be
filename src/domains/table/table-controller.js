@@ -42,7 +42,7 @@ class TableController {
     async delete(req, res) {
         const { tableId } = req.params;
         const userId = req.user.id;
-        const deleted = await TableService.softDelete(tableId, userId);
+        const deleted = await TableService.delete(tableId, userId);
         return successResponse(res, deleted);
     }
 }

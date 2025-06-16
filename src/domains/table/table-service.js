@@ -67,12 +67,11 @@ class TableService {
         });
     }
 
-    async softDelete(id, userId) {
+    async delete(id, userId) {
         await this.checkPermission(id, userId);
 
-        return await db.table.update({
-            where: { id },
-            data: { is_active: false }
+        return await db.table.delete({
+            where: { id }
         });
     }
 

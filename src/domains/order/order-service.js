@@ -181,7 +181,8 @@ class OrderService {
                 updated_by: data.updated_by,
                 Order_item: {
                     create: orderItems
-                }
+                },
+
             }
 
             const order = await tx.order.create({
@@ -237,7 +238,21 @@ class OrderService {
 
             if (!snap) throw Error("Failed to create Midtrans transaction");
 
+            await tx.order_transaction.create({
+                data: {
+                    transaction_token: snap.token,
+                    redirect_url: snap.redirect_url,
+
+                    order_id: order.id,
+                    gross_amount: order.total_gross,
+                    admin_fee: 0,
+                    owned_by: data.owned_by,
+                    created_by: data.created_by,
+                    updated_by: data.updated_by
+                }
+            })
             
+            return snap;
         })
         
     }
