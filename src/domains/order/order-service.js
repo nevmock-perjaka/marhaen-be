@@ -120,6 +120,34 @@ class OrderService {
                 addOns.map(addOn => [addOn.id, addOn.add_on_group.product_id])
             );
 
+            for (const item of data.order_items) {
+                const product = productExists.find(p => p.id === item.product_id);
+                const selectedAddOns = item.order_item_add_ons || [];
+
+                // Ambil semua group add_on untuk product ini
+                const addOnGroups = product.Add_on_group;
+
+                for (const group of addOnGroups) {
+                    const addOnsInGroup = group.Add_on.map(a => a.id);
+                    const selectedInGroup = selectedAddOns.filter(id => addOnsInGroup.includes(id));
+
+                    // 🛑 Cek max_selection
+                    if (selectedInGroup.length > group.max_selection) {
+                        throw BaseError.badRequest(
+                            `Too many add-ons selected for group '${group.name}' in product '${product.name}'. Max allowed: ${group.max_selection}.`
+                        );
+                    }
+
+                        // 🛑 Cek is_required
+                    if (group.is_required && selectedInGroup.length === 0) {
+                        throw BaseError.badRequest(
+                            `Add-on group '${group.name}' is required for product '${product.name}' but none were selected.`
+                        );
+                    }
+                }
+            }
+
+
             // Validasi: pastikan semua order_item_add_ons sesuai dengan product_id parent-nya
             for (const item of data.order_items) {
                 for (const addOnId of item.order_item_add_ons || []) {
@@ -176,7 +204,7 @@ class OrderService {
 
             data = {
                 order_by: data.order_by,
-                status: "Menunggu Pembayaran",
+                status: "Not Paid",
                 total_gross: total_gross, // Total gross akan dihitung di level database
                 phone_number: data.phone_number,
                 table_id: data.table_id,
@@ -231,7 +259,8 @@ class OrderService {
                     phone: order.phone_number,
                 },
                 enabled_payments: [
-                    'other_qris'
+                    'other_qris',
+                    "bca_va",
                 ],
                 item_details: order.Order_item.map(item => {
                     const addOnTotal = item.Order_item_add_on.reduce((sum, addOn) => sum + addOn.price, 0);
@@ -306,26 +335,34 @@ class OrderService {
                     },
                     data: {
                         status: data.transaction_status,
-                        updated_by: "midtrans"
+                        updated_by: "system"
                     }
                 });
 
                 await db.order.update({
                     where: { id: order.id },
                     data: {
-                        status: "Need Process",
+                        status: "Paid",
                         updated_by: "system"
                     }
                 })
             }
         } else if (data.transaction_status === 'settlement') {
-            return await db.order_transaction.update({
+            await db.order_transaction.update({
                 where: { id: orderTransaction.id },
                 data: {
                     status: data.transaction_status,
-                    updated_by: "midtrans"
+                    updated_by: "system"
                 }
             });
+
+            await db.order.update({
+                where: { id: order.id },
+                data: {
+                    status: "Paid",
+                    updated_by: "system"
+                }
+            })
 
         } else if (data.transaction_status === 'cancel' || data.transaction_status === 'deny' || data.transaction_status === 'expire') {
             await db.order_transaction.update({
@@ -334,9 +371,18 @@ class OrderService {
                 },
                 data: {
                     status: data.transaction_status,
-                    updated_by: "midtrans"
+                    updated_by: "system"
                 }
             })
+
+            await db.order.delete({
+                where: { id: order.id },
+                data: {
+                    status: "Paid",
+                    updated_by: "system"
+                }
+            })
+
         } else if (data.transaction_status === 'pending') {
             await db.order_transaction.update({
                 where: {
@@ -349,6 +395,8 @@ class OrderService {
                     updated_by: "midtrans"
                 }
             })
+
+
         }
 
         return true;

@@ -89,7 +89,7 @@ class ExpressApplication {
   setupRoute() {
     this.app.use("/api/", routes);
 
-    console.log(expressListEndpoints(this.app));
+    // console.log(expressListEndpoints(this.app));
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");
