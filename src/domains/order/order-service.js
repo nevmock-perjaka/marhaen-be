@@ -292,6 +292,8 @@ class OrderService {
                     gross_amount: order.total_gross,
                 }
             })
+
+            snap.id = order.id;
             
             return snap;
         })
