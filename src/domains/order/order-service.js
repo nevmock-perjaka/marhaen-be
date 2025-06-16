@@ -274,6 +274,11 @@ class OrderService {
                 metadata: {
                     "type": "order",
                     "id": order.id,
+                },
+                expiry: {
+                    "start_time": new Date(),
+                    "unit": "minute",
+                    "duration": 1
                 }
             }
 
@@ -378,11 +383,7 @@ class OrderService {
             })
 
             await db.order.delete({
-                where: { id: order.id },
-                data: {
-                    status: "Paid",
-                    updated_by: "system"
-                }
+                where: { id: order.id }
             })
 
         } else if (data.transaction_status === 'pending') {
@@ -394,7 +395,7 @@ class OrderService {
                     transaction_id: data.transaction_id,
                     status: data.transaction_status,
                     payment_method: data.payment_type,
-                    updated_by: "midtrans"
+                    updated_by: "system"
                 }
             })
 
