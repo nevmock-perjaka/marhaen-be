@@ -275,11 +275,6 @@ class OrderService {
                     "type": "order",
                     "id": order.id,
                 },
-                expiry: {
-                    "start_time": new Date(),
-                    "unit": "minute",
-                    "duration": 1
-                }
             }
 
             const snap = await midtransSnap.createTransaction(parameter);

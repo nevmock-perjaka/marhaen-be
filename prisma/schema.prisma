@@ -294,6 +294,7 @@ model Table {
   max_capacity     Int
   image_uri        String?
   identifier_table String
+  table_name       String
   table_desc       String
   is_outdoor       Boolean
   is_active        Boolean
