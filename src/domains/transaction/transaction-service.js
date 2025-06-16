@@ -1,4 +1,5 @@
 import BaseError from "../../base_classes/base-error.js";
+import orderService from "../order/order-service.js";
 import subscriptionService from "./subscription/subscription-service.js";
 
 import crypto from "crypto";
@@ -21,7 +22,7 @@ class TransactionServices {
         }
 
         if (data.metadata.type == 'order'){
-            // return await 
+            return await orderService.updateWebhookMidtrans(data);
         }
 
         return true;

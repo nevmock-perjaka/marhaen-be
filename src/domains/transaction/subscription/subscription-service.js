@@ -65,7 +65,7 @@ class SubscriptionService {
                 }
             };
 
-            const snap = midtransSnap.createTransaction(parameter);
+            const snap = await midtransSnap.createTransaction(parameter);
 
             if (!snap) {
                 throw new Error("Failed to create snap");

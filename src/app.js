@@ -20,6 +20,7 @@ import planRoutes from "./domains/plan/plan-routes.js";
 import transactionRoutes from "./domains/transaction/transaction-routes.js";
 
 import routes from "./routes.js";
+import expressListEndpoints from "express-list-endpoints";
 
 class ExpressApplication {
   app;
@@ -87,6 +88,8 @@ class ExpressApplication {
   }
   setupRoute() {
     this.app.use("/api/", routes);
+
+    console.log(expressListEndpoints(this.app));
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");

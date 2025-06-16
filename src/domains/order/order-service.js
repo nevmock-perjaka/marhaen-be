@@ -3,8 +3,11 @@ import BaseError from "../../base_classes/base-error.js";
 import { midtransSnap } from "../../config/midtrans.js";
 
 class OrderService {
-    async findAll() {
+    async findAll(userId) {
         return await db.order.findMany({
+            where: {
+                owned_by: userId
+            },
             include: {
                 table: true,
                 discount: true,
@@ -43,7 +46,8 @@ class OrderService {
             }
         });
 
-        if (!order) throw BaseError.notFound("Order tidak ditemukan.");
+        if (!order) throw BaseError.notFound("Order not found.");
+          
         return order;
     }
 
@@ -97,8 +101,6 @@ class OrderService {
             const addOnIds = [...new Set(
                 data.order_items.flatMap(item => item.order_item_add_ons || [])
             )];
-
-            
 
             // Ambil semua add_on beserta info grupnya (untuk cek product_id)
             const addOns = await tx.add_on.findMany({
@@ -174,7 +176,7 @@ class OrderService {
 
             data = {
                 order_by: data.order_by,
-                status: "pending",
+                status: "Menunggu Pembayaran",
                 total_gross: total_gross, // Total gross akan dihitung di level database
                 phone_number: data.phone_number,
                 table_id: data.table_id,
@@ -186,6 +188,14 @@ class OrderService {
                 Order_item: {
                     create: orderItems
                 },
+                Order_transaction: {
+                    create: {
+                        admin_fee: 0,
+                        owned_by: data.owned_by,
+                        created_by: data.created_by,
+                        updated_by: data.updated_by
+                    }
+                }
 
             }
 
@@ -210,7 +220,7 @@ class OrderService {
 
             const parameter = {
                 transaction_details: {
-                    order_id: order.id,
+                    order_id: order.Order_transaction[0].id,
                     gross_amount: order.total_gross,
                 },
                 credit_card: {
@@ -238,21 +248,19 @@ class OrderService {
                 }
             }
 
-            const snap = midtransSnap.createTransaction(parameter);
+            const snap = await midtransSnap.createTransaction(parameter);
 
             if (!snap) throw Error("Failed to create Midtrans transaction");
 
-            await tx.order_transaction.create({
+            await tx.order_transaction.update({
+                where: { 
+                    id: order.Order_transaction[0].id 
+                },
                 data: {
                     transaction_token: snap.token,
                     redirect_url: snap.redirect_url,
 
-                    order_id: order.id,
                     gross_amount: order.total_gross,
-                    admin_fee: 0,
-                    owned_by: data.owned_by,
-                    created_by: data.created_by,
-                    updated_by: data.updated_by
                 }
             })
             
@@ -272,6 +280,78 @@ class OrderService {
         return await db.order.delete({
             where: { id: orderId }
         });
+    }
+
+    async updateWebhookMidtrans(data){
+        const orderTransaction = await db.order_transaction.findUnique({
+            where: { id: data.order_id }
+        });
+
+        console.log(`Transaction notification received. Order ID: ${data.order_id}. Transaction status: ${data.transaction_status}. Fraud status: ${data.fraud_status}`);
+
+        if (!orderTransaction) throw BaseError.badRequest("Order transaction not found");
+
+        const order = await db.order.findUnique({
+            where: { id: data.metadata.id },
+        });
+
+        if (!order) throw BaseError.badRequest("Order not found");
+        if (orderTransaction.owned_by !== order.owned_by) throw BaseError.forbidden("You are not allowed to access this order transaction.");
+
+        if (data.transaction_status === 'capture') {
+            if (data.fraud_status === 'accept') {
+                await db.order_transaction.update({
+                    where: { 
+                        id: orderTransaction.id 
+                    },
+                    data: {
+                        status: data.transaction_status,
+                        updated_by: "midtrans"
+                    }
+                });
+
+                await db.order.update({
+                    where: { id: order.id },
+                    data: {
+                        status: "Need Process",
+                        updated_by: "system"
+                    }
+                })
+            }
+        } else if (data.transaction_status === 'settlement') {
+            return await db.order_transaction.update({
+                where: { id: orderTransaction.id },
+                data: {
+                    status: data.transaction_status,
+                    updated_by: "midtrans"
+                }
+            });
+
+        } else if (data.transaction_status === 'cancel' || data.transaction_status === 'deny' || data.transaction_status === 'expire') {
+            await db.order_transaction.update({
+                where: {
+                    id: orderTransaction.id
+                },
+                data: {
+                    status: data.transaction_status,
+                    updated_by: "midtrans"
+                }
+            })
+        } else if (data.transaction_status === 'pending') {
+            await db.order_transaction.update({
+                where: {
+                    id: orderTransaction.id
+                },
+                data: {
+                    transaction_id: data.transaction_id,
+                    status: data.transaction_status,
+                    payment_method: data.payment_type,
+                    updated_by: "midtrans"
+                }
+            })
+        }
+
+        return true;
     }
 }
 

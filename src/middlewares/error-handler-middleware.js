@@ -34,7 +34,7 @@ export const errorHandler = (err, req, res, _next) => {
   //   }
 
   if (err instanceof BaseError) {
-    console.error(err);
+    // console.error(err);
     return res.status(statusCode.code).json({
       code: err.errorCode,
       status: err.statusCode,
@@ -47,6 +47,7 @@ export const errorHandler = (err, req, res, _next) => {
       },
     });
   }
+
   console.error(err);
 
   // ambil user id
