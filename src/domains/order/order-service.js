@@ -34,12 +34,12 @@ class OrderService {
                 discount: true,
                 Order_item: {
                     include: {
-                        product: true
-                    }
-                },
-                Order_item_add_on: {
-                    include: {
-                        product: true
+                        product: true,
+                        Order_item_add_on: {
+                            include: {
+                                add_on: true
+                            }
+                        }
                     }
                 },
                 Order_transaction: true
