@@ -1,5 +1,6 @@
 import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
+import { midtransSnap } from "../../config/midtrans.js";
 
 class OrderService {
     async findAll() {
@@ -74,10 +75,11 @@ class OrderService {
             if (data.discount_id && !discountExists) throw BaseError.notFound("Discount not found.");
             if (data.discount_id && discountExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this discount.");
             
-            const products = data.order_items.map(item => item.product_id);
+            const productIds = [...new Set(data.order_items.map(item => item.product_id))];
+
             const productExists = await tx.product.findMany({
                 where: {
-                    id: { in: products },
+                    id: { in: productIds },
                     owned_by: data.owned_by
                 },
                 include: {
@@ -89,10 +91,12 @@ class OrderService {
                 }
             });
 
-            if (productExists.length !== products.length) throw BaseError.badRequest("Some products do not exist or are not owned by the user.");
+            if (productExists.length !== productIds.length) throw BaseError.badRequest("Some products do not exist or are not owned by the user.");
 
             // Check if the add-ons exist and are owned by the user
-            const addOnIds = data.order_items.flatMap(item => item.order_item_add_ons || []);
+            const addOnIds = [...new Set(
+                data.order_items.flatMap(item => item.order_item_add_ons || [])
+            )];
 
             
 
@@ -138,7 +142,7 @@ class OrderService {
                     updated_by: data.updated_by,
                     owned_by: data.owned_by,
                     Order_item_add_on: {
-                        create: item.order_item_add_ons.map(addOnId => {
+                        create: item.order_item_add_ons ? item.order_item_add_ons.map(addOnId => {
                             let matchedAddOn = null;
 
                             for (const group of product.Add_on_group) {
@@ -157,7 +161,7 @@ class OrderService {
                                 updated_by: data.updated_by,
                                 owned_by: data.owned_by
                             };
-                        })
+                        }) : []
                     }
                 }
             })
@@ -225,7 +229,7 @@ class OrderService {
                         id: item.product_id,
                         price: item.price + addOnTotal,
                         quantity: item.quantity,
-                        name: `${item.product.name} with ${item.Order_item_add_on.map(addOn => addOn.add_on.name).join(", ")}`,
+                        name: `${item.product.name}${item.Order_item_add_on.length > 0 ? ` with `: ``}${item.Order_item_add_on.map(addOn => addOn.add_on.name).join(", ")}`,
                     };
                 }),   
                 metadata: {

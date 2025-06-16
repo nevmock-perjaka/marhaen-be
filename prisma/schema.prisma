@@ -379,8 +379,8 @@ model Order_transaction {
   payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
   status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
 
-  created_at     DateTime
-  updated_at     DateTime
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
   created_by     String
   updated_by     String
   owned_by       String

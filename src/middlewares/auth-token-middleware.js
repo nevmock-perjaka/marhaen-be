@@ -129,8 +129,7 @@ class AuthMiddleware {
             const user = req.user;
             const profile = req.profile;
 
-            // console.log(roles.includes(profile.role));
-
+            console.log(profile.role);
             if (!user) {
                 return next(
                     new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', 'User Not Authenticated')
