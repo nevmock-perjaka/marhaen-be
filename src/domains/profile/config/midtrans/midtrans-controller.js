@@ -15,12 +15,16 @@ class MidtransController {
         const value = req.body;
         
         value.updated_by = profile.id;
-        value.owned_by = user.id;
 
         const updatedConfig = await midtransService.updateMidtransConfig(user.id, value);
 
         return successResponse(res, updatedConfig);
-        
+    }
+
+    async testConnection(req, res) {
+        const testResult = await midtransService.testConnection();
+
+        return successResponse(res, testResult);
     }
 }
 

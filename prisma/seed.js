@@ -268,7 +268,7 @@ async function main() {
         ]
     })
 
-
+    console.log('✅ Tables seeded.');
 
     console.log('✅ Seeding complete.');
 }

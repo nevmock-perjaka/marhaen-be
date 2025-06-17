@@ -20,6 +20,13 @@ class MidtransRoutes extends BaseRoutes {
             validateCredentials(midtransSchema),
             tryCatch(MidtransController.update)
         ]);
+
+        this.router.post("/test-connection", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            validateCredentials(midtransSchema),
+            tryCatch(MidtransController.testConnection)
+        ])
     }
 }
 

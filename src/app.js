@@ -14,11 +14,6 @@ import path from "path";
 
 import BaseError from "./base_classes/base-error.js";
 
-import authRoutes from "./domains/auth/auth-routes.js";
-import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
-import planRoutes from "./domains/plan/plan-routes.js";
-import transactionRoutes from "./domains/transaction/transaction-routes.js";
-
 import routes from "./routes.js";
 import expressListEndpoints from "express-list-endpoints";
 
@@ -49,25 +44,6 @@ class ExpressApplication {
       // cors(),
     ]);
 
-    this.fileStorage = multer.diskStorage({
-      destination: (req, file, cb) => {
-        cb(null, "public/images");
-      },
-      filename: (req, file, cb) => {
-        cb(null, new Date().getTime() + "-" + file.originalname);
-      },
-    });
-    this.fileFilter = (req, file, cb) => {
-      if (
-        file.mimetype === "image/png" ||
-        file.mimetype === "image/jpg" ||
-        file.mimetype === "image/jpeg"
-      ) {
-        cb(null, true);
-      } else {
-        cb(null, false);
-      }
-    };
     this.app.use(
       multer({
         storage: this.fileStorage,
@@ -90,6 +66,8 @@ class ExpressApplication {
     this.app.use("/api/", routes);
 
     // console.log(expressListEndpoints(this.app));
+
+    this.app.use('/public', express.static(path.join(__dirname, 'public')));
 
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");
