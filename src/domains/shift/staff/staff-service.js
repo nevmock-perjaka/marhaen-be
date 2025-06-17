@@ -17,11 +17,11 @@ class StaffService {
             FROM 
                 "Staff" s
             LEFT JOIN 
-                "Staff_log" sl ON s.id = sl.staff_id
+                "Staff_log" sl ON s.id = sl.staff_id AND sl.end_timestamp IS NOT NULL
             WHERE 
-                s.owned_by = $1 AND sl.end_timestamp IS NOT NULL
+                s.owned_by = $1
             GROUP BY 
-                s.id, s.name
+                s.id, s.name, s.phone_number, s.is_active
             `, userId);
 
         return result
