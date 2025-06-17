@@ -33,7 +33,7 @@ class ProfileService {
 
         if (!profile) throw BaseError.badRequest("Profile not found");
         if (profile.pin && profile.pin !== pin) throw BaseError.badRequest("Invalid PIN");
-        if (!profile.pin && pin) throw BaseError.badRequest("Profile does not have a PIN set");
+        // if (!profile.pin && pin) throw BaseError.badRequest("Profile does not have a PIN set");
         
 
         const token = generateToken({
