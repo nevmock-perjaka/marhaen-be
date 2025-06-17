@@ -7,14 +7,24 @@ class StaffService {
     }
 
     async findAll(userId) {
-        return db.staff.findMany({
-            where: { 
-                owned_by: userId 
-            },
-            include: {
-                Staff_log: true,
-            },
-        });
+        const result = await db.$queryRawUnsafe(`
+            SELECT 
+                s.id AS staff_id,
+                s.name,
+                s.phone_number,
+                s.is_active,
+                SUM(EXTRACT(EPOCH FROM (sl.end_timestamp - sl.start_timestamp)) / 60)::int AS total_shift_minutes
+            FROM 
+                "Staff" s
+            LEFT JOIN 
+                "Staff_log" sl ON s.id = sl.staff_id
+            WHERE 
+                s.owned_by = $1 AND sl.end_timestamp IS NOT NULL
+            GROUP BY 
+                s.id, s.name
+            `, userId);
+
+        return result
     }
 
     async findById(id, userId) {
