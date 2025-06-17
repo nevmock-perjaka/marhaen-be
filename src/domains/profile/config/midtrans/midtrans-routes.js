@@ -1,9 +1,9 @@
-import BaseRoutes from "../../base_classes/base-routes.js";
+import BaseRoutes from "../../../../base_classes/base-routes.js";
 import MidtransController from "./midtrans-controller.js";
 
-import tryCatch from "../../utils/tryCatcher.js";
-import validateCredentials from '../../middlewares/validate-credentials-middleware.js';
-import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
+import tryCatch from "../../../../utils/tryCatcher.js";
+import validateCredentials from "../../../../middlewares/validate-credentials-middleware.js";
+import authTokenMiddleware from "../../../../middlewares/auth-token-middleware.js";
 import { midtransSchema } from "./midtrans-schema.js";
 
 class MidtransRoutes extends BaseRoutes {

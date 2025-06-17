@@ -1,11 +1,4 @@
-import BaseError from "../../base_classes/base-error.js";
-
-import { generateVerifEmail } from "../../utils/bodyEmail.js";
-import sendEmail from "../../utils/sendEmail.js";
-import joi, { when } from "joi";
-import db from "../../config/db.js";
-import { parseJWT, generateToken } from "../../utils/jwtTokenConfig.js";
-import { matchPassword, hashPassword } from "../../utils/passwordConfig.js";
+import db from "../../../../config/db.js";
 
 class MidtransService {
     async getMidtransConfig(user_id) {
