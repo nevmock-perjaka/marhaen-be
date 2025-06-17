@@ -134,6 +134,7 @@ model Product {
   created_by String
   updated_by String
   owned_by   String
+  deleted_at DateTime?
 
   Order_item        Order_item[]
   Add_on_group      Add_on_group[]

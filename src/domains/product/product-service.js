@@ -1,11 +1,15 @@
 import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
+import { readFileSync, unlinkSync } from "fs";
+import * as XLSX from "xlsx";
+import { skip } from "@prisma/client/runtime/library";
 
 class ProductService {
     async findAll(userId) {
         return await db.product.findMany({
             where: { 
                 owned_by: userId,
+                deleted_at: null
             },
             include: {
                 Add_on_group: {
@@ -51,6 +55,14 @@ class ProductService {
         });
     }
 
+    async softDelete(id, userId) {
+        await this.checkPermission(id, userId);
+        return await db.product.update({
+            where: { id },
+            data: { deleted_at: new Date() }
+        });
+    }
+
     async delete(id, userId) {
         await this.checkPermission(id, userId);
 
@@ -66,6 +78,66 @@ class ProductService {
 
         if (!product) throw BaseError.notFound("Product not found.");
         if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
+    }
+
+    async import(filePath, userId, profileId) {
+        const fileBuffer = readFileSync(filePath);
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        const products = XLSX.utils.sheet_to_json(sheet);
+
+        const createdProducts = [];
+
+        let status = {
+            success: 0,
+            failed: 0,
+            skipped: 0,
+            total: products.length,
+        }
+
+        for (const item of products) {
+            const { name, price, description, category, image_uri } = item;
+
+            if (!name || !price || !category || !image_uri || !description) {
+                console.warn("Skipping invalid row:", item);
+                status.skipped++;
+                continue;
+            }
+
+            // Simpan ke DB
+            try {
+                const product = await db.product.create({
+                    data: {
+                        name,
+                        price: Number(price),
+                        description,
+                        category,
+                        image_uri: "/public/product/" + image_uri,
+                        is_active: true,
+                        created_by: profileId,
+                        updated_by: profileId,
+                        owned_by: userId,
+                    },
+                });
+                status.success++;
+                createdProducts.push(product);
+            } catch (error) {
+                console.error("Error creating product:", error);
+                status.failed++;
+                continue;
+            }
+        }
+        // Hapus file setelah import
+        try {
+            unlinkSync(filePath);
+        } catch (error) {
+            console.error("Error deleting file:", error);
+        }
+
+        return status;
     }
 }
 

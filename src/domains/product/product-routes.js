@@ -40,6 +40,13 @@ class ProductRoutes extends BaseRoutes {
             uploadFile('/product', 'image').single('image'),
             tryCatch(ProductController.uploadImage)
         ])
+
+        this.router.post("/import", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['STAFF']),
+            uploadFile('/product-excel', 'document').single('document'),
+            tryCatch(ProductController.import)
+        ]);
     }
 }
 
