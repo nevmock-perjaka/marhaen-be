@@ -12,7 +12,7 @@ import productRoutes from './domains/product/index.js';
 
 import shiftRoutes from './domains/shift/index.js';
 import stockRoutes from './domains/stock/stock-routes.js';
-import profileRoutes from './domains/profile/profile-routes.js';
+import profileRoutes from './domains/profile/index.js';
 import tableRoutes from './domains/table/table-routes.js';
 import orderRoutes from './domains/order/index.js'
 
