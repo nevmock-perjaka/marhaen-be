@@ -27,7 +27,7 @@ const changePinSchema = Joi.object({
     .pattern(/^\d+$/)
     .min(6)
     .max(6)
-    .required()
+    .optional()
     .messages({
       'string.base': 'Old PIN must be a string.',
       'string.pattern.base': 'Old PIN must contain only digits.',
