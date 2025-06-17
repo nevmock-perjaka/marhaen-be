@@ -2,7 +2,7 @@ import prisma from "../../../../config/db.js";
 import dayjs from "dayjs";
 
 class SalesPerformanceService {
-    async getSalesPerformanceInRange(startDate, endDate, ownedBy) {
+    async getChartData(startDate, endDate, ownedBy) {
         const orders = await prisma.order.findMany({
             where: {
                 owned_by: ownedBy,

@@ -1,6 +1,5 @@
 import BaseRoutes from "../../base_classes/base-routes.js";
 import tryCatch from "../../utils/tryCatcher.js";
-import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
 
 // Dashboard
 import DashboardController from "./dashboard-controller.js";

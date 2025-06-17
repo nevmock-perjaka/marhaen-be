@@ -2,7 +2,7 @@ import NetProfitService from "./net-profit-service.js";
 import { successResponse, errorResponse } from "../../../../utils/response.js";
 
 class NetProfitController {
-    async chartView(req, res) {
+    async getByRange(req, res) {
         try {
             const { start_date, end_date } = req.query;
             const ownedBy = req.user?.id || req.user?.owned_by || ""; // asumsi pakai JWT dan ada user.id
@@ -11,14 +11,14 @@ class NetProfitController {
                 return errorResponse(res, 400, "start_date dan end_date harus diisi");
             }
 
-            const data = await NetProfitService.getNetProfitInRange(start_date, end_date, ownedBy);
+            const data = await NetProfitService.getChartData(start_date, end_date, ownedBy);
             return successResponse(res, data, "Net profit berhasil diambil");
         } catch (err) {
             return errorResponse(res, 500, err.message);
         }
     }
 
-    async compareView(req, res) {
+    async getComparison(req, res) {
         try {
             const { mode } = req.query;
             const ownedBy = req.user?.id || req.user?.owned_by || "";

@@ -8,13 +8,13 @@ const router = express.Router();
 router.get(
     "/",
     validateCredentials,
-    tryCatch(ingredientCostController.getIngredientCost)
+    tryCatch(ingredientCostController.getByRange)
 );
 
 router.get(
     "/compare",
     validateCredentials,
-    tryCatch(ingredientCostController.compareIngredientCost)
+    tryCatch(ingredientCostController.getComparison)
 );
 
 export default router;

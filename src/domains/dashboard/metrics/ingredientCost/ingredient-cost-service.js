@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import prisma from "../../../../config/db.js";
 
 class IngredientCostService {
-    async getIngredientCostInRange(startDate, endDate, ownedBy) {
+    async getChartData(startDate, endDate, ownedBy) {
         const start = dayjs(startDate).startOf("day").toDate();
         const end = dayjs(endDate).endOf("day").toDate();
 

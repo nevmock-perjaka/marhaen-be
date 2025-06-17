@@ -4,12 +4,12 @@ GET http://localhost:9990/api/v1/dashboard/summary?start=2025-06-01&end=2025-06-
 ###
 
 ### 2. Net Profit (by range)
-GET http://localhost:9990/api/v1/dashboard/net-profit?start=2025-06-01&end=2025-06-16
+GET http://localhost:9990/api/v1/dashboard/net-profit?start_date=2025-06-01&end_date=2025-06-16
 
 ###
 
 ### 3. Net Profit (comparison)
-GET http://localhost:9990/api/v1/dashboard/net-profit/comparison?mode=monthly
+GET http://localhost:9990/api/v1/dashboard/net-profit/comparison?mode=daily
 
 ###
 

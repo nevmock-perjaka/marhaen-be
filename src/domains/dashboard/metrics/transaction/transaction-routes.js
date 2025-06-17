@@ -5,7 +5,10 @@ import validateCredentials from "../../../../middlewares/validate-credentials-mi
 
 const router = Router();
 
-// Endpoint: /dashboard/metrics/transaction?s=startDate&e=endDate
-router.get("/", [validateCredentials, tryCatch(TransactionController.getSoldProducts)]);
+router.get(
+    "/",
+    validateCredentials, 
+    tryCatch(TransactionController.getByRange)
+);
 
 export default router;

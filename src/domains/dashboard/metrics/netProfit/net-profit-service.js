@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import prisma from "../../../../config/db.js";
 
 class NetProfitService {
-    async getNetProfitInRange(startDate, endDate, ownedBy) {
+    async getChartData(startDate, endDate, ownedBy) {
         const orders = await prisma.order.findMany({
             where: {
                 created_at: {
@@ -18,11 +18,18 @@ class NetProfitService {
             },
         });
 
-        const totalGross = orders.reduce((sum, order) => sum + order.total_gross, 0);
+        if (!orders || orders.length === 0) {
+            return {
+                totalGross: 0,
+                totalAdminFee: 0,
+                netProfit: 0,
+                startDate,
+                endDate,
+            };
+        }
 
-        const totalAdminFee = orders.reduce((sum, order) => {
-            return sum + (order.Order_transaction?.admin_fee || 0);
-        }, 0);
+        const totalGross = orders.reduce((sum, order) => sum + order.total_gross, 0);
+        const totalAdminFee = orders.reduce((sum, order) => sum + (order.Order_transaction?.admin_fee || 0), 0);
 
         return {
             totalGross,
