@@ -19,6 +19,10 @@ const loginSchema = Joi.object({
 });
 
 const changePinSchema = Joi.object({
+  profile_id: Joi.string().required().messages({
+    'any.required': 'Profile ID is required.',
+    'string.base': 'Profile ID must be a string.'
+  }),
   old_pin: Joi.string()
     .pattern(/^\d+$/)
     .min(6)
@@ -45,4 +49,4 @@ const changePinSchema = Joi.object({
     })
 });
 
-export { loginSchema };
+export { loginSchema, changePinSchema };

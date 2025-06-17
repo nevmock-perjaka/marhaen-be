@@ -26,7 +26,6 @@ class ProfileController {
     }
 
     async updateProfilePin(req, res) {
-        const { id } = req.params;
         const value = req.body;
 
         const updatedProfile = await ProfileService.updateProfile(profile.id, value);
