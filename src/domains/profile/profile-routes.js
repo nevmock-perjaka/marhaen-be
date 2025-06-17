@@ -25,8 +25,6 @@ class ProfileRoutes extends BaseRoutes {
             tryCatch(ProfileController.getProfile)
         ]);
 
-        this.router.get("/c")
-
         this.router.put("/change-pin/:id", [
             authTokenMiddleware.authenticate,
             authTokenMiddleware.authorizeRoles(['OWNER']),
