@@ -4,6 +4,7 @@ import tryCatch from "../../utils/tryCatcher.js";
 import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
 import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
 import productSchema from "./product-schema.js";
+import uploadFile from "../../middlewares/upload-file-middleware.js";
 
 class ProductRoutes extends BaseRoutes {
     routes() {
@@ -31,6 +32,20 @@ class ProductRoutes extends BaseRoutes {
             authTokenMiddleware.authenticate,
             authTokenMiddleware.authorizeRoles(['STAFF']),
             tryCatch(ProductController.delete)
+        ]);
+
+        this.router.post("/upload-image", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['STAFF']),
+            uploadFile('/product', 'image').single('image'),
+            tryCatch(ProductController.uploadImage)
+        ])
+
+        this.router.post("/import", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['STAFF']),
+            uploadFile('/product-excel', 'document').single('document'),
+            tryCatch(ProductController.import)
         ]);
     }
 }

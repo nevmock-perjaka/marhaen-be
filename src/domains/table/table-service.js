@@ -56,6 +56,24 @@ class TableService {
     async update(id, data) {
         await this.checkPermission(id, data.owned_by);
 
+        if (data.identifier_table) {
+            const identifier_table_exists = await db.table.findFirst({
+                where: {
+                    identifier_table: data.identifier_table,
+                    owned_by: data.owned_by,
+                    id: { not: id } // Exclude current table
+                }
+            });
+
+            if (identifier_table_exists) {
+                throw BaseError.badRequest("Table with this identifier already exists.", [
+                    {
+                        message: "Table with this identifier already exists.",
+                    }
+                ]);
+            }
+        }
+
         return await db.table.update({
             where: { id },
             data

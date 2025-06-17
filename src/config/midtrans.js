@@ -12,4 +12,12 @@ const midtransCoreApi = new Midtrans.CoreApi({
     clientKey: process.env.MIDTRANS_CLIENT_KEY,
 })
 
-export { midtransSnap, midtransCoreApi };
+const userMidtransConfig = (is_production, secret_key, client_key) => {
+    return new Midtrans.Snap({
+        isProduction: is_production,
+        serverKey: secret_key,
+        clientKey: client_key,
+    })
+}
+
+export { midtransSnap, midtransCoreApi, userMidtransConfig };

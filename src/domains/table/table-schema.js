@@ -3,6 +3,7 @@ import Joi from "joi";
 const tableSchema = {
     // Schema untuk membuat Table baru
     create: Joi.object({
+        table_name: Joi.string().min(2).max(50).required(),
         table_desc: Joi.string().min(2).max(100).required(),
         min_capacity: Joi.number().integer().min(1).required(),
         max_capacity: Joi.number().integer().min(Joi.ref('min_capacity')).required(),
@@ -15,11 +16,12 @@ const tableSchema = {
 
     // Schema untuk update Table
     update: Joi.object({
+        table_name: Joi.string().min(2).max(50).required(),
+        table_desc: Joi.string().min(2).max(100).required(),
         min_capacity: Joi.number().integer().min(1).optional(),
-        max_capacity: Joi.number().integer().min(1).optional(),
+        max_capacity: Joi.number().integer().min(Joi.ref('min_capacity')).optional(),
         image_uri: Joi.string().optional().allow(null, ""),
         identifier_table: Joi.string().optional(),
-        table_desc: Joi.string().min(2).max(100).required(),
         is_outdoor: Joi.boolean().optional(),
         is_active: Joi.boolean().optional(),
         barcode: Joi.string().optional(),

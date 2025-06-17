@@ -2,6 +2,7 @@ import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
 import { successResponse, createdResponse } from "../../utils/response.js";
 import ProductService from "./product-service.js";
+import uploadFile from "../../middlewares/upload-file-middleware.js";
 
 class ProductController {
     async getAll(req, res) {
@@ -46,9 +47,35 @@ class ProductController {
     async delete(req, res) {
         const { id } = req.params;
         const userId = req.user.id;
-        const deleted = await ProductService.delete(id, userId);
+        const deleted = await ProductService.softDelete(id, userId);
 
         return successResponse(res, deleted);
+    }
+
+    async uploadImage(req, res) {
+        if (!req.file) {
+            throw new BaseError("No file uploaded", 400);
+        }
+
+        const relativePath = `/public/product/${req.file.filename}`;
+
+        return successResponse(res, relativePath);
+    }
+
+    async import(req, res) {
+        if (!req.file) {
+            throw new BaseError("No file uploaded", 400);
+        }
+
+        const filePath = req.file.path;
+        const userId = req.user.id;
+        const profileId = req.profile.id;
+
+        // Call the service to handle the import logic
+        const importedProducts = await ProductService.import(filePath, userId, profileId);
+
+        return createdResponse(res, importedProducts);
+
     }
 }
 

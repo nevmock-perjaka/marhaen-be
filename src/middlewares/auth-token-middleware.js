@@ -45,7 +45,7 @@ class AuthMiddleware {
 
             if (!user) {
                 return next(
-                    new BaseError(403, statusCodes.FORBIDDEN.message, 'FORBIDDEN', 'User Not Found')
+                    new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', 'User Not Found')
                 );
             }
 
@@ -129,7 +129,6 @@ class AuthMiddleware {
             const user = req.user;
             const profile = req.profile;
 
-            console.log(profile.role);
             if (!user) {
                 return next(
                     new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', 'User Not Authenticated')

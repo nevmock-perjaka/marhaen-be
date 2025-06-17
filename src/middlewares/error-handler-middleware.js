@@ -29,6 +29,22 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
+  console.log(err);
+
+  if (err.name === "MulterError"){
+    return res.status(StatusCodes.BAD_REQUEST.code).json({
+      code: 400,
+      status: StatusCodes.BAD_REQUEST.message,
+      recordsTotal: 0,
+      data: null,
+      errors: {
+        name: err.name,
+        message: err.field,
+        validation: null
+      },
+    });
+  }
+
   //   if (err.name == "SequelizeValidationError") {
   //     return res.status(400).json(err);
   //   }

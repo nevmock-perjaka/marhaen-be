@@ -25,6 +25,23 @@ model User {
   profiles                  Profile[]
   system_logs               System_log[]
   subscription_transactions Subscription_transaction[]
+  midtrans_user           Midtrans_User[]
+}
+
+model Midtrans_User {
+  id String    @id @default(uuid())
+  user_id String @unique
+  secret_key String?
+  client_key String?
+  is_production Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  created_by String
+  updated_by String
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Profile {
@@ -118,6 +135,7 @@ model Product {
   created_by String
   updated_by String
   owned_by   String
+  deleted_at DateTime?
 
   Order_item        Order_item[]
   Add_on_group      Add_on_group[]
@@ -278,6 +296,8 @@ model Supplier {
   address      String
   phone_number String
   status       Boolean
+  price Float?
+  unit_type String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -294,6 +314,7 @@ model Table {
   max_capacity     Int
   image_uri        String?
   identifier_table String
+  table_name       String
   table_desc       String
   is_outdoor       Boolean
   is_active        Boolean
@@ -326,7 +347,7 @@ model Order {
 
   table             Table?              @relation(fields: [table_id], references: [id])
   discount          Discount?           @relation(fields: [discount_id], references: [id])
-  Staff             Staff               @relation(fields: [staff_id], references: [id])
+  Staff             Staff               @relation(fields: [staff_id], references: [id], onDelete: NoAction)
   Order_item        Order_item[]
   Order_transaction Order_transaction[]
   Stock_log Stock_log[]
@@ -346,8 +367,8 @@ model Order_item {
   updated_by String
   owned_by   String
 
-  order   Order   @relation(fields: [order_id], references: [id])
-  product Product @relation(fields: [product_id], references: [id])
+  order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onDelete: NoAction)
   Order_item_add_on Order_item_add_on[]
 }
 
@@ -363,8 +384,8 @@ model Order_item_add_on {
   updated_by String
   owned_by   String
 
-  order_item Order_item @relation(fields: [order_item_id], references: [id])
-  add_on     Add_on     @relation(fields: [add_on_id], references: [id])
+  order_item Order_item @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  add_on     Add_on     @relation(fields: [add_on_id], references: [id], onDelete: NoAction)
 }
 
 model Order_transaction {
@@ -385,7 +406,7 @@ model Order_transaction {
   updated_by     String
   owned_by       String
 
-  order Order @relation(fields: [order_id], references: [id])
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }
 
 model Staff {
@@ -416,7 +437,7 @@ model Staff_log {
   updated_by String
   owned_by   String
 
-  staff Staff @relation(fields: [staff_id], references: [id])
+  staff Staff @relation(fields: [staff_id], references: [id], onDelete: NoAction)
 }
 
 model Stock_log {

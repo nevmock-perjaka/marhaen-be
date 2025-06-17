@@ -1,5 +1,6 @@
 import BaseRoutes from "../../base_classes/base-routes.js";
 import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
+import uploadFile from "../../middlewares/upload-file-middleware.js";
 import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
 import tryCatch from "../../utils/tryCatcher.js";
 import TableController from "./table-controller.js";
@@ -32,6 +33,13 @@ class TableRoutes extends BaseRoutes {
             authTokenMiddleware.authorizeRoles(['STAFF']),
             tryCatch(TableController.delete)
         ]);
+
+        this.router.post("/upload-image", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['STAFF']),
+            uploadFile('/table', 'image').single('image'),
+            tryCatch(TableController.uploadImage)
+        ])
     }
 }
 

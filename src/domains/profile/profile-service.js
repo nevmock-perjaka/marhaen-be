@@ -31,13 +31,10 @@ class ProfileService {
             }
         });
 
-        if (!profile) {
-            throw BaseError.badRequest("Profile not found");
-        }
-
-        if (profile.pin && profile.pin !== pin) {
-            throw BaseError.badRequest("Invalid PIN");
-        }
+        if (!profile) throw BaseError.badRequest("Profile not found");
+        if (profile.pin && profile.pin !== pin) throw BaseError.badRequest("Invalid PIN");
+        if (!profile.pin && pin) throw BaseError.badRequest("Profile does not have a PIN set");
+        
 
         const token = generateToken({
             id: user_id,
@@ -80,6 +77,31 @@ class ProfileService {
             ...profile,
             pin: !!profile.pin,
         };
+    }
+
+    async updateProfilePin(userId, data) {
+        const profile = await db.profile.findUnique({
+            where: {
+                id: data.profile_id,
+            }
+        });
+
+        if (!profile) throw BaseError.notFound("Profile not found");
+        if (profile.user_id !== userId) throw BaseError.forbidden("You are not allowed to access this profile.");
+        if (data.old_pin && !profile.pin) throw BaseError.badRequest("Profile does not have a PIN set");
+        if (profile.pin && !data.old_pin) throw BaseError.badRequest("Old PIN is required to update PIN");
+        if (profile.pin !== data.old_pin) throw BaseError.badRequest("Old PIN is incorrect");
+
+        const updated = await db.profile.update({
+            where: {
+                id: data.profile_id,
+            },
+            data: {
+                pin: data.new_pin,
+            }
+        });
+
+        return updated;
     }
 }
 
