@@ -25,6 +25,22 @@ model User {
   profiles                  Profile[]
   system_logs               System_log[]
   subscription_transactions Subscription_transaction[]
+  midtrans_user           Midtrans_User[]
+}
+
+model Midtrans_User {
+  id String    @id @default(uuid())
+  user_id String @unique
+  secret_key String?
+  client_key String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  created_by String
+  updated_by String
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Profile {
