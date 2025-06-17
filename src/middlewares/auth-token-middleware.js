@@ -45,7 +45,7 @@ class AuthMiddleware {
 
             if (!user) {
                 return next(
-                    new BaseError(403, statusCodes.FORBIDDEN.message, 'FORBIDDEN', 'User Not Found')
+                    new BaseError(401, statusCodes.UNAUTHORIZED.message, 'UNAUTHORIZED', 'Invalid Token Type')
                 );
             }
 
