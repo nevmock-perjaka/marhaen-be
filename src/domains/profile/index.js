@@ -4,7 +4,7 @@ import MidtransRoutes from "./config/midtrans/midtrans-routes.js";
 
 const router = express.Router();
 
-router.use("/config/midtrans", MidtransRoutes)
 router.use("/", ProfileRoutes);
+router.use("/config/midtrans", MidtransRoutes)
 
 export default router;
