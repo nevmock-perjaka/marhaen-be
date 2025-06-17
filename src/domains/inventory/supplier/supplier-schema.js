@@ -7,7 +7,9 @@ const supplierSchema = {
         description: Joi.string().allow("").optional(),
         address: Joi.string().required(),
         phone_number: Joi.string().pattern(/^[0-9+\-\s]{7,15}$/).required(),
-        status: Joi.boolean().default(true)
+        status: Joi.boolean().default(true),
+        price: Joi.number().precision(2).min(0).required(),
+        unit_type: Joi.string().required()
     }),
 
     // Schema untuk update supplier
@@ -17,6 +19,8 @@ const supplierSchema = {
         address: Joi.string().optional(),
         phone_number: Joi.string().pattern(/^[0-9+\-\s]{7,15}$/).optional(),
         status: Joi.boolean().optional(),
+        price: Joi.number().precision(2).min(0).optional(),
+        unit_type: Joi.string().optional()
     })
 };
 

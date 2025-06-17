@@ -296,6 +296,8 @@ model Supplier {
   address      String
   phone_number String
   status       Boolean
+  price Float?
+  unit_type String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

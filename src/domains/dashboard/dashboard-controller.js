@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 
 class DashboardController {
     async index(req, res) {
-        const ownedBy = req.user.owned_by || "";
+        const ownedBy = req.user.id || "";
         const { start, end } = req.query;
 
         const startDate = start ? dayjs(start).startOf("day").toDate() : dayjs().startOf("month").toDate();
@@ -16,18 +16,18 @@ class DashboardController {
             ingredientCost,
             topTransactions
         ] = await Promise.all([
-            DashboardService.netProfit.getChartData(ownedBy, startDate, endDate),
-            DashboardService.salesPerformance.getChartData(ownedBy, startDate, endDate),
-            DashboardService.ingredientCost.getChartData(ownedBy, startDate, endDate),
-            DashboardService.transaction.getMonthlySales(ownedBy, startDate, endDate),
+            DashboardService.netProfit.getNetProfitInRange(startDate, endDate, ownedBy),
+            // DashboardService.salesPerformance.getChartData(ownedBy, startDate, endDate),
+            // DashboardService.ingredientCost.getChartData(ownedBy, startDate, endDate),
+            // DashboardService.transaction.getMonthlySales(ownedBy, startDate, endDate),
         ]);
 
         return successResponse(res, {
             range: { start: startDate, end: endDate },
             netProfit,
-            salesPerformance,
-            ingredientCost,
-            topTransactions
+            // salesPerformance,
+            // ingredientCost,
+            // topTransactions
         });
     }
 

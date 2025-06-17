@@ -10,50 +10,62 @@ import NetProfitController from "./metrics/netProfit/net-profit-controller.js";
 import SalesPerformanceController from "./metrics/salesPerformance/sales-performance-controller.js";
 import IngredientCostController from "./metrics/ingredientCost/ingredient-cost-controller.js";
 import TransactionController from "./metrics/transaction/transaction-controller.js";
+import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
 
 class DashboardRoutes extends BaseRoutes {
     routes() {
         // Dashboard summary
-        this.router.get(
-            "/summary",
-            [validateCredentials, tryCatch(DashboardController.index),]
-        );
+        this.router.get("/summary", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(DashboardController.index),
+        ]);
 
         // Net Profit
-        this.router.get(
-            "/net-profit",
-            [validateCredentials, tryCatch(NetProfitController.getByRange)]
-        );
-        this.router.get(
-            "/net-profit/comparison",
-            [validateCredentials, tryCatch(NetProfitController.getComparison)]
-        );
+        this.router.get("/net-profit", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(NetProfitController.getByRange)
+        ]);
+
+        this.router.get("/net-profit/comparison", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(NetProfitController.getComparison)
+        ]);
 
         // Sales Performance
-        this.router.get(
-            "/sales-performance",
-            [validateCredentials, tryCatch(SalesPerformanceController.getByRange)]
-        );
-        this.router.get(
-            "/sales-performance/comparison",
-            [validateCredentials, tryCatch(SalesPerformanceController.getComparison)]
-        );
+        this.router.get("/sales-performance", [ 
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(SalesPerformanceController.getByRange)
+        ]);
+
+        this.router.get("/sales-performance/comparison", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(SalesPerformanceController.getComparison)
+        ]);
 
         // Ingredient Cost
-        this.router.get(
-            "/ingredient-cost",
-            [validateCredentials, tryCatch(IngredientCostController.getByRange)]
-        );
-        this.router.get(
-            "/ingredient-cost/comparison",
-            [validateCredentials, tryCatch(IngredientCostController.getComparison)]
-        );
+        this.router.get("/ingredient-cost", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(IngredientCostController.getByRange)
+        ]);
+
+        this.router.get("/ingredient-cost/comparison", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(IngredientCostController.getComparison)
+        ]);
 
         // Transaction (no comparison)
-        this.router.get(
-            "/transaction",
-            [validateCredentials, tryCatch(TransactionController.getByRange)]
-        );
+        this.router.get("/transaction", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(TransactionController.getByRange)
+        ]);
     }
 }
 
