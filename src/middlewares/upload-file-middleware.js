@@ -1,8 +1,7 @@
-// middlewares/fileUpload.js
-
-import multer from 'multer';
+import multer, { MulterError } from 'multer';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -16,15 +15,28 @@ const mimeTypes = {
   all: /.*/ // jika ingin mengizinkan semua
 };
 
+function generateRandomFilename(originalname) {
+  const ext = path.extname(originalname);
+  const randomStr = crypto.randomBytes(16).toString('hex');
+  return `${randomStr}${ext}`;
+}
+
 function uploadFile(subfolder = '', type = 'image') {
-  const fullPath = path.join(__dirname, '../public', subfolder);
+  const fullPath = path.join(__dirname, '../../public', subfolder);
   fs.mkdirSync(fullPath, { recursive: true });
 
+  console.log(fullPath);
+
   const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, fullPath),
+    destination: (req, file, cb) => {
+      cb(null, fullPath)
+    },
+
     filename: (req, file, cb) => {
-      const ext = path.extname(file.originalname);
-      cb(null, `${Date.now()}-${file.fieldname}${ext}`);
+      const filename = generateRandomFilename(file.originalname);
+      console.log(`[UPLOAD] Saving as: ${filename}`);
+      console.log(`[UPLOAD] File: ${JSON.stringify(file)}`);
+      cb(null, filename);
     }
   });
 
@@ -40,7 +52,7 @@ function uploadFile(subfolder = '', type = 'image') {
     if (extValid && mimeValid) {
       cb(null, true);
     } else {
-      cb(new Error(`Only ${type} files are allowed.`), false);
+      cb(new MulterError(400, `Only ${type} files are allowed.`), false);
     }
   };
 

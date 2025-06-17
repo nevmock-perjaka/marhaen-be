@@ -14,6 +14,11 @@ import path from "path";
 
 import BaseError from "./base_classes/base-error.js";
 
+import authRoutes from "./domains/auth/auth-routes.js";
+import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
+import planRoutes from "./domains/plan/plan-routes.js";
+import transactionRoutes from "./domains/transaction/transaction-routes.js";
+
 import routes from "./routes.js";
 import expressListEndpoints from "express-list-endpoints";
 
@@ -43,18 +48,6 @@ class ExpressApplication {
       helmet(),
       // cors(),
     ]);
-
-    this.app.use(
-      multer({
-        storage: this.fileStorage,
-        fileFilter: this.fileFilter,
-      }).fields([
-        {
-          name: "image",
-          maxCount: 1,
-        },
-      ])
-    );
   }
 
   setupMiddlewares(middlewaresArr) {
@@ -67,15 +60,13 @@ class ExpressApplication {
 
     // console.log(expressListEndpoints(this.app));
 
-    this.app.use('/public', express.static(path.join(__dirname, 'public')));
-
     this.app.use("/*", () => {
       throw BaseError.notFound("Route not found");
     });
   }
 
   configureAssets() {
-    this.app.use(express.static(path.join(__filename, "public")));
+    this.app.use('/public', express.static(path.join(__filename, 'public')));
   }
 
   setupLibrary(libraries) {
