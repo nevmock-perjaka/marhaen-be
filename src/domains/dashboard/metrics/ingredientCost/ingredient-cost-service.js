@@ -8,7 +8,10 @@ class IngredientCostService {
 
         const orders = await prisma.order.findMany({
             where: {
-                created_at: { gte: start, lte: end },
+                created_at: { 
+                    gte: start, 
+                    lte: end 
+                },
                 owned_by: ownedBy,
             },
             include: {

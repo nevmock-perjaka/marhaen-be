@@ -6,8 +6,8 @@ class NetProfitService {
         const orders = await prisma.order.findMany({
             where: {
                 created_at: {
-                    gte: new Date(startDate).getDate(),
-                    lte: new Date(endDate).getDate(),
+                    gte: startDate,
+                    lte: endDate,
                 },
                 owned_by: ownedBy,
                 status: { in: ["Paid"] },

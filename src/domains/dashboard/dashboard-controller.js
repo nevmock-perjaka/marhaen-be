@@ -7,8 +7,11 @@ class DashboardController {
         const ownedBy = req.user.id;
         const { start, end } = req.query;
 
-        const startDate = start ? dayjs(start).startOf("day").toDate() : dayjs().startOf("month").toDate();
-        const endDate = end ? dayjs(end).endOf("day").toDate() : dayjs().endOf("month").toDate();
+        let startDate = start ? dayjs(start).startOf("day").toDate() : dayjs().startOf("month").toDate();
+        let endDate = end ? dayjs(end).endOf("day").toDate() : dayjs().endOf("month").toDate();
+
+        startDate = new Date(startDate).toISOString();
+        endDate = new Date(endDate).toISOString();
 
         const [
             netProfit,
@@ -16,10 +19,10 @@ class DashboardController {
             ingredientCost,
             topTransactions
         ] = await Promise.all([
-            DashboardService.netProfit.getChartData(ownedBy, startDate, endDate),
-            DashboardService.salesPerformance.getChartData(ownedBy, startDate, endDate),
-            DashboardService.ingredientCost.getChartData(ownedBy, startDate, endDate),
-            DashboardService.transaction.getChartData(ownedBy, startDate, endDate),
+            DashboardService.netProfit.getChartData(startDate, endDate, ownedBy),
+            DashboardService.salesPerformance.getChartData(startDate, endDate, ownedBy),
+            DashboardService.ingredientCost.getChartData(startDate, endDate, ownedBy),
+            DashboardService.transaction.getChartData(startDate, endDate, ownedBy),
         ]);
 
         return successResponse(res, {

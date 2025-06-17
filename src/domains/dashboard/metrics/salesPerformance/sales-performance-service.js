@@ -7,10 +7,10 @@ class SalesPerformanceService {
             where: {
                 owned_by: ownedBy,
                 created_at: {
-                    gte: new Date(startDate),
-                    lte: new Date(endDate),
+                    gte: startDate,
+                    lte: endDate,
                 },
-                status: "PAID", // status order yang sudah dibayar
+                status: "Paid", // status order yang sudah dibayar
             },
             select: {
                 total_gross: true,

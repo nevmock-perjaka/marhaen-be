@@ -6,12 +6,12 @@ class TransactionService {
             where: {
                 order: {
                     created_at: {
-                        gte: new Date(start),
-                        lte: new Date(end),
+                        gte: start,
+                        lte: end,
                     },
                     owned_by: ownedBy,
                     status: {
-                        in: ["PAID", "COMPLETED"], // hanya order yang selesai/dibayar
+                        in: ["Paid"], // hanya order yang selesai/dibayar
                     },
                 },
             },
