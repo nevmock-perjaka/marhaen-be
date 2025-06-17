@@ -45,6 +45,16 @@ class TableController {
         const deleted = await TableService.delete(tableId, userId);
         return successResponse(res, deleted);
     }
+
+    async uploadImage(req, res) {
+        if (!req.file) {
+            throw new BaseError("No file uploaded", 400);
+        }
+
+        const relativePath = `/public/table/${req.file.filename}`;
+
+        return successResponse(res, relativePath);
+    }
 }
 
 export default new TableController();
