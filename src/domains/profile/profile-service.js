@@ -88,11 +88,17 @@ class ProfileService {
 
         if (!profile) throw BaseError.notFound("Profile not found");
         if (profile.user_id !== userId) throw BaseError.forbidden("You are not allowed to access this profile.");
-        if (data.old_pin && !profile.pin) throw BaseError.badRequest("Profile does not have a PIN set");
-        if (profile.pin && !data.old_pin) throw BaseError.badRequest("Old PIN is required to update PIN");
-        console.log(profile.pin);
 
-        console.log(profile.pin === data.old_pin);
+        // Validasi jika PIN sudah diset di DB
+        if (profile.pin) {
+            if (!data.old_pin) throw BaseError.badRequest("Old PIN is required to update PIN");
+            if (profile.pin !== data.old_pin) throw BaseError.badRequest("Old PIN is incorrect");
+        } else {
+            // Jika profile belum punya PIN tapi user malah kirim old_pin
+            if (data.old_pin) throw BaseError.badRequest("Profile does not have a PIN set");
+        }
+
+
         // if (profile.pin && profile.pin !== data.old_pin) throw BaseError.badRequest("Old PIN is incorrect");
 
         const updated = await db.profile.update({
