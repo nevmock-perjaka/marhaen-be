@@ -34,6 +34,7 @@ class AuthRoutes extends BaseRoutes {
 
         this.router.put("/me", [
             authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
             validateCredentials(profileSchema),
             tryCatch(AuthController.updateProfile)
         ]);
