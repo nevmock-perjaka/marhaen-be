@@ -31,6 +31,12 @@ class ProfileRoutes extends BaseRoutes {
             validateCredentials(changePinSchema),
             tryCatch(ProfileController.updateProfilePin)
         ])
+
+        this.router.delete("/reset-account", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(ProfileController.resetAccount)
+        ])
     }
 }
 

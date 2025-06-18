@@ -109,6 +109,75 @@ class ProfileService {
 
         return updated;
     }
+
+    async resetAccount(userId) {
+        return db.$transaction(async (tx) => {
+            await tx.profile.updateMany({
+                where: {
+                    user_id: userId,
+                },
+                data: {
+                    pin: null
+                }
+            });
+
+            
+
+            await tx.staff_log.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.order.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.staff.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.product.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            })
+
+            await tx.input_history.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.inventory.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.supplier.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.discount.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+
+            await tx.table.deleteMany({
+                where: {
+                    owned_by: userId
+                }
+            });
+        })
+    }
 }
 
 export default new ProfileService();

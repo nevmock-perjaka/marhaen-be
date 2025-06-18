@@ -68,100 +68,9 @@ async function main() {
             },
         },
     });
-
+    
     console.log('✅ User and profiles seeded.');
-
-    await prisma.product.create({
-        data: {
-            id: 'd1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6',
-            name: 'Coffee',
-            description: 'A delicious cup of coffee.',
-            price: 25000,
-            is_active: true,
-            image_uri: 'https://example.com/images/coffee.jpg',
-            category: 'Beverages',
-            created_at: new Date('2025-06-16T06:58:42.904Z'),
-            updated_at: new Date('2025-06-16T06:58:42.904Z'),
-            created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-            updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-            Add_on_group: {
-                create: [
-                    {
-                        id: 'g1h2i3j4-k5l6-7m8n-9o0p-q1r2s3t4u5v6',
-                        name: 'Milk Options',
-                        is_required: false,
-                        max_selection: 2,
-                        is_active: true,
-                        created_at: new Date('2025-06-16T06:58:42.904Z'),
-                        updated_at: new Date('2025-06-16T06:58:42.904Z'),
-                        created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                        updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                        owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-                        Add_on: {
-                            create: [
-                                {
-                                    id: 'w1x2y3z4-a5b6-c7d8-e9f0-g1h2i3j4k5l6',
-                                    name: 'Whole Milk',
-                                    price: 5000,
-                                    is_active: true,
-                                    created_at: new Date('2025-06-16T06:58:42.904Z'),
-                                    updated_at: new Date('2025-06-16T06:58:42.904Z'),
-                                    created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                                    updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                                    owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-                                },
-                                {
-                                    id: 'm1n2o3p4-q5r6-s7t8-u9v0-w1x2y3z4a5b6',
-                                    name: 'Almond Milk',
-                                    price: 7000,
-                                    is_active: true,
-                                    created_at: new Date('2025-06-16T06:58:42.904Z'),
-                                    updated_at: new Date('2025-06-16T06:58:42.904Z'),
-                                    created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                                    updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
-                                    owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-                                },
-                            ],
-                        },
-                    },
-                ],
-            }
-        },
-    })
-
-    console.log('✅ Product and Add-on groups seeded.');
-
-    await prisma.staff.create({
-        data: {
-            id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6',
-            name: 'John Doe',
-            phone_number: '081234567890',
-            is_active: true,
-            created_at: new Date('2025-06-16T06:58:42.904Z'),
-            updated_at: new Date('2025-06-16T06:58:42.904Z'),
-            created_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
-            updated_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
-            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-            Staff_log: {
-                create: [
-                    {
-                        id: 'f1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6',
-                        start_timestamp: new Date('2025-06-16T07:00:00.000Z'),
-                        end_timestamp: null, // Clocked in
-                        created_at: new Date('2025-06-16T06:58:42.904Z'),
-                        updated_at: new Date('2025-06-16T06:58:42.904Z'),
-                        created_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
-                        updated_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
-                        owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
-                    },
-                ],
-            },
-        }
-    })
-
-    console.log('✅ Staff and Staff logs seeded.');
-
+    
     await prisma.supplier.create({
         data: {
             id: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6',
@@ -179,7 +88,7 @@ async function main() {
     })
 
     console.log('✅ Supplier seeded.');
-
+    
     await prisma.inventory.create({
         data: {
             id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6',
@@ -228,6 +137,139 @@ async function main() {
     });
 
     console.log('✅ Inventory and Input history seeded.');
+
+    await prisma.product.create({
+        data: {
+            id: 'd1e2f3a4-b5c6-7d8e-9f0a-b1c2d3e4f5a6',
+            name: 'Coffee',
+            description: 'A delicious cup of coffee.',
+            price: 25000,
+            is_active: true,
+            image_uri: 'https://example.com/images/coffee.jpg',
+            category: 'Beverages',
+            created_at: new Date('2025-06-16T06:58:42.904Z'),
+            updated_at: new Date('2025-06-16T06:58:42.904Z'),
+            created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+            updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+            Add_on_group: {
+                create: [
+                    {
+                        id: 'g1h2i3j4-k5l6-7m8n-9o0p-q1r2s3t4u5v6',
+                        name: 'Milk Options',
+                        is_required: false,
+                        max_selection: 2,
+                        is_active: true,
+                        created_at: new Date('2025-06-16T06:58:42.904Z'),
+                        updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                        created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                        updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                        owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                        Add_on: {
+                            create: [
+                                {
+                                    id: 'w1x2y3z4-a5b6-c7d8-e9f0-g1h2i3j4k5l6',
+                                    name: 'Whole Milk',
+                                    price: 5000,
+                                    is_active: true,
+                                    created_at: new Date('2025-06-16T06:58:42.904Z'),
+                                    updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                                    created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                    updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                    owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                                    Add_on_config: {
+                                        create: {
+                                            id: 'x1y2z3a4-b5c6-d7e8-f9g0-h1i2j3k4l5m6',
+                                            inventory_id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Inventory ID
+                                            operation: 'reduce',
+                                            value: 1,
+                                            created_at: new Date('2025-06-16T06:58:42.904Z'),
+                                            updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                                            created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                            updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                                        }
+                                    }
+                                },
+                                {
+                                    id: 'm1n2o3p4-q5r6-s7t8-u9v0-w1x2y3z4a5b6',
+                                    name: 'Almond Milk',
+                                    price: 7000,
+                                    is_active: true,
+                                    created_at: new Date('2025-06-16T06:58:42.904Z'),
+                                    updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                                    created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                    updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                    owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                                    Add_on_config: {
+                                        create: {
+                                            id: 'c1d2e3f4-a5b6-7c8d-9e0f-1a2b3c4d5e6f',
+                                            inventory_id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Inventory ID
+                                            operation: 'reduce',
+                                            value: 1,
+                                            created_at: new Date('2025-06-16T06:58:42.904Z'),
+                                            updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                                            created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                            updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                                            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                                        }
+                                    }
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+            Product_config: {
+                create: {
+                    id: 'h1i2j3k4-l5m6-n7o8-p9q0-r1s2t3u4v5w6',
+                    inventory_id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Inventory ID
+                    operation: 'reduce',
+                    value: 2,
+                    created_at: new Date('2025-06-16T06:58:42.904Z'),
+                    updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                    created_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                    updated_by: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6', // Owner profile ID
+                    owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                }
+            }
+        },
+    })
+
+    console.log('✅ Product and Add-on groups seeded.');
+
+    await prisma.staff.create({
+        data: {
+            id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6',
+            name: 'John Doe',
+            phone_number: '081234567890',
+            is_active: true,
+            created_at: new Date('2025-06-16T06:58:42.904Z'),
+            updated_at: new Date('2025-06-16T06:58:42.904Z'),
+            created_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
+            updated_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
+            owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+            Staff_log: {
+                create: [
+                    {
+                        id: 'f1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6',
+                        start_timestamp: new Date('2025-06-16T07:00:00.000Z'),
+                        end_timestamp: null, // Clocked in
+                        created_at: new Date('2025-06-16T06:58:42.904Z'),
+                        updated_at: new Date('2025-06-16T06:58:42.904Z'),
+                        created_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
+                        updated_by: 'b1c2d3e4-f5a6-7b8c-9d0e-f1a2b3c4d5e6', // Owner profile ID
+                        owned_by: 'ff2f2d52-b315-4068-99a1-a559cac7723d',
+                    },
+                ],
+            },
+        }
+    })
+    
+    console.log('✅ Staff and Staff logs seeded.');
+
+
+
 
     await prisma.table.createMany({
         data: [

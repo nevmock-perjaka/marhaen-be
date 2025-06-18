@@ -33,6 +33,14 @@ class ProfileController {
 
         return successResponse(res, updatedProfile);
     }
+
+    async resetAccount(req, res) {
+        const userId = req.user.id;
+
+        await ProfileService.resetAccount(userId);
+
+        return successResponse(res, { message: "Account reset successfully." });
+    }
 }
 
 export default new ProfileController();
