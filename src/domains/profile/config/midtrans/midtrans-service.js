@@ -10,7 +10,7 @@ class MidtransService {
             select: {
                 user_id: true,
                 client_key: true,
-                secret_key: true,
+                server_key: true,
                 is_production: true,
                 created_at: true,
                 updated_at: true,
@@ -42,7 +42,7 @@ class MidtransService {
             }
         })
 
-        value.secret_key = encrypt(value.secret_key);
+        value.server_key = encrypt(value.server_key);
         value.client_key = encrypt(value.client_key);
 
         if (!isConfigExists) {

@@ -1,9 +1,9 @@
 import Joi from "joi";
 
 const midtransSchema = Joi.object({
-  secret_key: Joi.string().max(50).optional().messages({
-    'string.max': 'Secret Key must be at most 50 characters long.',
-    'string.base': 'Secret Key must be a string.'
+  server_key: Joi.string().max(50).optional().messages({
+    'string.max': 'Server Key must be at most 50 characters long.',
+    'string.base': 'Server Key must be a string.'
   }),
   client_key: Joi.string().max(50).optional().messages({
     'string.max': 'Client Key must be at most 50 characters long.',
