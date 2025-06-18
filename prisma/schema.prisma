@@ -79,6 +79,7 @@ model Plan {
   price     Int     @default(0)
   level     Int
   is_active Boolean @default(false)
+  description String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

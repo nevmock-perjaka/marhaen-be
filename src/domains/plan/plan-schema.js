@@ -29,6 +29,11 @@ const createPlanSchema = Joi.object({
             "number.max": "Level must be at most 1.",
             "any.required": "Level is required."
         }),
+    description: Joi.string().optional()
+        .messages({
+            "string.base": "Description must be a string.",
+            "string.empty": "Description cannot be empty."
+        }),
 });
 
 
@@ -60,7 +65,12 @@ const updatePlanSchema = Joi.object({
     is_active: Joi.boolean().optional()
         .messages({
             "boolean.base": "is_active must be a boolean value (true or false)."
-        })
+        }),
+    description: Joi.string().optional()
+        .messages({
+            "string.base": "Description must be a string.",
+            "string.empty": "Description cannot be empty."
+        }),
 });
 
 
