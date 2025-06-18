@@ -18,15 +18,9 @@ class PlanController {
     }
 
     async create(req, res) {
-        const { name, days, price, level, description } = req.body;
+        const value = req.body;
 
-        const plan = await planService.create({
-            name,
-            days,
-            price,
-            level,
-            description
-        });
+        const plan = await planService.create(value);
 
         return createdResponse(res, plan);
     }

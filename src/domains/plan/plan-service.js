@@ -25,16 +25,9 @@ class PlanService {
         return plan;
     }
 
-    async create({ name, days, price, level, description }) {
+    async create() {
         const plan = db.plan.create({
-            data: {
-                name,
-                days,
-                price,
-                level,
-                is_active: false,
-                description
-            }
+            data
         });
 
         if (!plan){

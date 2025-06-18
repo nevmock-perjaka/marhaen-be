@@ -74,12 +74,14 @@ model Otp {
 
 model Plan {
   id        String  @id @default(uuid())
+  prefix_code String?
   name      String
   days      Int     @default(30)
   price     Int     @default(0)
   level     Int
   is_active Boolean @default(false)
   description String?
+  index     Int? @default(0)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

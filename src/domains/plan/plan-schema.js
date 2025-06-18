@@ -34,6 +34,16 @@ const createPlanSchema = Joi.object({
             "string.base": "Description must be a string.",
             "string.empty": "Description cannot be empty."
         }),
+    index: Joi.number().integer().required()
+        .messages({
+            "number.base": "Index must be a number.",
+            "number.integer": "Index must be an integer."
+        }),
+    prefix_code: Joi.string().required()
+        .messages({
+            "string.base": "Prefix code must be a string.",
+            "string.empty": "Prefix code cannot be empty."
+        }),
 });
 
 
@@ -70,6 +80,16 @@ const updatePlanSchema = Joi.object({
         .messages({
             "string.base": "Description must be a string.",
             "string.empty": "Description cannot be empty."
+        }),
+    index: Joi.number().integer().required()
+        .messages({
+            "number.base": "Index must be a number.",
+            "number.integer": "Index must be an integer."
+        }),
+    prefix_code: Joi.string().required()
+        .messages({
+            "string.base": "Prefix code must be a string.",
+            "string.empty": "Prefix code cannot be empty."
         }),
 });
 
