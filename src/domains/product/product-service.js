@@ -16,12 +16,20 @@ class ProductService {
                     include: {
                         Add_on: {
                             include: {
-                                Add_on_config: true
+                                Add_on_config: {
+                                    include: {
+                                        inventory: true
+                                    }
+                                }
                             }
                         }
                     }
                 },
-                Product_config: true
+                Product_config: {
+                    include: {
+                        inventory: true
+                    }
+                }
             }
         });
     }
@@ -34,12 +42,20 @@ class ProductService {
                     include: {
                         Add_on: {
                             include: {
-                                Add_on_config: true
+                                Add_on_config: {
+                                    include: {
+                                        inventory: true
+                                    }
+                                }
                             }
                         }
                     }
                 },
-                Product_config: true
+                Product_config: {
+                    include: {
+                        inventory: true
+                    }
+                }
             }
         });
 
