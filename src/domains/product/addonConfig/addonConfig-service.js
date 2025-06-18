@@ -11,7 +11,7 @@ class AddonConfigService {
         });
     }
 
-    async findById(id) {
+    async findById(id, userId) {
         const addonConfig = await db.add_on_config.findUnique({
             where: { id },
             include: {
@@ -24,6 +24,10 @@ class AddonConfigService {
             throw BaseError.notFound("Add-on Config tidak ditemukan.");
         }
 
+        if (addonConfig.owned_by !== userId) {
+            throw BaseError.forbidden("You are not allowed to access this add-on config.");
+        }
+
         return addonConfig;
     }
 
@@ -32,17 +36,36 @@ class AddonConfigService {
     }
 
     async update(id, data) {
+        await this.checkPermission(id, data.owned_by);
+
         return await db.add_on_config.update({
             where: { id },
             data,
         });
     }
 
-    async softDelete(id) {
-        return await db.add_on_config.update({
+    async delete(id, userId) {
+        await this.checkPermission(id, userId);
+        
+        return await db.add_on_config.delete({
             where: { id },
-            data: { is_active: false }, // hanya jika kamu pakai field is_active di model
         });
+    }
+
+    async checkPermission(id, userId) {
+        const addonConfig = await db.add_on_config.findUnique({
+            where: { id },
+        });
+
+        if (!addonConfig) {
+            throw BaseError.notFound("Add-on Config tidak ditemukan.");
+        }
+
+        if (addonConfig.owned_by !== userId) {
+            throw BaseError.forbidden("You are not allowed to access this add-on config.");
+        }
+
+        return addonConfig;
     }
 }
 

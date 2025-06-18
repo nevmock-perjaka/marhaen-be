@@ -14,7 +14,11 @@ class ProductService {
             include: {
                 Add_on_group: {
                     include: {
-                        Add_on: true
+                        Add_on: {
+                            include: {
+                                Add_on_config: true
+                            }
+                        }
                     }
                 },
                 Product_config: true
@@ -28,7 +32,11 @@ class ProductService {
             include: {
                 Add_on_group: {
                     include: {
-                        Add_on: true
+                        Add_on: {
+                            include: {
+                                Add_on_config: true
+                            }
+                        }
                     }
                 },
                 Product_config: true

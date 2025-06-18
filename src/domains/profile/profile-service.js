@@ -98,9 +98,6 @@ class ProfileService {
             if (data.old_pin) throw BaseError.badRequest("Profile does not have a PIN set");
         }
 
-
-        // if (profile.pin && profile.pin !== data.old_pin) throw BaseError.badRequest("Old PIN is incorrect");
-
         const updated = await db.profile.update({
             where: {
                 id: data.profile_id,

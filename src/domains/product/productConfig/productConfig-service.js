@@ -30,6 +30,18 @@ class ProductConfigService {
     }
 
     async create(data) {
+        const configExists = await db.product_config.findFirst({
+            where: {
+                product_id: data.product_id,
+                inventory_id: data.inventory_id,
+                owned_by: data.owned_by
+            }
+        });
+        
+        if (configExists) {
+            throw BaseError.badRequest("Product configuration already exists for this product and inventory.");
+        }
+
         return await db.product_config.create({ data });
     }
 

@@ -49,7 +49,7 @@ class ProductConfigController {
         }
 
         try {
-            await inventoryService.findById(value.product_id, req.user.id);
+            await inventoryService.findById(value.inventory_id, req.user.id);
         } catch (error) {
             let validation = "";
             let stack = [];
