@@ -4,7 +4,11 @@ import BaseError from '../../base_classes/base-error.js';
 class PlanService {
     async getAll(){
         const [ data, total ] = await Promise.all([
-            db.plan.findMany(),
+            db.plan.findMany({
+                orderBy: {
+                    index: 'asc'
+                }
+            }),
             db.plan.count()
         ])
 
@@ -25,7 +29,7 @@ class PlanService {
         return plan;
     }
 
-    async create() {
+    async create(data) {
         const plan = db.plan.create({
             data
         });
