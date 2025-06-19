@@ -194,6 +194,7 @@ class AuthService {
                 subs_level: true,
                 tax_percentage: true,
                 verified_at: true,
+                strict_mode: true,
                 created_at: true,
                 updated_at: true
             }
@@ -288,6 +289,23 @@ class AuthService {
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
         return { otp, expiresAt };
+    }
+
+    async getStrictMode(id) {
+        const user = await db.user.findUnique({
+            where: {
+                id: id
+            },
+            select: {
+                strict_mode: true
+            }
+        });
+
+        if (!user) {
+            throw BaseError.notFound("User not found");
+        }
+
+        return user.strict_mode;
     }
 }
 

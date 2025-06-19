@@ -39,7 +39,6 @@ class AuthController {
     }
 
     async getProfile(req, res){
-        // console.log(req.app);
         const user = await AuthService.getProfile(req.user.id);
 
         if (!user) {

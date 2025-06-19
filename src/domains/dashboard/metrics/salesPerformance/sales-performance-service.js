@@ -98,6 +98,58 @@ class SalesPerformanceService {
 
         return total._sum.total_gross || 0;
     }
+
+    async _sum(startDate, endDate, ownedBy) {
+        const now = new Date();
+
+        const prevMonth = now.getMonth() - 1;
+        const year = prevMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
+        const month = (prevMonth + 12) % 12;
+
+        let prevStartDate = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+        let prevEndDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
+
+        prevStartDate = prevStartDate.toISOString();
+        prevEndDate = prevEndDate.toISOString();
+
+        const salesPerformance = await prisma.order.aggregate({
+            _sum: {
+                total_gross: true,
+            },
+            where: {
+                created_at: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                owned_by: ownedBy,
+                status: "Paid",
+            },
+        });
+
+        const prevSalesPerformance = await prisma.order.aggregate({
+            _sum: {
+                total_gross: true,
+            },
+            where: {
+                created_at: {
+                    gte: prevStartDate,
+                    lte: prevEndDate,
+                },
+                owned_by: ownedBy,
+                status: "Paid",
+            },
+        });
+
+        let percentageChange = 0;
+
+        percentageChange = ((salesPerformance - prevSalesPerformance) / prevSalesPerformance) * 100;
+
+        return {
+            total: salesPerformance._sum.total_gross,
+            difference: salesPerformance._sum.total_gross - prevSalesPerformance._sum.total_gross,
+            percentage: percentageChange
+        };
+    }
 }
 
 export default new SalesPerformanceService();

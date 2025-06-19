@@ -25,8 +25,6 @@ function uploadFile(subfolder = '', type = 'image') {
   const fullPath = path.join(__dirname, '../../public', subfolder);
   fs.mkdirSync(fullPath, { recursive: true });
 
-  console.log(fullPath);
-
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, fullPath)
@@ -34,8 +32,6 @@ function uploadFile(subfolder = '', type = 'image') {
 
     filename: (req, file, cb) => {
       const filename = generateRandomFilename(file.originalname);
-      console.log(`[UPLOAD] Saving as: ${filename}`);
-      console.log(`[UPLOAD] File: ${JSON.stringify(file)}`);
       cb(null, filename);
     }
   });

@@ -4,7 +4,6 @@ import { successResponse } from "../../utils/response.js"
 class TransactionController {
     async webhook(req, res) {
         const data = req.body;
-        console.log(data);
 
         const response = await transactionService.notificationSnap(data);
 

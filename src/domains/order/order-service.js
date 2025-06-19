@@ -318,8 +318,6 @@ class OrderService {
             where: { id: data.order_id }
         });
 
-        console.log(`Transaction notification received. Order ID: ${data.order_id}. Transaction status: ${data.transaction_status}. Fraud status: ${data.fraud_status}`);
-
         if (!orderTransaction) throw BaseError.badRequest("Order transaction not found");
 
         const order = await db.order.findUnique({

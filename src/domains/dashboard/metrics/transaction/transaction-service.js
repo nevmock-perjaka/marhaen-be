@@ -54,6 +54,100 @@ class TransactionService {
 
         return result;
     }
+
+    async todayTransactions(ownedBy) {
+        const today = new Date();
+
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+
+        const paidOrderIds = await prisma.order.findMany({
+            where: {
+                owned_by: ownedBy,
+                status: 'Paid',
+                created_at: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        const orderIds = paidOrderIds.map(order => order.id);
+
+        if (orderIds.length === 0) return [];
+
+        const topProducts = await prisma.order_item.groupBy({
+            by: ['product_id'],
+            where: {
+                owned_by: ownedBy,
+                order_id: {
+                    in: orderIds,
+                },
+            },
+            _sum: {
+                quantity: true,
+            },
+            orderBy: {
+                _sum: {
+                    quantity: 'desc',
+                },
+            }
+        });
+
+        const productIds = topProducts.map(p => p.product_id);
+
+        const productDetails = await prisma.product.findMany({
+            where: {
+                id: {
+                    in: productIds,
+                },
+            },
+        });
+
+        const result = topProducts.map(item => {
+            const product = productDetails.find(p => p.id === item.product_id);
+            return {
+                quantity: item._sum.quantity,
+                product
+            };
+        });
+
+        const totalTransactions = await prisma.order.count({
+            where: {
+                owned_by: ownedBy,
+                status: 'Paid',
+                created_at: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+            },
+        });
+
+        const topVoucher = await prisma.order.groupBy({
+            by: ['discount_id'],
+            where: {
+                owned_by: ownedBy,
+                status: 'Paid',
+                discount_id: {
+                    not: null 
+                }
+            },
+            _count: {
+                discount_id: true,
+            },
+            orderBy: {
+                _count: {
+                discount_id: 'desc',
+                },
+            },
+            take: 1,
+        });
+
+        return { totalTransactions, topVoucher, topProduct: result };
+    }
 }
 
 export default new TransactionService();

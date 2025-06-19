@@ -174,6 +174,19 @@ class IngredientCostService {
             previous: previous.total_cost,
         };
     }
+
+    async _sum(ownedBy) {
+        const ingredientCost = await prisma.input_history.aggregate({
+            _sum: {
+                price: true,
+            },
+            where: {
+                owned_by: ownedBy
+            },
+        });
+
+        return ingredientCost._sum.price || 0;
+    }
 }
 
 export default new IngredientCostService();

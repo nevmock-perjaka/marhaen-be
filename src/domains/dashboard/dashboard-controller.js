@@ -1,15 +1,18 @@
 import DashboardService from "./dashboard-service.js";
 import { successResponse } from "../../utils/response.js";
 import dayjs from "dayjs";
+import StaffLogService from "../shift/staff_log/staff-log-service.js";
+import AuthService from "../auth/auth-service.js";
 
 class DashboardController {
     async index(req, res) {
         const ownedBy = req.user.id;
-        const { start, end } = req.query;
 
-        let startDate = start ? dayjs(start).startOf("day").toDate() : dayjs().startOf("month").toDate();
-        let endDate = end ? dayjs(end).endOf("day").toDate() : dayjs().endOf("month").toDate();
+        const now = new Date();
 
+        let startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0));
+        let endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59));
+        
         startDate = new Date(startDate).toISOString();
         endDate = new Date(endDate).toISOString();
 
@@ -17,12 +20,16 @@ class DashboardController {
             netProfit,
             salesPerformance,
             ingredientCost,
-            topTransactions
+            todayTransaction,
+            staffLogs,
+            strictMode
         ] = await Promise.all([
-            DashboardService.netProfit.getChartData(startDate, endDate, ownedBy),
-            DashboardService.salesPerformance.getChartData(startDate, endDate, ownedBy),
-            DashboardService.ingredientCost.getChartData(startDate, endDate, ownedBy),
-            DashboardService.transaction.getChartData(startDate, endDate, ownedBy),
+            DashboardService.netProfit._sum(startDate, endDate, ownedBy),
+            DashboardService.salesPerformance._sum(startDate, endDate, ownedBy),
+            DashboardService.ingredientCost._sum(ownedBy),
+            DashboardService.transaction.todayTransactions(ownedBy),
+            StaffLogService.todayStaffLogs(ownedBy),
+            AuthService.getStrictMode(ownedBy)
         ]);
 
         return successResponse(res, {
@@ -30,24 +37,10 @@ class DashboardController {
             netProfit,
             salesPerformance,
             ingredientCost,
-            topTransactions
+            todayTransaction,
+            staffLogs,
+            strictMode
         });
-    }
-
-    async show() {
-        throw new Error("Not Implemented");
-    }
-
-    async create() {
-        throw new Error("Not Implemented");
-    }
-
-    async update() {
-        throw new Error("Not Implemented");
-    }
-
-    async delete() {
-        throw new Error("Not Implemented");
     }
 }
 
