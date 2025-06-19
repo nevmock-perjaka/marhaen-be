@@ -21,7 +21,7 @@ class AddonConfigRoutes extends BaseRoutes {
       validateCredentials(addonConfigSchema.create),
       tryCatch(AddonConfigController.create),
     ]);
-    this.router.put("/:id", [
+    this.router.put("/", [
       authTokenMiddleware.authenticate,
       authTokenMiddleware.authorizeRoles(["STAFF"]),
       validateCredentials(addonConfigSchema.update),

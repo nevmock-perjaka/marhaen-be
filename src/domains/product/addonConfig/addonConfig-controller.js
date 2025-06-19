@@ -36,30 +36,16 @@ class AddonConfigController {
         value.updated_by = profileId;
 
         try {
-            await addonService.findById(value.add_on_id, userId);
+            await addonService.findById(value.add_on_id, value.owned_by);
         } catch (error) {
             let validation = "";
             let stack = [];
 
             validation += "Add-on not found.";
+
             stack.push({
                 message: "Add-on not found.",
                 path: ["add_on_id"]
-            });
-            
-            throw new Joi.ValidationError(validation, stack);
-        }
-
-        try {
-            await inventoryService.findById(value.inventory_id, userId);
-        } catch (error) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Inventory not found.";
-            stack.push({
-                message: "Inventory not found.",
-                path: ["inventory_id"]
             });
 
             throw new Joi.ValidationError(validation, stack);
@@ -70,14 +56,15 @@ class AddonConfigController {
     }
 
     async update(req, res) {
-        const { id } = req.params;
-        const { error, value } = addonConfigSchema.update.validate(req.body);
-        if (error) throw BaseError.badRequest(error.details[0].message);
+        let value = req.body;
+        const userId = req.user.id;
+        const profileId = req.profile.id;
 
-        const updated = await db.add_on_config.update({
-            where: { id },
-            data: value,
-        });
+        value.owned_by = userId;
+        value.created_by = profileId;
+        value.updated_by = profileId;
+
+        const updated = await addonConfigService.update(value);
 
         return successResponse(res, updated);
     }

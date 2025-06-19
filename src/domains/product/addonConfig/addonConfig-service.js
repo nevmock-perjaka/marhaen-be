@@ -32,16 +32,88 @@ class AddonConfigService {
     }
 
     async create(data) {
-        return await db.add_on_config.create({ data });
-    }
+        const inventoryIds = data.config.map(item => item.inventory_id);
 
-    async update(id, data) {
-        await this.checkPermission(id, data.owned_by);
+        const inventoryExists = await db.inventory.findMany({
+            where: {
+                id: { in: inventoryIds },
+                owned_by: data.owned_by,
+            }
+        })
 
-        return await db.add_on_config.update({
-            where: { id },
-            data,
+        if (inventoryExists.length !== inventoryIds.length) throw BaseError.notFound("Duplicate inventory IDs or some do not belong to the user.");
+
+        const existingConfigs = await db.add_on_config.findMany({
+            where: {
+                add_on_id: data.add_on_id,
+                inventory_id: { in: inventoryIds },
+                owned_by: data.owned_by,
+            }
         });
+
+        if (existingConfigs.length > 0) {
+            const existingIds = existingConfigs.map(c => c.inventory_id);
+            throw BaseError.badRequest(`Configuration already exists for config(s): ${existingIds.join(', ')}`);
+        }
+
+        const datas = data.config.map((item) => ({
+            add_on_id: data.add_on_id,
+            inventory_id: item.inventory_id,
+            operation: item.operation,
+            value: item.value,
+            owned_by: data.owned_by,
+            created_by: data.created_by,
+            updated_by: data.updated_by,
+        }));
+
+        return await db.add_on_config.createManyAndReturn({ data: datas });
+    }   
+
+    async update(data) {
+        return await db.$transaction(async (tx) => {
+            const inventoryIds = data.config.map(item => item.inventory_id);
+        
+            const inventoryExists = await tx.inventory.findMany({
+                where: {
+                    id: { in: inventoryIds },
+                    owned_by: data.owned_by,
+                }
+            })
+
+            if (inventoryExists.length !== inventoryIds.length) throw BaseError.notFound("Duplicate inventory IDs or some do not belong to the user.");
+
+            await tx.add_on_config.deleteMany({
+                where: {
+                    add_on_id: data.add_on_id,
+                    owned_by: data.owned_by,
+                }
+            });
+
+            const existingConfigs = await tx.add_on_config.findMany({
+                where: {
+                    add_on_id: data.add_on_id,
+                    inventory_id: { in: inventoryIds },
+                    owned_by: data.owned_by,
+                }
+            });
+
+            if (existingConfigs.length > 0) {
+                const existingIds = existingConfigs.map(c => c.inventory_id);
+                throw BaseError.badRequest(`Configuration already exists for config(s): ${existingIds.join(', ')}`);
+            }
+
+            const datas = data.config.map((item) => ({
+                add_on_id: data.add_on_id,
+                inventory_id: item.inventory_id,
+                operation: item.operation,
+                value: item.value,
+                owned_by: data.owned_by,
+                created_by: data.created_by,
+                updated_by: data.updated_by,
+            }));
+
+            return await tx.add_on_config.createManyAndReturn({ data: datas });
+        })
     }
 
     async delete(id, userId) {
