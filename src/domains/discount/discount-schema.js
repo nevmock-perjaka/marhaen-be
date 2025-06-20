@@ -1,39 +1,51 @@
-import Joi from "joi";
+import JoiBase from "joi";
+import JoiDate from "@joi/date";
+
+const Joi = JoiBase.extend(JoiDate);
 
 const discountSchema = {
     // Schema untuk create Discount
     create: Joi.object({
-        name: Joi.string().required(),
+        description: Joi.string().required(),
         is_percentage: Joi.boolean().default(false),
-        value: Joi.number().precision(2).min(0).required(),
+        value: Joi.alternatives().conditional('is_percentage', {
+            is: true,
+            then: Joi.number().precision(2).min(0).max(100).required(),
+            otherwise: Joi.number().precision(2).min(0).required(),
+        }),
+        max_discount: Joi.number().precision(2).min(0).when('is_percentage', {
+            is: true,
+            then: Joi.required(),
+            otherwise: Joi.forbidden(),
+        }),
         min_order_amount: Joi.number().precision(2).min(0).required(),
         shareable_code: Joi.string().required(),
         max_use: Joi.number().integer().min(1).optional(),
-        used: Joi.number().integer().min(0).default(0),
-        start_at: Joi.date().required(),
-        expired_at: Joi.date().required(),
+        start_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
+        expired_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
         is_active: Joi.boolean().default(true),
-        created_by: Joi.string().required(),
-        updated_by: Joi.string().required(),
-        owned_by: Joi.string().required(),
-        created_at: Joi.date().default(() => new Date()),
-        updated_at: Joi.date().default(() => new Date())
+        
     }),
 
     // Schema untuk update Discount
     update: Joi.object({
-        name: Joi.string().optional(),
-        is_percentage: Joi.boolean().optional(),
-        value: Joi.number().precision(2).min(0).optional(),
+        description: Joi.string().optional(),
+        is_percentage: Joi.boolean().default(false),
+        value: Joi.alternatives().conditional('is_percentage', {
+            is: true,
+            then: Joi.number().precision(2).min(0).max(100).required(),
+            otherwise: Joi.number().precision(2).min(0).required(),
+        }),
+        max_discount: Joi.number().precision(2).min(0).when('is_percentage', {
+            is: true,
+            then: Joi.required(),
+            otherwise: Joi.forbidden(),
+        }),
         min_order_amount: Joi.number().precision(2).min(0).optional(),
-        shareable_code: Joi.string().optional(),
         max_use: Joi.number().integer().min(1).optional(),
-        used: Joi.number().integer().min(0).optional(),
-        start_at: Joi.date().optional(),
-        expired_at: Joi.date().optional(),
+        start_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
+        expired_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
         is_active: Joi.boolean().optional(),
-        updated_by: Joi.string().required(),
-        updated_at: Joi.date().default(() => new Date())
     })
 };
 

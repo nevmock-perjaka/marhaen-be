@@ -4,6 +4,6 @@ import DiscountRoutes from "./discount-routes.js";
 
 const router = express.Router();
 router.use("/product-discount", ProductDiscountRoutes);
-router.use("/discount", DiscountRoutes);
+router.use("/", DiscountRoutes);
 
 export default router;

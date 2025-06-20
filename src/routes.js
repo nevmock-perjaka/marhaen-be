@@ -15,6 +15,7 @@ import stockRoutes from './domains/stock/stock-routes.js';
 import profileRoutes from './domains/profile/index.js';
 import tableRoutes from './domains/table/table-routes.js';
 import orderRoutes from './domains/order/index.js'
+import discountRoutes from './domains/discount/index.js';
 
 import dashboardRoutes from './domains/dashboard/dashboard-routes.js';
 
@@ -68,6 +69,10 @@ const appsRoutes = [
   {
     path: '/dashboard',
     route: dashboardRoutes
+  },
+  {
+    path: '/discount',
+    route: discountRoutes
   }
 ];
 

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Discount" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Product_discount" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP;
