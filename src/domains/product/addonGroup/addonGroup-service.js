@@ -10,7 +10,11 @@ class AddonGroupService {
             include: {
                 Add_on: {
                     include: {
-                        add_on_group: true
+                        Add_on_config: {
+                            include: {
+                                inventory: true
+                            }
+                        }
                     }
                 },
                 product: true
