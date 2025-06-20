@@ -8,7 +8,11 @@ class AddonGroupService {
                 owned_by: userId,
             },
             include: {
-                Add_on: true,
+                Add_on: {
+                    include: {
+                        add_on_group: true
+                    }
+                },
                 product: true
             }
         });
