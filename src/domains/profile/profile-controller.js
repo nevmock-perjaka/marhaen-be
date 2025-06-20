@@ -15,7 +15,7 @@ class ProfileController {
 
         const token = await ProfileService.login(user.id, profile_id, pin);
 
-        return successResponse(res, { access_token: token });
+        return successResponse(res, token);
     }
 
     async getProfile(req, res) {

@@ -42,7 +42,7 @@ class ProfileService {
             type: "access"
         }, "1d");
 
-        return token;
+        return { access_token: token, role: profile.role };
     }
 
     async getProfile(profile_id) {
