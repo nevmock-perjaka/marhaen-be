@@ -3,6 +3,8 @@ import { successResponse, createdResponse } from "../../../utils/response.js";
 import BaseError from "../../../base_classes/base-error.js";
 import addonSchema from "./addon-schema.js";
 import AddonService from "./addon-service.js";
+import addonGroupService from "../addonGroup/addonGroup-service.js";
+import Joi from "joi";
 
 class AddonController {
     async getAll(req, res) {
@@ -27,6 +29,22 @@ class AddonController {
         value.owned_by = req.user.id;
         value.created_by = req.profile.id;
         value.updated_by = req.profile.id;
+
+        try {
+            await addonGroupService.findById(value.add_on_group_id, value.owned_by);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Add-on group not found. ";
+
+            stack.push({
+                message: "Add-on group not found.",
+                path: ["add_on_group_id"]
+            });
+
+            throw new Joi.ValidationError(validation, stack);
+        }
 
         const created = await AddonService.create(value);
         return createdResponse(res, created);
