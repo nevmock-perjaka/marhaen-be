@@ -26,6 +26,33 @@ class AddonGroupController {
         value.created_by = req.profile.id;
         value.updated_by = req.profile.id;
         
+        if (value.add_ons.length > value.max_selection) {
+            let validation = "";
+            let stack = [];
+
+            validation += `You can only input a maximum of ${max_selection} add-ons.`;
+
+            stack.push({
+                message: `You can only input a maximum of ${max_selection} add-ons.`,
+                path: ["add_ons"]
+            });
+        }
+
+        try {
+            await productService.findById(value.product_id, value.owned_by);
+        } catch (error) {
+            let validation = "";
+            let stack = [];
+
+            validation += "Product not found.";
+
+            stack.push({
+                message: "Product not found.",
+                path: ["product_id"]
+            });
+            throw new Joi.ValidationError(validation, stack);
+        }
+
         value.Add_on = {};
         value.Add_on.createMany = {
             data: value.add_ons.map(addon => {
