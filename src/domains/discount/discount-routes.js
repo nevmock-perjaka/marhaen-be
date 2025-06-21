@@ -17,19 +17,19 @@ class DiscountRoutes extends BaseRoutes {
         ]);
         this.router.post("/", [
             authTokenMiddleware.authenticate,
-            authTokenMiddleware.authorizeRoles(['STAFF']),
+            authTokenMiddleware.authorizeRoles(['OWNER']),
             validateCredentials(discountSchema.create),
             tryCatch(DiscountController.create)
         ]);
         this.router.put("/:id", [
             authTokenMiddleware.authenticate,
-            authTokenMiddleware.authorizeRoles(['STAFF']),
+            authTokenMiddleware.authorizeRoles(['OWNER']),
             validateCredentials(discountSchema.update),
             tryCatch(DiscountController.update)
         ]);
         this.router.delete("/:id", [
             authTokenMiddleware.authenticate,
-            authTokenMiddleware.authorizeRoles(['STAFF']),
+            authTokenMiddleware.authorizeRoles(['OWNER']),
             tryCatch(DiscountController.delete)
         ]);
     }
