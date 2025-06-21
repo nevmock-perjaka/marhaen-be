@@ -30,10 +30,10 @@ class AddonGroupController {
             let validation = "";
             let stack = [];
 
-            validation += `You can only input a maximum of ${max_selection} add-ons.`;
+            validation += `You can only input a maximum of ${value.max_selection} add-ons.`;
 
             stack.push({
-                message: `You can only input a maximum of ${max_selection} add-ons.`,
+                message: `You can only input a maximum of ${value.max_selection} add-ons.`,
                 path: ["add_ons"]
             });
         }

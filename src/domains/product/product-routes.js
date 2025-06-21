@@ -5,11 +5,13 @@ import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
 import validateCredentials from "../../middlewares/validate-credentials-middleware.js";
 import productSchema from "./product-schema.js";
 import uploadFile from "../../middlewares/upload-file-middleware.js";
+import validateParamsCredentials from "../../middlewares/validate-params-credentials-middleware.js";
 
 class ProductRoutes extends BaseRoutes {
     routes() {
         this.router.get("/", [
             authTokenMiddleware.authenticate,
+            // validateParamsCredentials(productSchema.params),
             tryCatch(ProductController.getAll)
         ]);
         this.router.get("/:id", [
