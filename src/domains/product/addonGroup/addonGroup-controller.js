@@ -76,22 +76,6 @@ class AddonGroupController {
         value.updated_by = req.profile.id;
         value.owned_by = req.user.id;
 
-        try {
-            await productService.findById(id, value.owned_by);
-        } catch (error) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Product not found.";
-
-            stack.push({
-                message: "Product not found.",
-                path: ["product_id"]
-            });
-
-            throw new Joi.ValidationError(validation, stack);
-        }
-
         const updateAddOn = value.add_ons.filter(addon => addon.id);
         const createAddOn = value.add_ons.filter(addon => !addon.id);
 
