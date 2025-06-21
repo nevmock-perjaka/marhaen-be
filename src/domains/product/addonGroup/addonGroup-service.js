@@ -50,6 +50,16 @@ class AddonGroupService {
     async update(id, data, updateAddOn, createAddOn) {
         await this.checkPermission(id, data.owned_by);
 
+        await db.add_on.deleteMany({
+            where: {
+                owned_by: data.owned_by,
+                add_on_group_id: id,
+                id: {
+                    notIn: updateAddOn.map(addon => addon.id)
+                }
+            }
+        })
+
         let updatedGroup = await db.add_on_group.update({
             where: { id },
             data,
