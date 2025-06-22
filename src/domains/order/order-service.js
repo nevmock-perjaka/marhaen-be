@@ -93,8 +93,8 @@ class OrderService {
             if (data.discount_id && !discountExists) throw BaseError.notFound("Discount not found.");
             if (data.discount_id && discountExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this discount.");
             if (data.discount_id && !discountExists.is_active) throw BaseError.badRequest("Discount is not active. Please activate the discount first.");
-            if (timeNow < new Date(discountExists.start_at)) throw BaseError.badRequest("Discount is not yet active.");
-            if (timeNow > new Date(discountExists.expired_at)) throw BaseError.badRequest("Discount has expired.");
+            if (data.discount_id && timeNow < new Date(discountExists.start_at)) throw BaseError.badRequest("Discount is not yet active.");
+            if (data.discount_id && timeNow > new Date(discountExists.expired_at)) throw BaseError.badRequest("Discount has expired.");
             if (data.discount_id && discountExists.used >= discountExists.max_use) throw BaseError.badRequest("Discount has reached its maximum usage limit.");
             
             const productIds = [...new Set(data.order_items.map(item => item.product_id))];

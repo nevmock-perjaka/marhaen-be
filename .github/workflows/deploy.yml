@@ -58,6 +58,6 @@ jobs:
           npm run build
           npx prisma migrate deploy 
           npx prisma generate
-          pm2 restart marhaen-be:service
+          pm2 reload marhaen-be:service
 
           
