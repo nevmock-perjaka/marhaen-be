@@ -49,4 +49,16 @@ const changePinSchema = Joi.object({
     })
 });
 
-export { loginSchema, changePinSchema };
+const resetPinSchema = Joi.object({
+  profile_id: Joi.string().required().messages({
+    'any.required': 'Profile ID is required.',
+    'string.base': 'Profile ID must be a string.'
+  }),
+  current_password: Joi.string()
+    .required()
+    .messages({
+        "string.empty": "Current Password is required."
+    })
+});
+
+export { loginSchema, changePinSchema, resetPinSchema };

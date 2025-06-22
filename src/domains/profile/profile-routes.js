@@ -4,7 +4,7 @@ import ProfileController from "./profile-controller.js";
 import tryCatch from "../../utils/tryCatcher.js";
 import validateCredentials from '../../middlewares/validate-credentials-middleware.js';
 import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
-import { changePinSchema, loginSchema } from "./profile-schema.js";
+import { changePinSchema, loginSchema, resetPinSchema } from "./profile-schema.js";
 
 class ProfileRoutes extends BaseRoutes {
     routes() {
@@ -30,6 +30,12 @@ class ProfileRoutes extends BaseRoutes {
             authTokenMiddleware.authorizeRoles(['OWNER']),
             validateCredentials(changePinSchema),
             tryCatch(ProfileController.updateProfilePin)
+        ])
+
+        this.router.put("/reset-pin", [
+            authTokenMiddleware.authenticate,
+            validateCredentials(resetPinSchema),
+            tryCatch(ProfileController.resetPin)
         ])
 
         this.router.delete("/reset-account", [

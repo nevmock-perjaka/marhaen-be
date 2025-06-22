@@ -41,6 +41,15 @@ class ProfileController {
 
         return successResponse(res, { message: "Account reset successfully." });
     }
+
+    async resetPin(req, res) {
+        const userId = req.user.id;
+        const value = req.body;
+
+        await ProfileService.resetPin(userId, value);
+
+        return successResponse(res, { message: "PIN reset successfully." });
+    }
 }
 
 export default new ProfileController();

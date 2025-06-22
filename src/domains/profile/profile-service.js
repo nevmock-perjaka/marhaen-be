@@ -110,6 +110,38 @@ class ProfileService {
         return updated;
     }
 
+    async resetPin(userId, data) {
+        const user = await db.user.findUnique({
+            where: {
+                id: userId,
+            }
+        });
+
+        if (!await matchPassword(data.current_password, user.password)) {
+            throw BaseError.badRequest("Current password is incorrect");
+        }
+
+        const profile = await db.profile.findUnique({
+            where: {
+                id: data.profile_id,
+            }
+        });
+
+        if (!profile) throw BaseError.notFound("Profile not found");
+        if (profile.user_id !== userId) throw BaseError.forbidden("You are not allowed to access this profile.");
+
+        await db.profile.update({
+            where: {
+                id: profile.id,
+            },
+            data: {
+                pin: null,
+            }
+        });
+
+        return { message: "PIN reset successfully." };
+    }
+
     async resetAccount(userId) {
         return db.$transaction(async (tx) => {
             await tx.profile.updateMany({
