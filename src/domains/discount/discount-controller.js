@@ -30,6 +30,7 @@ class DiscountController {
         value.start_at = new Date(value.start_at);
         value.expired_at = new Date(value.expired_at);
 
+        // console.log(new Date(), value.start_at);
         if (value.start_at < new Date()) {
             let validation = "";
             let stack = [];
@@ -75,38 +76,6 @@ class DiscountController {
 
         value.start_at = new Date(value.start_at);
         value.expired_at = new Date(value.expired_at);
-
-        if (value.start_at < new Date()) {
-            let validation = "";
-            let stack = [];
-            validation += "Start date must be greater than or equal to current date. ";
-
-            stack.push({
-                message: "Start date must be greater than or equal to current date.",
-                path: ["start_at"]
-            });
-
-            throw new Joi.ValidationError(validation, stack);
-        }
-
-        if (value.start_at >= value.expired_at) {
-            let validation = "";
-            let stack = [];
-
-            validation += "Start date must be less than expired date. ";
-
-            stack.push({
-                message: "Start date must be less than expired date.",
-                path: ["start_at"]
-            });
-
-            stack.push({
-                message: "Expired date must be greater than start date.",
-                path: ["expired_at"]
-            })
-
-            throw new Joi.ValidationError(validation, stack);
-        }
 
         const updated = await DiscountService.update(id, value);
         return successResponse(res, updated);

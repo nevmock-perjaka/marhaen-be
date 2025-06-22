@@ -2,14 +2,17 @@ import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
 import { readFileSync, unlinkSync } from "fs";
 import * as XLSX from "xlsx";
-import { skip } from "@prisma/client/runtime/library";
+import { buildQueryOptions } from "../../utils/buildQueryOptions.js";
+import productQueryConfig from "./product-query-config.js";
 
 class ProductService {
+    // async findAll(userId, query = {}) {
     async findAll(userId) {
+        // const options = buildQueryOptions(productQueryConfig, query, userId);
+        // return await db.product.findMany(options);
         return await db.product.findMany({
-            where: { 
-                owned_by: userId,
-                deleted_at: null
+            where: {
+                owned_by: userId
             },
             include: {
                 Add_on_group: {
@@ -30,7 +33,8 @@ class ProductService {
                         inventory: true
                     }
                 }
-            }
+            },
+            orderBy: { created_at: 'desc' }
         });
     }
 

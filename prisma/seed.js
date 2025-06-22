@@ -4,6 +4,15 @@ const prisma = new PrismaClient();
 import bcrypt from 'bcryptjs';
 
 async function main() {
+    await prisma.site_config.create({
+        data: {
+            id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6',
+            ppn_percentage: 12,
+        }
+    });
+
+    console.log('✅ Site Config seeded.');
+
     await prisma.plan.upsert({
         where: { 
             id: '9760a8fb-97d5-4980-8d23-a2be19c72c18' 

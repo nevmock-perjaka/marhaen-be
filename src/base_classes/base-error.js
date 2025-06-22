@@ -23,7 +23,18 @@ class BaseError extends Error {
   static forbidden(message = "Forbidden") {
     return new BaseError(statusCodes.FORBIDDEN.code, statusCodes.FORBIDDEN.message, "Forbidden", message);
   }
+
+  static serviceUnavailable(message = "Service Unavailable") {
+    return new BaseError(statusCodes.SERVICE_UNAVAILABLE.code, statusCodes.SERVICE_UNAVAILABLE.message, "Service Unavailable", message);
+  }
   
+  static invalidParams(message = "Invalid Parameters") {
+    return new BaseError(statusCodes.INVALID_PARAMS.code, statusCodes.INVALID_PARAMS.message, "Invalid Parameters", message);
+  }
+
+  static duplicate(message = "Duplicate Found") {
+    return new BaseError(statusCodes.DUPLICATE.code, statusCodes.DUPLICATE.message, "Duplicate Found", message);
+  }
 }
 
 export default BaseError;

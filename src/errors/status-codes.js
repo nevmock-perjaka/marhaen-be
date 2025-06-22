@@ -35,4 +35,8 @@ export default {
     code: 201,
     message: "Created",
   },
+  SERVICE_UNAVAILABLE: {
+    code: 503,
+    message: "Service Unavailable",
+  }
 };

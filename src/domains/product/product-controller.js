@@ -7,7 +7,9 @@ import uploadFile from "../../middlewares/upload-file-middleware.js";
 class ProductController {
     async getAll(req, res) {
         const userId = req.user.id;
+        // const query = req.query;
         const products = await ProductService.findAll(userId);
+        // const products = await ProductService.findAll(userId, query);
 
         return successResponse(res, products);
     }

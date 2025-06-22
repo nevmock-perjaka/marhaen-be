@@ -1,4 +1,3 @@
-import BaseError from "../../base_classes/base-error.js";
 import orderService from "../order/order-service.js";
 import subscriptionService from "./subscription/subscription-service.js";
 
@@ -9,21 +8,24 @@ class TransactionServices {
         const hash = crypto.createHash('sha512').update(`${data.order_id}${data.status_code}${data.gross_amount}${process.env.MIDTRANS_SERVER_KEY}`).digest('hex');
         console.log("Response Midtrans : ", data);
 
-        if (data.signature_key !== hash){
-            return true;
+        if (data.signature_key === hash){
+            if (!data.metadata){
+                return true;
+            }
+
+            if (data.metadata.type == 'subscription'){
+                return await subscriptionService.updateSubscriptionTransaction(data);
+            }
         }
 
         if (!data.metadata){
             return true;
         }
 
-        if (data.metadata.type == 'subscription'){
-            return await subscriptionService.updateSubscriptionTransaction(data);
-        }
-
         if (data.metadata.type == 'order'){
-            return await orderService.updateWebhookMidtrans(data);
+            await orderService.updateWebhookMidtrans(data);
         }
+        
 
         return true;
     }  

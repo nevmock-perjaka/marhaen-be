@@ -9,18 +9,11 @@ import errorHandler from "./middlewares/error-handler-middleware.js";
 import express from "express";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
-import multer from "multer";
 import path from "path";
+import { queryParser } from "express-query-parser";
 
 import BaseError from "./base_classes/base-error.js";
-
-import authRoutes from "./domains/auth/auth-routes.js";
-import subscriptionRoutes from "./domains/transaction/subscription/subscription-routes.js";
-import planRoutes from "./domains/plan/plan-routes.js";
-import transactionRoutes from "./domains/transaction/transaction-routes.js";
-
 import routes from "./routes.js";
-import expressListEndpoints from "express-list-endpoints";
 
 class ExpressApplication {
   app;
@@ -31,6 +24,11 @@ class ExpressApplication {
     this.port = port;
 
     this.app.use(express.json({ type: "application/json" }));
+    this.app.use(queryParser({
+      parseNull: true,
+      parseBoolean: true,
+      parseNumber: true,
+    }))
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(cors());
     //  __init__

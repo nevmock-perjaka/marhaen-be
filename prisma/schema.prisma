@@ -88,6 +88,14 @@ model Plan {
   updated_at DateTime @updatedAt
 }
 
+model Site_config {
+  id          String  @id @default(uuid())
+  ppn_percentage Float @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 model Subscription_transaction {
   id      String @id @default(uuid())
   user_id String
@@ -101,6 +109,8 @@ model Subscription_transaction {
 
   gross_amount   Float? // Amount in IDR
   admin_fee      Float? // Admin fee in IDR
+  ppn_fee       Float? // PPN fee in IDR
+  ppn_percentage Float? // PPN percentage
   payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
   status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
 
@@ -402,8 +412,11 @@ model Order_transaction {
 
   gross_amount   Float? // Amount in IDR
   admin_fee      Float? // Admin fee in IDR
+  ppn_fee       Float? // PPN fee in IDR
+  ppn_percentage Float?
   payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
   status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
+  is_production Boolean
 
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt

@@ -1,4 +1,5 @@
 import Midtrans from "midtrans-client";
+import { decrypt } from "../utils/hash.js";
 
 const midtransSnap = new Midtrans.Snap({
     isProduction: process.env.NODE_ENV === 'production',
@@ -15,8 +16,8 @@ const midtransCoreApi = new Midtrans.CoreApi({
 const userMidtransConfig = (is_production, secret_key, client_key) => {
     return new Midtrans.Snap({
         isProduction: is_production,
-        serverKey: secret_key,
-        clientKey: client_key,
+        serverKey: decrypt(secret_key),
+        clientKey: decrypt(client_key),
     })
 }
 
