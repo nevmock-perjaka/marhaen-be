@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: Development
 
     steps:
       - name: Checkout Code
@@ -36,7 +37,6 @@ jobs:
           host: ${{ vars.HOST }}
           username: ${{ vars.USERNAME }}
           password: ${{ vars.PASSWORD }}
-          # key: ${{ vars.SSH_PRIVATE_KEY }}
           script: |
             docker pull nevmock/marhaen-api-dev:latest
             docker stop marhaen-api-dev || true
