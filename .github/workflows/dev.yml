@@ -34,9 +34,9 @@ jobs:
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ vars.HOST }}
-          username: ${{ vars.USERNAME }}
-          password: ${{ vars.PASSWORD }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
           script: |
             docker pull nevmock/marhaen-api-dev:latest
             docker stop marhaen-api-dev || true
