@@ -19,7 +19,7 @@ model User {
   subs_level      Int       @default(0)
   tax_percentage  Float     @default(0)
   verified_at     DateTime?
-  strict_mode      Boolean   @default(false)
+  strict_mode     Boolean   @default(false)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -27,14 +27,14 @@ model User {
   profiles                  Profile[]
   system_logs               System_log[]
   subscription_transactions Subscription_transaction[]
-  midtrans_user           Midtrans_User[]
+  midtrans_user             Midtrans_User[]
 }
 
 model Midtrans_User {
-  id String    @id @default(uuid())
-  user_id String @unique
-  server_key String?
-  client_key String?
+  id            String  @id @default(uuid())
+  user_id       String  @unique
+  server_key    String?
+  client_key    String?
   is_production Boolean @default(false)
 
   created_at DateTime @default(now())
@@ -75,23 +75,23 @@ model Otp {
 }
 
 model Plan {
-  id        String  @id @default(uuid())
+  id          String  @id @default(uuid())
   prefix_code String?
-  name      String
-  days      Int     @default(30)
-  price     Int     @default(0)
-  level     Int
-  is_active Boolean @default(false)
+  name        String
+  days        Int     @default(30)
+  price       Int     @default(0)
+  level       Int
+  is_active   Boolean @default(false)
   description String?
-  index     Int? @default(0)
+  index       Int?    @default(0)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
 
 model Site_config {
-  id          String  @id @default(uuid())
-  ppn_percentage Float @default(0)
+  id             String @id @default(uuid())
+  ppn_percentage Float  @default(0)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -110,7 +110,7 @@ model Subscription_transaction {
 
   gross_amount   Float? // Amount in IDR
   admin_fee      Float? // Admin fee in IDR
-  ppn_fee       Float? // PPN fee in IDR
+  ppn_fee        Float? // PPN fee in IDR
   ppn_percentage Float? // PPN percentage
   payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
   status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
@@ -145,17 +145,17 @@ model Product {
   image_uri   String
   is_active   Boolean
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
   created_by String
   updated_by String
   owned_by   String
   deleted_at DateTime?
 
-  Order_item        Order_item[]
-  Add_on_group      Add_on_group[]
-  Product_config    Product_config[]
-  Product_discount  Product_discount[]
+  Order_item       Order_item[]
+  Add_on_group     Add_on_group[]
+  Product_config   Product_config[]
+  Product_discount Product_discount[]
 }
 
 model Discount {
@@ -225,8 +225,8 @@ model Add_on {
   updated_by String
   owned_by   String
 
-  add_on_group  Add_on_group    @relation(fields: [add_on_group_id], references: [id], onDelete: Cascade)
-  Add_on_config Add_on_config[]
+  add_on_group      Add_on_group        @relation(fields: [add_on_group_id], references: [id], onDelete: Cascade)
+  Add_on_config     Add_on_config[]
   Order_item_add_on Order_item_add_on[]
 }
 
@@ -312,8 +312,8 @@ model Supplier {
   address      String
   phone_number String
   status       Boolean
-  price Float?
-  unit_type String?
+  price        Float?
+  unit_type    String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -366,7 +366,7 @@ model Order {
   Staff             Staff               @relation(fields: [staff_id], references: [id], onDelete: NoAction)
   Order_item        Order_item[]
   Order_transaction Order_transaction[]
-  Stock_log Stock_log[]
+  Stock_log         Stock_log[]
 }
 
 model Order_item {
@@ -383,16 +383,16 @@ model Order_item {
   updated_by String
   owned_by   String
 
-  order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [product_id], references: [id], onDelete: NoAction)
+  order             Order               @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product           Product             @relation(fields: [product_id], references: [id], onDelete: NoAction)
   Order_item_add_on Order_item_add_on[]
 }
 
 model Order_item_add_on {
-  id         String @id @default(uuid())
-  order_item_id   String
-  add_on_id String
-  price      Float
+  id            String @id @default(uuid())
+  order_item_id String
+  add_on_id     String
+  price         Float
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -405,31 +405,31 @@ model Order_item_add_on {
 }
 
 model Order_transaction {
-  id             String   @id @default(uuid())
-  order_id       String
+  id                String  @id @default(uuid())
+  order_id          String
   transaction_id    String? @unique // Midtrans order_id
   transaction_token String? // Snap token
   redirect_url      String? // URL to redirect to payment page
 
   gross_amount   Float? // Amount in IDR
   admin_fee      Float? // Admin fee in IDR
-  ppn_fee       Float? // PPN fee in IDR
+  ppn_fee        Float? // PPN fee in IDR
   ppn_percentage Float?
   payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
   status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
-  is_production Boolean
+  is_production  Boolean
 
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-  created_by     String
-  updated_by     String
-  owned_by       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
 
   order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
 }
 
 model Staff {
-  id           String @id @default(uuid())
+  id           String  @id @default(uuid())
   name         String
   phone_number String
   is_active    Boolean @default(true)
@@ -441,11 +441,11 @@ model Staff {
   owned_by   String
 
   Staff_log Staff_log[]
-  Order    Order[]
+  Order     Order[]
 }
 
 model Staff_log {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   staff_id        String
   start_timestamp DateTime
   end_timestamp   DateTime?

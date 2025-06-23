@@ -1,0 +1,56 @@
+# name: CI/CD Prod
+
+# on:
+#   push:
+#     branches:
+#       - stag
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+
+#       - name: Install dependencies
+#         run: npm install
+
+#       - name: Docker Login
+#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+#       - name: Build Docker Image
+#         run: docker build --build-arg APP_PORT=${{ secrets.PORT }} -t nevmock/marhaen-api-stag:latest .
+
+#       - name: Push Docker Image
+#         run: docker push nevmock/marhaen-api-stag:latest
+
+#       - name: Deploy to Server
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USERNAME }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             docker pull nevmock/marhaen-api-stag:latest
+#             docker stop marhaen-api-stag || true
+#             docker rm marhaen-api-stag || true
+#             docker run -d --name marhaen-api-stag \
+#               -e PORT=${{ secrets.PORT }} \
+#               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+#               -e BE_URL=${{ secrets.BE_URL }} \
+#               -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+#               -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+#               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+#               -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
+#               -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
+#               -e ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }} \
+#               -e IV_SECRET=${{ secrets.IV_SECRET }} \
+
+#               -p ${{secrets.PORT}}:${{secrets.PORT}} \
+#               nevmock/marhaen-api-stag:latest

@@ -1,0 +1,47 @@
+# name: CI/CD Prod
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+
+#       - name: Install dependencies
+#         run: npm install
+
+#       - name: Docker Login
+#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+#       - name: Build Docker Image
+#         run: docker build --build-arg APP_PORT=${{ secrets.PROD_PORT }} -t nevmock/marhaen-api-prod:latest .
+
+#       - name: Push Docker Image
+#         run: docker push nevmock/marhaen-api-prod:latest
+
+#       - name: Deploy to Server
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USERNAME }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             docker pull nevmock/marhaen-api-prod:latest
+#             docker stop marhaen-api-prod || true
+#             docker rm marhaen-api-prod || true
+#             docker run -d --name marhaen-api-prod \
+#               -e MONGO_URI=${{ secrets.PROD_MONGO_URI }} \
+#               -e PORT=${{ secrets.PROD_PORT }} \
+#               -p ${{secrets.PROD_PORT}}:${{secrets.PROD_PORT}} \
+#               nevmock/marhaen-api-prod:latest
