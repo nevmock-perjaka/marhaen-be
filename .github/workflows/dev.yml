@@ -33,6 +33,16 @@ jobs:
 
       - name: Deploy to Server
         uses: appleboy/ssh-action@master
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BE_URL: ${{ secrets.BE_URL }}
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MIDTRANS_SERVER_KEY: ${{ secrets.MIDTRANS_SERVER_KEY }}
+          MIDTRANS_CLIENT_KEY: ${{ secrets.MIDTRANS_CLIENT_KEY }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          IV_SECRET: ${{ secrets.IV_SECRET }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -49,16 +59,17 @@ jobs:
             docker run -d \
               --name marhaen-api-dev \
               --network dev-postgresql-network \
+              --restart unless-stopped \
               -e PORT=3000 \
-              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              -e BE_URL=${{ secrets.BE_URL }} \
-              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
-              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
-              -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
-              -e ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }} \
-              -e IV_SECRET=${{ secrets.IV_SECRET }} \
+              -e DATABASE_URL="$DATABASE_URL" \
+              -e BE_URL="$BE_URL" \
+              -e EMAIL_USERNAME="$EMAIL_USERNAME" \
+              -e EMAIL_PASSWORD="$EMAIL_PASSWORD" \
+              -e JWT_SECRET="$JWT_SECRET" \
+              -e MIDTRANS_SERVER_KEY="$MIDTRANS_SERVER_KEY" \
+              -e MIDTRANS_CLIENT_KEY="$MIDTRANS_CLIENT_KEY" \
+              -e ENCRYPTION_KEY="$ENCRYPTION_KEY" \
+              -e IV_SECRET="$IV_SECRET" \
               -p 3001:3000 \
               nevmock/marhaen-api-dev:latest
 
