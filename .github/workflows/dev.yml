@@ -1,47 +1,57 @@
-# name: CI/CD Prod
+name: CI/CD Prod
 
-# on:
-#   push:
-#     branches:
-#       - dev
+on:
+  push:
+    branches:
+      - dev
 
-# jobs:
-#   build-and-deploy:
-#     runs-on: ubuntu-latest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-#       - name: Set up Node
-#         uses: actions/setup-node@v4
-#         with:
-#           node-version: 20
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
  
-#       - name: Install dependencies
-#         run: npm install
+      - name: Install dependencies
+        run: npm install
 
-#       - name: Docker Login
-#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-#       - name: Build Docker Image
-#         run: docker build -f Dockerfile.dev -t nevmock/marhaen-api-dev:latest .
+      - name: Build Docker Image
+        run: docker build -f Dockerfile.dev -t nevmock/marhaen-api-dev:latest .
 
-#       - name: Push Docker Image
-#         run: docker push nevmock/marhaen-api-dev:latest
+      - name: Push Docker Image
+        run: docker push nevmock/marhaen-api-dev:latest
 
-#       - name: Deploy to Server
-#         uses: appleboy/ssh-action@master
-#         with:
-#           host: ${{ secrets.HOST }}
-#           username: ${{ secrets.USERNAME }}
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           script: |
-#             docker pull nevmock/marhaen-api-dev:latest
-#             docker stop marhaen-api-dev || true
-#             docker rm marhaen-api-dev || true
-#             docker run -d --name marhaen-api-dev \
-#               -e MONGO_URI=${{ secrets.PROD_MONGO_URI }} \
-#               -e PORT=${{ secrets.DEV_PORT }} \
-#               -p ${{secrets.DEV_PORT}}:${{secrets.DEV_PORT}} \
-#               nevmock/marhaen-api-dev:latest
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull nevmock/marhaen-api-dev:latest
+            docker stop marhaen-api-dev || true
+            docker rm marhaen-api-dev || true
+            docker run -d --name marhaen-api-dev \
+              --network dev-postgresql-network \
+              -e PORT=3000 \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e BE_URL=${{ secrets.BE_URL }} \
+              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
+              -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
+              -e ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }} \
+              -e IV_SECRET=${{ secrets.IV_SECRET }} \ 
+
+              -p ${{secrets.PORT}}:3000 \
+              nevmock/marhaen-api-dev:latest
