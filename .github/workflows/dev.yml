@@ -36,6 +36,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker pull nevmock/marhaen-api-dev:latest
             docker stop marhaen-api-dev || true
