@@ -11,6 +11,8 @@ COPY package*.json ./
 RUN npm install --production
 # Jika untuk development, gunakan: RUN npm install
 
+RUN npm run build
+
 # Salin seluruh source code ke dalam container
 COPY . .
 
