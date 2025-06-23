@@ -59,6 +59,6 @@ jobs:
               -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
               -e ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }} \
               -e IV_SECRET=${{ secrets.IV_SECRET }} \
-              -p ${{ secrets.PORT }}:3000 \
+              -p 3001:3000 \
               nevmock/marhaen-api-dev:latest
 
