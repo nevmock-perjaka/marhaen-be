@@ -51,7 +51,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "TESTTT"
-            echo "$PORT"
+            echo ${{ secrets.PORT }}
             # echo "🔁 Pulling latest Docker image..."
             # docker pull nevmock/marhaen-api-dev:latest
 
