@@ -48,7 +48,11 @@ class AddonGroupService {
     }
 
     async update(id, data, updateAddOn, createAddOn) {
+        console.log("Data Yang ingin di update:");
+        console.log(updateAddOn, createAddOn);
         await this.checkPermission(id, data.owned_by);
+
+
 
         await db.add_on.deleteMany({
             where: {
@@ -60,6 +64,8 @@ class AddonGroupService {
             }
         })
 
+        console.log("✅ Add-ons deleted successfully");
+
         let updatedGroup = await db.add_on_group.update({
             where: { id },
             data,
@@ -68,6 +74,8 @@ class AddonGroupService {
                 product: true
             }
         });
+
+        console.log("✅ Add-on group updated successfully");
 
         await Promise.all(updateAddOn.map(async (addon) => {
             await db.add_on.update({
@@ -84,6 +92,8 @@ class AddonGroupService {
             });
         }));
 
+        console.log("✅ Existing add-ons updated successfully");
+
         await db.add_on.createMany({
             data: createAddOn.map(addon => ({
                 name: addon.name,
@@ -96,6 +106,8 @@ class AddonGroupService {
             })),
         })
 
+        console.log("✅ New add-ons created successfully");
+
         updatedGroup = await db.add_on_group.findUnique({
             where: { id },
             include: {
@@ -103,6 +115,8 @@ class AddonGroupService {
                 product: true
             }
         });
+
+        console.log("✅ Add-on group with updated add-ons retrieved successfully");
 
         return updatedGroup;
     }
