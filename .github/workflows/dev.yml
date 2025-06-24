@@ -50,18 +50,18 @@ jobs:
               --name marhaen-api-dev \
               --network dev-postgresql-network \
               --restart unless-stopped \
-              -e NODE_ENV=development \
-              -e PORT=3000 \
+              -e NODE_ENV="development" \
+              -e PORT="3000" \
               -e DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-              -e BE_URL=${{ secrets.BE_URL }} \
-              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+              -e BE_URL="${{ secrets.BE_URL }}" \
+              -e EMAIL_USERNAME="${{ secrets.EMAIL_USERNAME }}" \
               -e EMAIL_PASSWORD="${{ secrets.EMAIL_PASSWORD }}" \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              -e MIDTRANS_SERVER_KEY=${{ secrets.MIDTRANS_SERVER_KEY }} \
-              -e MIDTRANS_CLIENT_KEY=${{ secrets.MIDTRANS_CLIENT_KEY }} \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e MIDTRANS_SERVER_KEY="${{ secrets.MIDTRANS_SERVER_KEY }}" \
+              -e MIDTRANS_CLIENT_KEY="${{ secrets.MIDTRANS_CLIENT_KEY }}" \
               -e ENCRYPTION_KEY="${{ secrets.ENCRYPTION_KEY }}" \
-              -e IV_SECRET=${{ secrets.IV_SECRET }} \
-              -p ${{ secrets.PORT }}:3000 \
+              -e IV_SECRET="${{ secrets.IV_SECRET }}" \
+              -p "${{ secrets.PORT }}":3000 \
               nevmock/marhaen-api-dev:latest
 
             echo "🧹 Cleaning up unused Docker resources..."
