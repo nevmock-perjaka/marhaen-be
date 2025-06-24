@@ -44,6 +44,7 @@ jobs:
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
           IV_SECRET: ${{ secrets.IV_SECRET }}
           PORT: ${{ secrets.PORT }}
+          NODE_ENV: development
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -61,6 +62,7 @@ jobs:
               --name marhaen-api-dev \
               --network dev-postgresql-network \
               --restart unless-stopped \
+              -e NODE_ENV="$NODE_ENV" \
               -e PORT=3000 \
               -e DATABASE_URL="$DATABASE_URL" \
               -e BE_URL="$BE_URL" \
@@ -76,5 +78,5 @@ jobs:
 
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -f
-            
+
             echo "✅ Deployment to Development environment completed successfully!"
