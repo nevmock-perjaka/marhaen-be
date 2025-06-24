@@ -65,10 +65,10 @@ jobs:
               -e NODE_ENV=development \
               -e PORT=3000 \
               -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
-              -e BE_URL="$BE_URL" \
-              -e EMAIL_USERNAME="$EMAIL_USERNAME" \
-              -e EMAIL_PASSWORD="$EMAIL_PASSWORD" \
-              -e JWT_SECRET="$JWT_SECRET" \
+              -e BE_URL=${{ secrets.BE_URL }} \
+              -e EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }} \
+              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
               -e MIDTRANS_SERVER_KEY="$MIDTRANS_SERVER_KEY" \
               -e MIDTRANS_CLIENT_KEY="$MIDTRANS_CLIENT_KEY" \
               -e ENCRYPTION_KEY="$ENCRYPTION_KEY" \
