@@ -67,4 +67,7 @@ jobs:
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -f
 
+            echo "🔄 Running Prisma migrations..."
+            docker exec -it marhaen-api-dev npx prisma migrate deploy
+
             echo "✅ Deployment to Development environment completed successfully!"
