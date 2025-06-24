@@ -50,35 +50,33 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "TESTTT"
-            echo ${{ secrets.PORT }}
-            # echo "🔁 Pulling latest Docker image..."
-            # docker pull nevmock/marhaen-api-dev:latest
+            echo "🔁 Pulling latest Docker image..."
+            docker pull nevmock/marhaen-api-dev:latest
 
-            # echo "🛑 Stopping and removing old container (if exists)..."
-            # docker stop marhaen-api-dev || true
-            # docker rm marhaen-api-dev || true
+            echo "🛑 Stopping and removing old container (if exists)..."
+            docker stop marhaen-api-dev || true
+            docker rm marhaen-api-dev || true
 
-            # echo "🚀 Running new container..."
-            # docker run -d \
-            #   --name marhaen-api-dev \
-            #   --network dev-postgresql-network \
-            #   --restart unless-stopped \
-            #   -e NODE_ENV="$NODE_ENV" \
-            #   -e PORT=3000 \
-            #   -e DATABASE_URL="$DATABASE_URL" \
-            #   -e BE_URL="$BE_URL" \
-            #   -e EMAIL_USERNAME="$EMAIL_USERNAME" \
-            #   -e EMAIL_PASSWORD="$EMAIL_PASSWORD" \
-            #   -e JWT_SECRET="$JWT_SECRET" \
-            #   -e MIDTRANS_SERVER_KEY="$MIDTRANS_SERVER_KEY" \
-            #   -e MIDTRANS_CLIENT_KEY="$MIDTRANS_CLIENT_KEY" \
-            #   -e ENCRYPTION_KEY="$ENCRYPTION_KEY" \
-            #   -e IV_SECRET="$IV_SECRET" \
-            #   -p "$PORT":3000 \
-            #   nevmock/marhaen-api-dev:latest
+            echo "🚀 Running new container..."
+            docker run -d \
+              --name marhaen-api-dev \
+              --network dev-postgresql-network \
+              --restart unless-stopped \
+              -e NODE_ENV=development \
+              -e PORT=3000 \
+              -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+              -e BE_URL="$BE_URL" \
+              -e EMAIL_USERNAME="$EMAIL_USERNAME" \
+              -e EMAIL_PASSWORD="$EMAIL_PASSWORD" \
+              -e JWT_SECRET="$JWT_SECRET" \
+              -e MIDTRANS_SERVER_KEY="$MIDTRANS_SERVER_KEY" \
+              -e MIDTRANS_CLIENT_KEY="$MIDTRANS_CLIENT_KEY" \
+              -e ENCRYPTION_KEY="$ENCRYPTION_KEY" \
+              -e IV_SECRET="$IV_SECRET" \
+              -p "$PORT":3000 \
+              nevmock/marhaen-api-dev:latest
 
-            # echo "🧹 Cleaning up unused Docker resources..."
-            # docker system prune -f
+            echo "🧹 Cleaning up unused Docker resources..."
+            docker system prune -f
 
-            # echo "✅ Deployment to Development environment completed successfully!"
+            echo "✅ Deployment to Development environment completed successfully!"
