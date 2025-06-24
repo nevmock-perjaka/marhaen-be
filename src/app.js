@@ -41,7 +41,6 @@ class ExpressApplication {
       apicache.middleware("5 minutes"),
     ]);
     this.setupLibrary([
-      process.env.NODE_ENV === "development" ? morgan("dev") : "",
       compression(),
       helmet(),
       // cors(),
