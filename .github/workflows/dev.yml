@@ -43,7 +43,7 @@ jobs:
           MIDTRANS_CLIENT_KEY: ${{ secrets.MIDTRANS_CLIENT_KEY }}
           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
           IV_SECRET: ${{ secrets.IV_SECRET }}
-          PORT: ${{ secrets.PORT }}
+          PORT: ${{ secrets.PORT || 5000 }}
           NODE_ENV: development
         with:
           host: ${{ secrets.HOST }}
