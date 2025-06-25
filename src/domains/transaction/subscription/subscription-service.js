@@ -122,11 +122,8 @@ class SubscriptionService {
                     const now = new Date();
                     const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
 
-                    if (user.subs_expired_at === null || new Date(user.subs_expired_at) <= now) {
-                        return new Date(now.getTime() + daysToMs);
-                    } else {
-                        return new Date(new Date(user.subs_expired_at).getTime() + daysToMs);
-                    }
+                    return new Date(now.getTime() + daysToMs);
+                  
                 };
 
                 await db.user.update({
@@ -158,12 +155,7 @@ class SubscriptionService {
             const new_expired_date = () => {
                 const now = new Date();
                 const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
-
-                if (user.subs_expired_at === null || new Date(user.subs_expired_at) <= now) {
-                    return new Date(now.getTime() + daysToMs);
-                } else {
-                    return new Date(new Date(user.subs_expired_at).getTime() + daysToMs);
-                }
+                return new Date(now.getTime() + daysToMs);
             };
 
             await db.user.update({

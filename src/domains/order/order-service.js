@@ -83,7 +83,7 @@ class OrderService {
             if (data.table_id && tableExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this table.");
             if (data.table_id && !tableExists.is_active) throw BaseError.badRequest("Table is not active. Please activate the table first.");
             
-            const discountExists = data.shareable_code ? await tx.discount.findOne({
+            const discountExists = data.shareable_code ? await tx.discount.findFirst({
                 where: { 
                     shareable_code: data.shareable_code,
                     owned_by: data.owned_by
