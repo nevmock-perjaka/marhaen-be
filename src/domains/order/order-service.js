@@ -304,6 +304,9 @@ class OrderService {
                 });
             }
 
+            console.log("🧾 item_details:", item_details);
+            console.log("💰 gross_amount:", order.total_gross);
+
             const parameter = {
                 transaction_details: {
                     order_id: order.Order_transaction[0].id,
@@ -375,7 +378,6 @@ class OrderService {
             
             return snap;
         })
-        
     }
 
     async update(orderId, data) {
