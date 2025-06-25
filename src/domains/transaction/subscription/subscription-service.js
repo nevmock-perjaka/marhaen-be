@@ -29,10 +29,18 @@ class SubscriptionService {
                 throw BaseError.badRequest("Failed to create subscription transaction");
             }
 
+            const site_config = await tx.site_config.findFirst();
+            
+            if (!site_config) throw BaseError.badRequest("Site configuration not found");
+            
+            const adminFee = Math.ceil(plan.price * 0.007);
+            const taxFee = Math.ceil(plan.price * site_config.ppn_percentage / 100);
+            const grossAmount = plan.price + adminFee + taxFee;
+
             const parameter = {
                 transaction_details: {
                     order_id: subscription_transaction.id,
-                    gross_amount: plan.price + Math.ceil(plan.price * 0.007),
+                    gross_amount: grossAmount,
                 },
                 credit_card: {
                     secure: true,
@@ -43,8 +51,7 @@ class SubscriptionService {
                     phone: user.phone_number,
                 },
                 enabled_payments: [
-                    'other_qris',
-                    'bank_transfer'
+                    'other_qris'
                 ],
                 item_details: [
                     {
@@ -55,9 +62,15 @@ class SubscriptionService {
                     },
                     {
                         id: 'admin_fee',
-                        price: Math.ceil(plan.price * 0.007),
+                        price: adminFee,
                         quantity: 1,
-                        name: 'Transaction Fee',
+                        name: 'Admin Fee',
+                    },
+                    {
+                        id: 'tax_fee',
+                        price: taxFee,
+                        quantity: 1,
+                        name: 'Tax Fee',
                     }
                 ],   
                 metadata: {
@@ -79,8 +92,10 @@ class SubscriptionService {
                 data: {
                     transaction_token: snap.token,
                     redirect_url: snap.redirect_url,
-                    gross_amount: plan.price + Math.ceil(plan.price * 0.007),
-                    admin_fee: Math.ceil(plan.price * 0.007),
+                    gross_amount: grossAmount,
+                    admin_fee: adminFee,
+                    ppn_fee: taxFee,
+                    ppn_percentage: site_config.ppn_percentage,
                 }
             })
 
@@ -123,7 +138,6 @@ class SubscriptionService {
                     const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
 
                     return new Date(now.getTime() + daysToMs);
-                  
                 };
 
                 await db.user.update({
@@ -212,6 +226,10 @@ class SubscriptionService {
                 level_name: true,
                 paid_at: true,
                 created_at: true,
+                gross_amount: true,
+                admin_fee: true,
+                ppn_fee: true,
+                ppn_percentage: true,
             }
         });
     }
