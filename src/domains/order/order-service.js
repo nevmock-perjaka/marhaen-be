@@ -83,19 +83,21 @@ class OrderService {
             if (data.table_id && tableExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this table.");
             if (data.table_id && !tableExists.is_active) throw BaseError.badRequest("Table is not active. Please activate the table first.");
             
-            const discountExists = data.discount_id ? await tx.discount.findUnique({
-                where: { id: data.discount_id }
+            const discountExists = data.shareable_code ? await tx.discount.findOne({
+                where: { 
+                    shareable_code: data.shareable_code,
+                    owned_by: data.owned_by
+                }
             }) : null;
 
             const timeNow = new Date();
             
             // Checking Discount
-            if (data.discount_id && !discountExists) throw BaseError.notFound("Discount not found.");
-            if (data.discount_id && discountExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this discount.");
-            if (data.discount_id && !discountExists.is_active) throw BaseError.badRequest("Discount is not active. Please activate the discount first.");
-            if (data.discount_id && timeNow < new Date(discountExists.start_at)) throw BaseError.badRequest("Discount is not yet active.");
-            if (data.discount_id && timeNow > new Date(discountExists.expired_at)) throw BaseError.badRequest("Discount has expired.");
-            if (data.discount_id && discountExists.used >= discountExists.max_use) throw BaseError.badRequest("Discount has reached its maximum usage limit.");
+            if (data.shareable_code && !discountExists) throw BaseError.notFound("Discount not found.");
+            if (data.shareable_code && !discountExists.is_active) throw BaseError.badRequest("Discount is not active. Please activate the discount first.");
+            if (data.shareable_code && timeNow < new Date(discountExists.start_at)) throw BaseError.badRequest("Discount is not yet active.");
+            if (data.shareable_code && timeNow > new Date(discountExists.expired_at)) throw BaseError.badRequest("Discount has expired.");
+            if (data.shareable_code && discountExists.used >= discountExists.max_use) throw BaseError.badRequest("Discount has reached its maximum usage limit.");
             
             const productIds = [...new Set(data.order_items.map(item => item.product_id))];
 
@@ -245,7 +247,7 @@ class OrderService {
                 total_gross: total_gross,
                 phone_number: data.phone_number,
                 table_id: data.table_id,
-                discount_id: data.discount_id,
+                discount_id: discountExists.id || null,
                 staff_id: data.staff_id,
                 owned_by: data.owned_by,
                 created_by: data.created_by,
@@ -293,7 +295,7 @@ class OrderService {
                 };
             });
 
-            if (data.discount_id && discountExists) {
+            if (data.shareable_code && discountExists) {
                 item_details.push({
                     id: discountExists.shareable_code,
                     price: -discount,
@@ -354,7 +356,7 @@ class OrderService {
                 }
             })
 
-            if (data.discount_id && discountExists){
+            if (data.shareable_code && discountExists){
                 await tx.discount.update({
                     where: {
                         id: discountExists.id
