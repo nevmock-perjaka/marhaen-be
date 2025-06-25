@@ -17,7 +17,7 @@ import tableRoutes from './domains/table/table-routes.js';
 import orderRoutes from './domains/order/index.js'
 import discountRoutes from './domains/discount/index.js';
 
-import dashboardRoutes from './domains/dashboard/dashboard-routes.js';
+import dashboardRoutes from './domains/dashboard/index.js';
 
 const router = express.Router();
 

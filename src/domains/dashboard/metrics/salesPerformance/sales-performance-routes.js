@@ -1,22 +1,26 @@
-import { Router } from "express";
 import SalesPerformanceController from "./sales-performance-controller.js";
 import tryCatch from "../../../../utils/tryCatcher.js";
-import validateCredentials from "../../../../middlewares/validate-credentials-middleware.js";
+import authTokenMiddleware from "../../../../middlewares/auth-token-middleware.js";
+import BaseRoutes from "../../../../base_classes/base-routes.js";
+import validateParamsCredentials from "../../../../middlewares/validate-params-credentials-middleware.js";
+import salesPerformanceSchema from "./sales-performance-schema.js";
 
-const router = Router();
+class SalesPerformanceRoutes extends BaseRoutes {
+    routes(){
+        this.router.get("/chart", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            validateParamsCredentials(salesPerformanceSchema.params),
+            tryCatch(SalesPerformanceController.getByRange)
+        ]);
 
-// GET /dashboard/sales-performance/chart?start_date=YYYY-MM-DD&end_date=YYYY-MM-DD
-router.get(
-    "/chart",
-    validateCredentials,
-    tryCatch(SalesPerformanceController.getByRange)
-);
+        this.router.get("/compare", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(SalesPerformanceController.getComparison)
+        ]);
+    }
+}
 
-// GET /dashboard/sales-performance/compare?mode=daily|weekly|monthly|yearly
-router.get(
-    "/compare",
-    validateCredentials,
-    tryCatch(SalesPerformanceController.getComparison)
-);
 
-export default router;
+export default new SalesPerformanceRoutes().router;
