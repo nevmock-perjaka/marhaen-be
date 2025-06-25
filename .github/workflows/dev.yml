@@ -62,12 +62,13 @@ jobs:
               -e ENCRYPTION_KEY="${{ secrets.ENCRYPTION_KEY }}" \
               -e IV_SECRET="${{ secrets.IV_SECRET }}" \
               -p "${{ secrets.PORT }}":3000 \
+              -v marhaen-api-dev:/app/public \
               nevmock/marhaen-api-dev:latest
 
             echo "🧹 Cleaning up unused Docker resources..."
             docker system prune -f
 
             echo "🔄 Running Prisma migrations..."
-            docker exec -it marhaen-api-dev npx prisma migrate deploy
+            docker exec marhaen-api-dev npx prisma migrate deploy
 
             echo "✅ Deployment to Development environment completed successfully!"
