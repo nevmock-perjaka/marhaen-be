@@ -21,6 +21,7 @@ class SubscriptionService {
                     user_id: user.id,
                     level: plan.level,
                     days: plan.days,
+                    level_name: plan.name,
                 }
             });
 
@@ -107,6 +108,7 @@ class SubscriptionService {
                     },
                     data: {
                         status: data.transaction_status,
+                        paid_at: new Date(),
                     }
                 });
 
@@ -144,6 +146,7 @@ class SubscriptionService {
                 },
                 data: {
                     status: data.transaction_status,
+                    paid_at: new Date(),
                 } 
             });
             const user = await db.user.findUnique({
@@ -197,6 +200,28 @@ class SubscriptionService {
         }
 
         return true;
+    }
+
+    async findAll(userId) {
+        return db.subscription_transaction.findMany({
+            where: {
+                user_id: userId,
+                status: {
+                    in: ['capture', 'settlement']
+                }
+            },
+            orderBy: {
+                created_at: 'desc'
+            },
+            select: {
+                id: true,
+                level: true,
+                days: true,
+                level_name: true,
+                paid_at: true,
+                created_at: true,
+            }
+        });
     }
 }
 

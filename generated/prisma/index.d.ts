@@ -10339,6 +10339,8 @@ export namespace Prisma {
     user_id: string | null
     level: number | null
     days: number | null
+    level_name: string | null
+    paid_at: Date | null
     order_id: string | null
     transaction_token: string | null
     redirect_url: string | null
@@ -10357,6 +10359,8 @@ export namespace Prisma {
     user_id: string | null
     level: number | null
     days: number | null
+    level_name: string | null
+    paid_at: Date | null
     order_id: string | null
     transaction_token: string | null
     redirect_url: string | null
@@ -10375,6 +10379,8 @@ export namespace Prisma {
     user_id: number
     level: number
     days: number
+    level_name: number
+    paid_at: number
     order_id: number
     transaction_token: number
     redirect_url: number
@@ -10413,6 +10419,8 @@ export namespace Prisma {
     user_id?: true
     level?: true
     days?: true
+    level_name?: true
+    paid_at?: true
     order_id?: true
     transaction_token?: true
     redirect_url?: true
@@ -10431,6 +10439,8 @@ export namespace Prisma {
     user_id?: true
     level?: true
     days?: true
+    level_name?: true
+    paid_at?: true
     order_id?: true
     transaction_token?: true
     redirect_url?: true
@@ -10449,6 +10459,8 @@ export namespace Prisma {
     user_id?: true
     level?: true
     days?: true
+    level_name?: true
+    paid_at?: true
     order_id?: true
     transaction_token?: true
     redirect_url?: true
@@ -10554,6 +10566,8 @@ export namespace Prisma {
     user_id: string
     level: number
     days: number
+    level_name: string
+    paid_at: Date | null
     order_id: string | null
     transaction_token: string | null
     redirect_url: string | null
@@ -10591,6 +10605,8 @@ export namespace Prisma {
     user_id?: boolean
     level?: boolean
     days?: boolean
+    level_name?: boolean
+    paid_at?: boolean
     order_id?: boolean
     transaction_token?: boolean
     redirect_url?: boolean
@@ -10610,6 +10626,8 @@ export namespace Prisma {
     user_id?: boolean
     level?: boolean
     days?: boolean
+    level_name?: boolean
+    paid_at?: boolean
     order_id?: boolean
     transaction_token?: boolean
     redirect_url?: boolean
@@ -10629,6 +10647,8 @@ export namespace Prisma {
     user_id?: boolean
     level?: boolean
     days?: boolean
+    level_name?: boolean
+    paid_at?: boolean
     order_id?: boolean
     transaction_token?: boolean
     redirect_url?: boolean
@@ -10648,6 +10668,8 @@ export namespace Prisma {
     user_id?: boolean
     level?: boolean
     days?: boolean
+    level_name?: boolean
+    paid_at?: boolean
     order_id?: boolean
     transaction_token?: boolean
     redirect_url?: boolean
@@ -10661,7 +10683,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type Subscription_transactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_id" | "level" | "days" | "order_id" | "transaction_token" | "redirect_url" | "gross_amount" | "admin_fee" | "ppn_fee" | "ppn_percentage" | "payment_method" | "status" | "created_at" | "updated_at", ExtArgs["result"]["subscription_transaction"]>
+  export type Subscription_transactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "user_id" | "level" | "days" | "level_name" | "paid_at" | "order_id" | "transaction_token" | "redirect_url" | "gross_amount" | "admin_fee" | "ppn_fee" | "ppn_percentage" | "payment_method" | "status" | "created_at" | "updated_at", ExtArgs["result"]["subscription_transaction"]>
   export type Subscription_transactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -10682,6 +10704,8 @@ export namespace Prisma {
       user_id: string
       level: number
       days: number
+      level_name: string
+      paid_at: Date | null
       order_id: string | null
       transaction_token: string | null
       redirect_url: string | null
@@ -11121,6 +11145,8 @@ export namespace Prisma {
     readonly user_id: FieldRef<"Subscription_transaction", 'String'>
     readonly level: FieldRef<"Subscription_transaction", 'Int'>
     readonly days: FieldRef<"Subscription_transaction", 'Int'>
+    readonly level_name: FieldRef<"Subscription_transaction", 'String'>
+    readonly paid_at: FieldRef<"Subscription_transaction", 'DateTime'>
     readonly order_id: FieldRef<"Subscription_transaction", 'String'>
     readonly transaction_token: FieldRef<"Subscription_transaction", 'String'>
     readonly redirect_url: FieldRef<"Subscription_transaction", 'String'>
@@ -34496,6 +34522,8 @@ export namespace Prisma {
     user_id: 'user_id',
     level: 'level',
     days: 'days',
+    level_name: 'level_name',
+    paid_at: 'paid_at',
     order_id: 'order_id',
     transaction_token: 'transaction_token',
     redirect_url: 'redirect_url',
@@ -35390,6 +35418,8 @@ export namespace Prisma {
     user_id?: StringFilter<"Subscription_transaction"> | string
     level?: IntFilter<"Subscription_transaction"> | number
     days?: IntFilter<"Subscription_transaction"> | number
+    level_name?: StringFilter<"Subscription_transaction"> | string
+    paid_at?: DateTimeNullableFilter<"Subscription_transaction"> | Date | string | null
     order_id?: StringNullableFilter<"Subscription_transaction"> | string | null
     transaction_token?: StringNullableFilter<"Subscription_transaction"> | string | null
     redirect_url?: StringNullableFilter<"Subscription_transaction"> | string | null
@@ -35409,6 +35439,8 @@ export namespace Prisma {
     user_id?: SortOrder
     level?: SortOrder
     days?: SortOrder
+    level_name?: SortOrder
+    paid_at?: SortOrderInput | SortOrder
     order_id?: SortOrderInput | SortOrder
     transaction_token?: SortOrderInput | SortOrder
     redirect_url?: SortOrderInput | SortOrder
@@ -35432,6 +35464,8 @@ export namespace Prisma {
     user_id?: StringFilter<"Subscription_transaction"> | string
     level?: IntFilter<"Subscription_transaction"> | number
     days?: IntFilter<"Subscription_transaction"> | number
+    level_name?: StringFilter<"Subscription_transaction"> | string
+    paid_at?: DateTimeNullableFilter<"Subscription_transaction"> | Date | string | null
     transaction_token?: StringNullableFilter<"Subscription_transaction"> | string | null
     redirect_url?: StringNullableFilter<"Subscription_transaction"> | string | null
     gross_amount?: FloatNullableFilter<"Subscription_transaction"> | number | null
@@ -35450,6 +35484,8 @@ export namespace Prisma {
     user_id?: SortOrder
     level?: SortOrder
     days?: SortOrder
+    level_name?: SortOrder
+    paid_at?: SortOrderInput | SortOrder
     order_id?: SortOrderInput | SortOrder
     transaction_token?: SortOrderInput | SortOrder
     redirect_url?: SortOrderInput | SortOrder
@@ -35476,6 +35512,8 @@ export namespace Prisma {
     user_id?: StringWithAggregatesFilter<"Subscription_transaction"> | string
     level?: IntWithAggregatesFilter<"Subscription_transaction"> | number
     days?: IntWithAggregatesFilter<"Subscription_transaction"> | number
+    level_name?: StringWithAggregatesFilter<"Subscription_transaction"> | string
+    paid_at?: DateTimeNullableWithAggregatesFilter<"Subscription_transaction"> | Date | string | null
     order_id?: StringNullableWithAggregatesFilter<"Subscription_transaction"> | string | null
     transaction_token?: StringNullableWithAggregatesFilter<"Subscription_transaction"> | string | null
     redirect_url?: StringNullableWithAggregatesFilter<"Subscription_transaction"> | string | null
@@ -37714,6 +37752,8 @@ export namespace Prisma {
     id?: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -37733,6 +37773,8 @@ export namespace Prisma {
     user_id: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -37750,6 +37792,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37769,6 +37813,8 @@ export namespace Prisma {
     user_id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37787,6 +37833,8 @@ export namespace Prisma {
     user_id: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -37804,6 +37852,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -37822,6 +37872,8 @@ export namespace Prisma {
     user_id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -40328,6 +40380,8 @@ export namespace Prisma {
     user_id?: SortOrder
     level?: SortOrder
     days?: SortOrder
+    level_name?: SortOrder
+    paid_at?: SortOrder
     order_id?: SortOrder
     transaction_token?: SortOrder
     redirect_url?: SortOrder
@@ -40355,6 +40409,8 @@ export namespace Prisma {
     user_id?: SortOrder
     level?: SortOrder
     days?: SortOrder
+    level_name?: SortOrder
+    paid_at?: SortOrder
     order_id?: SortOrder
     transaction_token?: SortOrder
     redirect_url?: SortOrder
@@ -40373,6 +40429,8 @@ export namespace Prisma {
     user_id?: SortOrder
     level?: SortOrder
     days?: SortOrder
+    level_name?: SortOrder
+    paid_at?: SortOrder
     order_id?: SortOrder
     transaction_token?: SortOrder
     redirect_url?: SortOrder
@@ -43361,6 +43419,8 @@ export namespace Prisma {
     id?: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -43378,6 +43438,8 @@ export namespace Prisma {
     id?: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -43517,6 +43579,8 @@ export namespace Prisma {
     user_id?: StringFilter<"Subscription_transaction"> | string
     level?: IntFilter<"Subscription_transaction"> | number
     days?: IntFilter<"Subscription_transaction"> | number
+    level_name?: StringFilter<"Subscription_transaction"> | string
+    paid_at?: DateTimeNullableFilter<"Subscription_transaction"> | Date | string | null
     order_id?: StringNullableFilter<"Subscription_transaction"> | string | null
     transaction_token?: StringNullableFilter<"Subscription_transaction"> | string | null
     redirect_url?: StringNullableFilter<"Subscription_transaction"> | string | null
@@ -46986,6 +47050,8 @@ export namespace Prisma {
     id?: string
     level: number
     days: number
+    level_name: string
+    paid_at?: Date | string | null
     order_id?: string | null
     transaction_token?: string | null
     redirect_url?: string | null
@@ -47074,6 +47140,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47091,6 +47159,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -47108,6 +47178,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     level?: IntFieldUpdateOperationsInput | number
     days?: IntFieldUpdateOperationsInput | number
+    level_name?: StringFieldUpdateOperationsInput | string
+    paid_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     order_id?: NullableStringFieldUpdateOperationsInput | string | null
     transaction_token?: NullableStringFieldUpdateOperationsInput | string | null
     redirect_url?: NullableStringFieldUpdateOperationsInput | string | null

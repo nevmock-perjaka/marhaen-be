@@ -192,6 +192,8 @@ exports.Prisma.Subscription_transactionScalarFieldEnum = {
   user_id: 'user_id',
   level: 'level',
   days: 'days',
+  level_name: 'level_name',
+  paid_at: 'paid_at',
   order_id: 'order_id',
   transaction_token: 'transaction_token',
   redirect_url: 'redirect_url',

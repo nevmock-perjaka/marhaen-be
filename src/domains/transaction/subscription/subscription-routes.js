@@ -14,6 +14,11 @@ class SubscriptionRoutes extends BaseRoutes {
             validateCredentials(createSubscriptionSchema),
             tryCatch(SubscriptionController.create)
         ]);
+        this.router.get("/", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(SubscriptionController.getAll)
+        ])
     }
 }
 

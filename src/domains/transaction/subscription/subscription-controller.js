@@ -11,6 +11,13 @@ class SubscriptionController {
 
         return successResponse(res, snap); 
     }
+
+    async getAll(req, res) {
+        const { user } = req;
+        const subscriptions = await subscriptionService.findAll(user.id);
+        
+        return successResponse(res, subscriptions);
+    }
 }
 
 export default new SubscriptionController();
