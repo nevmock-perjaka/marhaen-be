@@ -247,7 +247,7 @@ class OrderService {
                 total_gross: total_gross,
                 phone_number: data.phone_number,
                 table_id: data.table_id,
-                discount_id: discountExists.id || null,
+                discount_id: (discountExists) ? discountExists.id : null,
                 staff_id: data.staff_id,
                 owned_by: data.owned_by,
                 created_by: data.created_by,
