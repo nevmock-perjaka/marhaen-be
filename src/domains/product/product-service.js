@@ -6,8 +6,7 @@ import { buildQueryOptions } from "../../utils/buildQueryOptions.js";
 import productQueryConfig from "./product-query-config.js";
 
 class ProductService {
-    // async findAll(userId, query = {}) {
-    async findAll(userId) {
+    async findAll(userId, query) {
         const options = buildQueryOptions(productQueryConfig, query, userId);
         
         const [ data, count ] = await Promise.all([
