@@ -8,34 +8,42 @@ import productQueryConfig from "./product-query-config.js";
 class ProductService {
     // async findAll(userId, query = {}) {
     async findAll(userId) {
-        // const options = buildQueryOptions(productQueryConfig, query, userId);
-        // return await db.product.findMany(options);
-        return await db.product.findMany({
-            where: {
-                owned_by: userId
-            },
-            include: {
-                Add_on_group: {
-                    include: {
-                        Add_on: {
-                            include: {
-                                Add_on_config: {
-                                    include: {
-                                        inventory: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                Product_config: {
-                    include: {
-                        inventory: true
-                    }
-                }
-            },
-            orderBy: { created_at: 'desc' }
-        });
+        const options = buildQueryOptions(productQueryConfig, query, userId);
+        
+        const [ data, count ] = await Promise.all([
+            db.product.findMany(options),
+            db.product.count({
+                where: options.where,
+            })
+        ]);
+
+        return [ data, count ];
+        // return await db.product.findMany({
+        //     where: {
+        //         owned_by: userId
+        //     },
+        //     include: {
+        //         Add_on_group: {
+        //             include: {
+        //                 Add_on: {
+        //                     include: {
+        //                         Add_on_config: {
+        //                             include: {
+        //                                 inventory: true
+        //                             }
+        //                         }
+        //                     }
+        //                 }
+        //             }
+        //         },
+        //         Product_config: {
+        //             include: {
+        //                 inventory: true
+        //             }
+        //         }
+        //     },
+        //     orderBy: { created_at: 'desc' }
+        // });
     }
 
     async findById(id, userId) {

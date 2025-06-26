@@ -11,7 +11,7 @@ class ProductRoutes extends BaseRoutes {
     routes() {
         this.router.get("/", [
             authTokenMiddleware.authenticate,
-            // validateParamsCredentials(productSchema.params),
+            validateParamsCredentials(productSchema.params),
             tryCatch(ProductController.getAll)
         ]);
         this.router.get("/:id", [
