@@ -62,7 +62,7 @@ export const errorHandler = (err, req, res, _next) => {
     });
   }
 
-  console.error("❌ Error:", err);
+  logger.error(`⚠️ There is Error: ${err}`);
 
   // ambil user id
   const user = db.user.findUnique({

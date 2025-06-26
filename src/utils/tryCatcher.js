@@ -1,3 +1,5 @@
+import logger from "./logger.js";
+
 const tryCatch =
    (controller) =>
    async (
@@ -6,7 +8,9 @@ const tryCatch =
       next,
    ) => {
       try {
+         logger.info(`Handling request for ${req.method} ${req.originalUrl}`);
          await controller(req, res);
+         logger.info(`Request handled successfully for ${req.method} ${req.originalUrl}`);
       } catch (err) {
          next(err);
       }

@@ -241,7 +241,7 @@ class OrderService {
 
             const siteConfig = await tx.site_config.findFirst();
 
-            data = {
+            let value = {
                 order_by: data.order_by,
                 status: "Not Paid",
                 total_gross: total_gross,
@@ -267,7 +267,7 @@ class OrderService {
 
 
             const order = await tx.order.create({
-                data,
+                data: value,
                 include: {
                     table: true,
                     discount: true,
@@ -295,7 +295,7 @@ class OrderService {
                 };
             });
 
-            if (data.shareable_code && discountExists) {
+            if (data.shareable_code && discountExists){
                 item_details.push({
                     id: discountExists.shareable_code,
                     price: -discount,
@@ -303,9 +303,6 @@ class OrderService {
                     name: `Discount ${discountExists.shareable_code || "Applied"}`,
                 });
             }
-
-            console.log("🧾 item_details:", item_details);
-            console.log("💰 gross_amount:", order.total_gross);
 
             const parameter = {
                 transaction_details: {
@@ -326,7 +323,7 @@ class OrderService {
                 metadata: {
                     "type": "order",
                     "id": order.id,
-                    "credentials": data.owned_by
+                    "credentials": value.owned_by
                 },
                 expiry: {
                     "unit": "minutes",
@@ -359,7 +356,7 @@ class OrderService {
                 }
             })
 
-            if (data.shareable_code && discountExists){
+            if (value.shareable_code && discountExists){
                 await tx.discount.update({
                     where: {
                         id: discountExists.id
