@@ -1,21 +1,31 @@
+import { successResponse } from "../../../../utils/response.js";
 import TransactionService from "./transaction-service.js";
-import { successResponse, errorResponse } from "../../../../utils/response.js";
 
 class TransactionController {
     async getByRange(req, res) {
-        try {
-            const { start, end } = req.query;
-            const ownedBy = req.user?.id || req.user.owned_by || "";
+        const { start_date, end_date } = req.query;
+        const ownedBy = req.user.id;
 
-            if (!start || !end) {
-                return errorResponse(res, 400, "Start and end date are required");
-            }
+        let startDate, endDate;
 
-            const data = await TransactionService.getChartData(start, end, ownedBy);
-            return successResponse(res, data);
-        } catch (error) {
-            return errorResponse(res, 500, error.message);
+        if (start_date && end_date) {
+            startDate = new Date(start_date);
+            endDate = new Date(end_date);
+        } else {
+            const now = new Date();
+            startDate = new Date(Date.UTC(now.getFullYear(), 0, 1, 0, 0, 0)); // Awal tahun
+            endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)); // Hari ini
         }
+
+        startDate = startDate.toISOString();
+        endDate = endDate.toISOString();
+
+        const [ chartData, topMenu ] = await Promise.all([
+            TransactionService.getChartData(startDate, endDate, ownedBy),
+            TransactionService.topMenu(startDate, endDate, ownedBy)
+        ]);
+
+        return successResponse(res, { chartData, topMenu });
     }
 }
 

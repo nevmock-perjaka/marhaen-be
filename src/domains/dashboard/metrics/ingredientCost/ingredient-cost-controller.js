@@ -3,37 +3,38 @@ import { successResponse, errorResponse } from "../../../../utils/response.js";
 
 class IngredientCostController {
     async getByRange(req, res) {
-        try {
-            const { start, end } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by || "";
+        const { start_date, end_date } = req.query;
+        const ownedBy = req.user.id;
 
-            if (!start || !end) {
-                return errorResponse(res, 400, "start dan end date harus diisi");
-            }
+        let startDate, endDate;
 
-            const result = await IngredientCostService.getChartData(start, end, ownedBy);
-            return successResponse(res, result, "Biaya bahan berhasil diambil");
-        } catch (error) {
-            console.error("[IngredientCostController:getByRange]", error);
-            return errorResponse(res, 500, error.message || "Gagal mengambil biaya bahan");
+        if (start_date && end_date) {
+            startDate = new Date(start_date);
+            endDate = new Date(end_date);
+        } else {
+            const now = new Date();
+            startDate = new Date(Date.UTC(now.getFullYear(), 0, 1, 0, 0, 0)); // Awal tahun
+            endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)); // Hari ini
         }
+
+        startDate = startDate.toISOString();
+        endDate = endDate.toISOString();
+
+        const data = await IngredientCostService.getChartData(
+            startDate, 
+            endDate,
+            ownedBy
+        );
+
+        return successResponse(res, data);
     }
 
     async getComparison(req, res) {
-        try {
-            const { mode } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by || "";
+        const ownedBy = req.user.id;
 
-            if (!["daily", "weekly", "monthly", "yearly"].includes(mode)) {
-                return errorResponse(res, 400, "Mode harus salah satu dari: daily, weekly, monthly, yearly");
-            }
+        const data = await IngredientCostService.compare(ownedBy);
 
-            const result = await IngredientCostService.compare(mode, ownedBy);
-            return successResponse(res, result, `Perbandingan biaya bahan (${mode}) berhasil`);
-        } catch (error) {
-            console.error("[IngredientCostController:getComparison]", error);
-            return errorResponse(res, 500, error.message || "Gagal mengambil data perbandingan biaya bahan");
-        }
+        return successResponse(res, data);
     }
 }
 

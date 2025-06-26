@@ -1,20 +1,27 @@
-import express from "express";
 import ingredientCostController from "./ingredient-cost-controller.js";
-import tryCatch from "../../../../common/utils/tryCatcher.js";
-import validateCredentials from "../../../../middlewares/validate-credentials-middleware.js";
+import ingredientCostSchema from "./ingredient-cost-schema.js";
+import BaseRoutes from "../../../../base_classes/base-routes.js";
+import tryCatch from "../../../../utils/tryCatcher.js";
+import validateParamsCredentials from "../../../../middlewares/validate-params-credentials-middleware.js";
+import authTokenMiddleware from "../../../../middlewares/auth-token-middleware.js";
 
-const router = express.Router();
 
-router.get(
-    "/",
-    validateCredentials,
-    tryCatch(ingredientCostController.getByRange)
-);
+class IngredientCostRoutes extends BaseRoutes {
+    routes(){
+        this.router.get("/chart", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            validateParamsCredentials(ingredientCostSchema.params),
+            tryCatch(ingredientCostController.getByRange)
+        ]);
+        
+        this.router.get("/compare",
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            tryCatch(ingredientCostController.getComparison)
+        );
+    }
+}
 
-router.get(
-    "/compare",
-    validateCredentials,
-    tryCatch(ingredientCostController.getComparison)
-);
 
-export default router;
+export default new IngredientCostRoutes().router;

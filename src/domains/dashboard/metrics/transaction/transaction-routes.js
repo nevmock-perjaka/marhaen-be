@@ -1,14 +1,19 @@
-import { Router } from "express";
+import BaseRoutes from "../../../../base_classes/base-routes.js";
+import authTokenMiddleware from "../../../../middlewares/auth-token-middleware.js";
+import validateParamsCredentials from "../../../../middlewares/validate-params-credentials-middleware.js";
+import tryCatch from "../../../../utils/tryCatcher.js";
 import TransactionController from "./transaction-controller.js";
-import tryCatch from "../../../../common/utils/tryCatcher.js";
-import validateCredentials from "../../../../middlewares/validate-credentials-middleware.js";
+import transactionSchema from "./transaction-schema.js";
 
-const router = Router();
+class TransactionRoutes extends BaseRoutes {
+    routes(){
+        this.router.get("/chart", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['OWNER']),
+            validateParamsCredentials(transactionSchema.params),
+            tryCatch(TransactionController.getByRange)
+        ]);
+    }
+}
 
-router.get(
-    "/",
-    validateCredentials, 
-    tryCatch(TransactionController.getByRange)
-);
-
-export default router;
+export default new TransactionRoutes().router;

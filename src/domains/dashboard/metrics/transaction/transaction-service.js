@@ -1,73 +1,62 @@
-import prisma from "../../../../config/db.js";
+import db from "../../../../config/db.js";
+import { format, addDays, addMonths, differenceInDays, startOfDay, startOfWeek, startOfMonth, startOfYear, subMonths, subYears, endOfDay, endOfWeek, endOfMonth, endOfYear, formatISO } from "date-fns";
 
 class TransactionService {
-    async getChartData(start, end, ownedBy) {
-        const items = await prisma.order_item.findMany({
+    async getChartData(startDate, endDate, ownedBy) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const isDaily = differenceInDays(end, start) < 31;
+
+        const transactions = await db.order.findMany({
             where: {
-                order: {
-                    created_at: {
-                        gte: start,
-                        lte: end,
-                    },
-                    owned_by: ownedBy,
-                    status: {
-                        in: ["Paid"], // hanya order yang selesai/dibayar
-                    },
+                owned_by: ownedBy,
+                created_at: {
+                    gte: start,
+                    lte: end,
                 },
+                status: "Paid",
             },
             select: {
-                product_id: true,
-                quantity: true,
-                price: true,
-                product: {
-                    select: {
-                        name: true,
-                        image_uri: true,
-                        category: true,
-                    },
-                },
+                created_at: true,
             },
         });
 
-        // Grouping by product_id
-        const grouped = {};
-        for (const item of items) {
-            const id = item.product_id;
-            if (!grouped[id]) {
-                grouped[id] = {
-                    product_id: id,
-                    name: item.product.name,
-                    image_uri: item.product.image_uri,
-                    category: item.product.category,
-                    total_quantity: 0,
-                    total_revenue: 0,
-                };
+        const groupedData = {};
+
+        transactions.forEach(order => {
+            const key = format(order.created_at, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
+            if (!groupedData[key]) {
+                groupedData[key] = 0;
             }
-            grouped[id].total_quantity += item.quantity;
-            grouped[id].total_revenue += item.price * item.quantity;
+            groupedData[key] += 1; // 🔁 Hitung jumlah order
+        });
+
+        const fullRangeData = [];
+        let current = new Date(start);
+
+        while (current <= end) {
+            const key = format(current, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
+            fullRangeData.push({
+                date: key,
+                count: groupedData[key] || 0,
+            });
+            current = isDaily ? addDays(current, 1) : addMonths(current, 1);
         }
 
-        // Convert to array & sort by quantity desc
-        const result = Object.values(grouped).sort(
-            (a, b) => b.total_quantity - a.total_quantity
-        );
-
-        return result;
+        return fullRangeData;
     }
 
-    async todayTransactions(ownedBy) {
-        const today = new Date();
+    async topMenu(startDate, endDate, ownedBy) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-
-        const paidOrderIds = await prisma.order.findMany({
+        const paidOrderIds = await db.order.findMany({
             where: {
                 owned_by: ownedBy,
                 status: 'Paid',
                 created_at: {
-                    gte: startOfDay,
-                    lte: endOfDay,
+                    gte: start,
+                    lte: end,
                 },
             },
             select: {
@@ -79,7 +68,7 @@ class TransactionService {
 
         if (orderIds.length === 0) return [];
 
-        const topProducts = await prisma.order_item.groupBy({
+        const topProducts = await db.order_item.groupBy({
             by: ['product_id'],
             where: {
                 owned_by: ownedBy,
@@ -99,7 +88,7 @@ class TransactionService {
 
         const productIds = topProducts.map(p => p.product_id);
 
-        const productDetails = await prisma.product.findMany({
+        const productDetails = await db.product.findMany({
             where: {
                 id: {
                     in: productIds,
@@ -115,7 +104,70 @@ class TransactionService {
             };
         });
 
-        const totalTransactions = await prisma.order.count({
+        return result;
+    }
+
+    async todayTransactions(ownedBy) {
+        const today = new Date();
+
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+
+        const paidOrderIds = await db.order.findMany({
+            where: {
+                owned_by: ownedBy,
+                status: 'Paid',
+                created_at: {
+                    gte: startOfDay,
+                    lte: endOfDay,
+                },
+            },
+            select: {
+                id: true,
+            },
+        });
+
+        const orderIds = paidOrderIds.map(order => order.id);
+
+        if (orderIds.length === 0) return [];
+
+        const topProducts = await db.order_item.groupBy({
+            by: ['product_id'],
+            where: {
+                owned_by: ownedBy,
+                order_id: {
+                    in: orderIds,
+                },
+            },
+            _sum: {
+                quantity: true,
+            },
+            orderBy: {
+                _sum: {
+                    quantity: 'desc',
+                },
+            }
+        });
+
+        const productIds = topProducts.map(p => p.product_id);
+
+        const productDetails = await db.product.findMany({
+            where: {
+                id: {
+                    in: productIds,
+                },
+            },
+        });
+
+        const result = topProducts.map(item => {
+            const product = productDetails.find(p => p.id === item.product_id);
+            return {
+                quantity: item._sum.quantity,
+                product
+            };
+        });
+
+        const totalTransactions = await db.order.count({
             where: {
                 owned_by: ownedBy,
                 status: 'Paid',
@@ -126,7 +178,7 @@ class TransactionService {
             },
         });
 
-        const topVoucher = await prisma.order.groupBy({
+        const topVoucher = await db.order.groupBy({
             by: ['discount_id'],
             where: {
                 owned_by: ownedBy,

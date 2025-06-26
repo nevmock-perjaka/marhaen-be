@@ -30,12 +30,11 @@ class SalesPerformanceController {
     }
 
     async getComparison(req, res) {
-        const { mode } = req.query; // daily, weekly, monthly, yearly
-        const ownedBy = req.user?.id || req.user.owned_by || "";
+        const ownedBy = req.user.id;
 
-        const data = await SalesPerformanceService.compare(mode, ownedBy);
+        const data = await SalesPerformanceService.compare(ownedBy);
 
-        return res.json(successResponse({ data }));
+        return successResponse(res, data);
     }
 }
 

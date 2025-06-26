@@ -1,16 +1,20 @@
-import prisma from "../../../../config/db.js";
-import dayjs from "dayjs";
+import db from "../../../../config/db.js";
+import { format, addDays, addMonths, differenceInDays, startOfDay, startOfWeek, startOfMonth, startOfYear, subMonths, subYears, endOfDay, endOfWeek, endOfMonth, endOfYear, formatISO } from "date-fns";
 
 class SalesPerformanceService {
     async getChartData(startDate, endDate, ownedBy) {
-        const orders = await prisma.order.findMany({
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const isDaily = differenceInDays(end, start) < 31;
+
+        const orders = await db.order.findMany({
             where: {
                 owned_by: ownedBy,
                 created_at: {
-                    gte: startDate,
-                    lte: endDate,
+                    gte: start,
+                    lte: end,
                 },
-                status: "Paid", // status order yang sudah dibayar
+                status: "Paid",
             },
             select: {
                 total_gross: true,
@@ -18,71 +22,170 @@ class SalesPerformanceService {
             },
         });
 
-        const grouped = {};
+        const groupedData = {};
 
-        for (const order of orders) {
-            const key = dayjs(order.created_at).format("YYYY-MM-DD");
-            if (!grouped[key]) grouped[key] = 0;
-            grouped[key] += order.total_gross;
+        orders.forEach(order => {
+            const key = format(order.created_at, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
+            if (!groupedData[key]) {
+                groupedData[key] = 0;
+            }
+            groupedData[key] += order.total_gross;
+        });
+
+        const fullRangeData = [];
+        let current = new Date(start);
+
+        while (current <= end) {
+            const key = format(current, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
+            fullRangeData.push({
+                date: key,
+                value: groupedData[key] || 0,
+            });
+            current = isDaily ? addDays(current, 1) : addMonths(current, 1);
         }
 
-        return Object.entries(grouped).map(([date, total]) => ({
-            date,
-            total_gross: total,
-        }));
+        return fullRangeData;
     }
 
-    async compare(mode, ownedBy) {
-        const now = dayjs();
 
-        let currentStart, currentEnd, lastStart, lastEnd;
+    async getTotal(ownedBy, startDate, endDate) {
+        const result = await db.order.aggregate({
+            _sum: { total_gross: true },
+            where: {
+                owned_by: ownedBy,
+                created_at: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                status: "Paid",
+            },
+        });
 
-        switch (mode) {
-            case "daily":
-                currentStart = now.startOf("day");
-                currentEnd = now.endOf("day");
-                lastStart = currentStart.subtract(1, "month");
-                lastEnd = currentEnd.subtract(1, "month");
-                break;
-            case "weekly":
-                currentStart = now.startOf("week");
-                currentEnd = now.endOf("week");
-                lastStart = currentStart.subtract(1, "month");
-                lastEnd = currentEnd.subtract(1, "month");
-                break;
-            case "monthly":
-                currentStart = now.startOf("month");
-                currentEnd = now.endOf("month");
-                lastStart = currentStart.subtract(1, "month");
-                lastEnd = currentEnd.subtract(1, "month");
-                break;
-            case "yearly":
-                currentStart = now.startOf("year");
-                currentEnd = now.endOf("year");
-                lastStart = currentStart.subtract(1, "year");
-                lastEnd = currentEnd.subtract(1, "year");
-                break;
-            default:
-                throw new Error("Mode tidak valid");
-        }
+        return result._sum.total_gross || 0;
+    }
 
-        const [currentTotal, lastTotal] = await Promise.all([
-            this._sumSales(currentStart.toDate(), currentEnd.toDate(), ownedBy),
-            this._sumSales(lastStart.toDate(), lastEnd.toDate(), ownedBy),
-        ]);
+    calcChange(current, previous, currentRange, previousRange) {
+        const diff = current - previous;
+        const percentage = previous === 0 ? 0 : (diff / previous) * 100;
+        const isIncrease = diff >= 0;
+
+        console.log(currentRange);
 
         return {
-            current: currentTotal,
-            previous: lastTotal,
-            difference: currentTotal - lastTotal,
-            percentage: lastTotal > 0
-                ? ((currentTotal - lastTotal) / lastTotal) * 100
-                : 100,
+            current,
+            previous,
+            diff,
+            percentage: Math.round(percentage * 10) / 10, // 1 decimal place
+            isIncrease,
+            current_range: {
+                start_date: currentRange.start_date,
+                end_date: currentRange.end_date,
+            },
+            previous_range: {
+                start_date: previousRange.start_date,
+                end_date: previousRange.end_date,
+            }
+        };
+    }
+
+    async compare(ownedBy) {
+        const now = new Date();
+
+        // Today vs same day last month
+        const todayStart = startOfDay(now);
+        const todayEnd = endOfDay(now);
+        const prevDay = subMonths(todayStart, 1);
+        const prevDayEnd = endOfDay(prevDay);
+
+        // This Week vs same week last month
+        const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
+        const weekEnd = endOfDay(now);
+        const tempWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
+
+        const prevWeekStart = subMonths(weekStart, 1);
+        const prevWeekEnd = subMonths(tempWeekEnd, 1);
+
+        // This Month vs last month
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
+        const prevMonthStart = subMonths(monthStart, 1);
+        const prevMonthEnd = endOfMonth(prevMonthStart);
+
+        // This Year vs last year
+        const yearStart = startOfYear(now);
+        const yearEnd = endOfYear(now);
+        const prevYearStart = subYears(yearStart, 1);
+        const prevYearEnd = endOfYear(prevYearStart);
+
+        // Get total for each period
+        const [
+            todayTotal,
+            prevDayTotal,
+            weekTotal,
+            prevWeekTotal,
+            monthTotal,
+            prevMonthTotal,
+            yearTotal,
+            prevYearTotal
+        ] = await Promise.all([
+            this.getTotal(ownedBy, todayStart, todayEnd),
+            this.getTotal(ownedBy, prevDay, prevDayEnd),
+            this.getTotal(ownedBy, weekStart, weekEnd),
+            this.getTotal(ownedBy, prevWeekStart, prevWeekEnd),
+            this.getTotal(ownedBy, monthStart, monthEnd),
+            this.getTotal(ownedBy, prevMonthStart, prevMonthEnd),
+            this.getTotal(ownedBy, yearStart, yearEnd),
+            this.getTotal(ownedBy, prevYearStart, prevYearEnd)
+        ]);
+        const todayRange = {
+            start_date: formatISO(todayStart),
+            end_date: formatISO(todayEnd)
+        };
+        const prevDayRange = {
+            start_date: formatISO(prevDay),
+            end_date: formatISO(prevDayEnd) 
+        };
+
+        const weekRange = {
+            start_date: formatISO(weekStart),
+            end_date: formatISO(weekEnd)
+        };
+
+        const prevWeekRange = {
+            start_date: formatISO(prevWeekStart),
+            end_date: formatISO(prevWeekEnd)
+        };
+
+        const monthRange = {
+            start_date: formatISO(monthStart),
+            end_date: formatISO(monthEnd)
+        };
+
+        const prevMonthRange = {
+            start_date: formatISO(prevMonthStart),
+            end_date: formatISO(prevMonthEnd)
+        };
+        
+        const yearRange = {
+            start_date: formatISO(yearStart),
+            end_date: formatISO(yearEnd)
+        };
+
+        const prevYearRange = {
+            start_date: formatISO(prevYearStart),
+            end_date: formatISO(prevYearEnd)
+        };
+
+        return {
+            today: this.calcChange(todayTotal, prevDayTotal, todayRange, prevDayRange),
+            thisWeek: this.calcChange(weekTotal, prevWeekTotal, weekRange, prevWeekRange),
+            thisMonth: this.calcChange(monthTotal, prevMonthTotal, monthRange, prevMonthRange),
+            thisYear: this.calcChange(yearTotal, prevYearTotal, yearRange, prevYearRange),
         };
     }
 
     async _sumSales(startDate, endDate, ownedBy) {
-        const total = await prisma.order.aggregate({
+        const total = await db.order.aggregate({
             where: {
                 owned_by: ownedBy,
                 created_at: {
@@ -112,7 +215,7 @@ class SalesPerformanceService {
         prevStartDate = prevStartDate.toISOString();
         prevEndDate = prevEndDate.toISOString();
 
-        const salesPerformance = await prisma.order.aggregate({
+        const salesPerformance = await db.order.aggregate({
             _sum: {
                 total_gross: true,
             },
@@ -126,7 +229,7 @@ class SalesPerformanceService {
             },
         });
 
-        const prevSalesPerformance = await prisma.order.aggregate({
+        const prevSalesPerformance = await db.order.aggregate({
             _sum: {
                 total_gross: true,
             },
