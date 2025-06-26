@@ -16,7 +16,7 @@ class ProductService {
             })
         ]);
 
-        return [ data, count ];
+        return { data, count };
         // return await db.product.findMany({
         //     where: {
         //         owned_by: userId

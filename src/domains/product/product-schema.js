@@ -41,8 +41,8 @@ const productSchema = {
             limit: Joi.number().integer().min(1).max(100).default(10),
         }).when('get_all', {
             is: false,
-            then: Joi.forbidden(),
-            otherwise: Joi.optional(),
+            then: Joi.required(),
+            otherwise: Joi.forbidden(),
         }),
 
         order_by: Joi.array().items(
