@@ -35,7 +35,7 @@ const productSchema = {
 
   // Schema untuk params get product
   params: Joi.object({
-    get_all: Joi.boolean().optional().default(false),
+    get_all: Joi.boolean().optional().default(true),
 
     pagination: Joi.object({
       page: Joi.number().integer().min(1).default(1),
