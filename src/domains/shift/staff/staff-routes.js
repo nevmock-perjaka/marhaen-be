@@ -4,33 +4,32 @@ import tryCatch from "../../../utils/tryCatcher.js";
 import authTokenMiddleware from "../../../middlewares/auth-token-middleware.js";
 import validateCredentials from "../../../middlewares/validate-credentials-middleware.js";
 import staffSchema from "./staff-schema.js";
+import validateParamsCredentials from "../../../middlewares/validate-params-credentials-middleware.js";
 
 const router = express.Router();
 
 router.get("/", [
-    authTokenMiddleware.authenticate,
-    tryCatch(staffController.getAll)
+  authTokenMiddleware.authenticate,
+  validateParamsCredentials(staffSchema.params),
+  tryCatch(staffController.getAll),
 ]);
-router.get("/:staffId", [
-    authTokenMiddleware.authenticate,
-    tryCatch(staffController.getById)
-]);
+router.get("/:staffId", [authTokenMiddleware.authenticate, tryCatch(staffController.getById)]);
 router.post("/", [
-    authTokenMiddleware.authenticate,
-    authTokenMiddleware.authorizeRoles(['STAFF']),
-    validateCredentials(staffSchema.create),
-    tryCatch(staffController.create)
+  authTokenMiddleware.authenticate,
+  authTokenMiddleware.authorizeRoles(["STAFF"]),
+  validateCredentials(staffSchema.create),
+  tryCatch(staffController.create),
 ]);
 router.put("/:staffId", [
-    authTokenMiddleware.authenticate,
-    authTokenMiddleware.authorizeRoles(['STAFF']),
-    validateCredentials(staffSchema.update),
-    tryCatch(staffController.update)
+  authTokenMiddleware.authenticate,
+  authTokenMiddleware.authorizeRoles(["STAFF"]),
+  validateCredentials(staffSchema.update),
+  tryCatch(staffController.update),
 ]);
 router.delete("/:staffId", [
-    authTokenMiddleware.authenticate,
-    authTokenMiddleware.authorizeRoles(['STAFF']),
-    tryCatch(staffController.delete)
+  authTokenMiddleware.authenticate,
+  authTokenMiddleware.authorizeRoles(["STAFF"]),
+  tryCatch(staffController.delete),
 ]);
 
 export default router;
