@@ -23,6 +23,7 @@ const orderSchema = {
       .min(1),
   }),
 
+  // Schema untuk params get order
   params: Joi.object({
     get_all: Joi.boolean().optional().default(true),
 

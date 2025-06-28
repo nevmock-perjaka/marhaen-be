@@ -33,6 +33,7 @@ const productSchema = {
     is_active: baseFields.is_active.optional(),
   }),
 
+  // Schema untuk params get product
   params: Joi.object({
     get_all: Joi.boolean().optional().default(false),
 
