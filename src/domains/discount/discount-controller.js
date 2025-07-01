@@ -72,8 +72,9 @@ class DiscountController {
     value.updated_by = req.profile.id;
     value.owned_by = req.user.id;
 
-    value.start_at = new Date(value.start_at);
-    value.expired_at = new Date(value.expired_at);
+    if (value.expired_at) {
+      value.expired_at = new Date(value.expired_at);
+    }
 
     const updated = await DiscountService.update(id, value);
     return successResponse(res, updated);
