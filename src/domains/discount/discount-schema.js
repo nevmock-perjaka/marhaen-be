@@ -42,8 +42,7 @@ const discountSchema = {
     }),
     min_order_amount: Joi.number().precision(2).min(0).optional(),
     max_use: Joi.number().integer().min(1).optional(),
-    start_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
-    expired_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").required(),
+    expired_at: Joi.date().format("YYYY-MM-DD HH:mm:ss").optional(),
     is_active: Joi.boolean().optional(),
   }),
 
