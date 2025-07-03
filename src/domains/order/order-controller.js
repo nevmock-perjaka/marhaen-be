@@ -23,7 +23,9 @@ class OrderController {
     value.created_by = req.profile.id;
     value.updated_by = req.profile.id;
 
-    const created = await OrderService.create(value);
+    const isStricMode = req.user.strict_mode;
+
+    const created = await OrderService.create(value, isStricMode);
     return createdResponse(res, created);
   }
 }

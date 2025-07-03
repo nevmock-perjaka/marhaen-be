@@ -307,6 +307,32 @@ class AuthService {
 
         return user.strict_mode;
     }
+
+    async updateStrictMode(id){
+        const user = await db.user.findUnique({
+            where: {
+                id: id
+            }
+        });
+
+        if (!user) {
+            throw BaseError.notFound("User not found");
+        }
+
+        const updatedUser = await db.user.update({
+            where: {
+                id: id
+            },
+            data: {
+                strict_mode: !user.strict_mode
+            },
+            select: {
+                strict_mode: true
+            }
+        });
+
+        return updatedUser;
+    }
 }
 
 export default new AuthService();

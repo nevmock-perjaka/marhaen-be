@@ -38,6 +38,12 @@ class AuthRoutes extends BaseRoutes {
             validateCredentials(profileSchema),
             tryCatch(AuthController.updateProfile)
         ]);
+        
+        this.router.put("/strict-mode", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['CASHIER']),
+            tryCatch(AuthController.updateScrictMode)
+        ]);
     }
 }
 

@@ -71,6 +71,16 @@ class AuthController {
 
         return successResponse(res, message);
     }
+
+    async updateScrictMode(req, res) {
+        const updated = await AuthService.updateStrictMode(req.user.id);
+
+        if (!updated) {
+            throw Error("Failed to update strict mode");
+        }
+
+        return successResponse(res, { message: "Strict mode updated successfully" });
+    }
 }
 
 export default new AuthController();

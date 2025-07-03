@@ -62,7 +62,7 @@ class OrderService {
     return order;
   }
 
-  async create(data) {
+  async create(data, strict_mode = false) {
     return db.$transaction(async (tx) => {
       const midtransConfig = await tx.midtrans_User.findUnique({
         where: { user_id: data.owned_by },
@@ -233,6 +233,68 @@ class OrderService {
           },
         };
       });
+
+      if (strict_mode) {
+        for (const item of data.order_items) {
+          const productConfigs = await tx.product_config.findMany({
+            where: {
+              product_id: item.product_id,
+            },
+          });
+
+          for (const config of productConfigs) {
+            let requiredQuantity = config.value * item.quantity;
+
+            // Validasi stock global dulu
+            const totalStock = await tx.input_history.aggregate({
+              _sum: {
+                current_stock: true,
+              },
+              where: {
+                inventory_id: config.inventory_id,
+                owned_by: data.owned_by,
+              },
+            });
+
+            if ((totalStock._sum?.current_stock || 0) < requiredQuantity) {
+              throw BaseError.badRequest(
+                `Insufficient stock for inventory '${config.inventory_id}' used in product '${item.product_id}'. Required: ${requiredQuantity}, Available: ${totalStock._sum?.current_stock || 0}`
+              );
+            }
+
+            // Loop pengurangan stok dari input_history satu per satu
+            const inputHistories = await tx.input_history.findMany({
+              where: {
+                inventory_id: config.inventory_id,
+                owned_by: data.owned_by,
+                current_stock: { gt: 0 },
+              },
+              orderBy: {
+                created_at: "asc", // FIFO: Kurangi dari yang paling lama dulu
+              },
+            });
+
+            for (const input of inputHistories) {
+              if (requiredQuantity === 0) break;
+
+              const toDeduct = Math.min(requiredQuantity, input.current_stock);
+
+              await tx.input_history.update({
+                where: { id: input.id },
+                data: {
+                  current_stock: { decrement: toDeduct },
+                  updated_by: data.updated_by,
+                },
+              });
+
+              requiredQuantity -= toDeduct;
+
+              // Optional: bisa log pengurangan ini ke table Stock_log jika diperlukan
+            }
+          }
+        }
+      }
+
 
       let total_gross = orderItems.reduce((total, item) => {
         const itemTotal = item.price;
