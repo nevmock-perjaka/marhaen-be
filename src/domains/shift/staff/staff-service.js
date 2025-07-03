@@ -5,6 +5,15 @@ import { buildQueryOptions } from "../../../utils/buildQueryOptions.js";
 
 class StaffService {
   async create(data) {
+    const existPhoneNumber = await db.staff.findFirst({
+      where: {
+        phone_number: data.phone_number,
+        owned_by: data.owned_by,
+      },
+    });
+
+    if (existPhoneNumber) throw BaseError.badRequest("Phone number already exists.");
+
     return db.staff.create({ data });
   }
 
