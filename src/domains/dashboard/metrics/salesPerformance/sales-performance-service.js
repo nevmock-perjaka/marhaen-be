@@ -69,8 +69,6 @@ class SalesPerformanceService {
         const percentage = previous === 0 ? 0 : (diff / previous) * 100;
         const isIncrease = diff >= 0;
 
-        console.log(currentRange);
-
         return {
             current,
             previous,
@@ -182,24 +180,6 @@ class SalesPerformanceService {
             thisMonth: this.calcChange(monthTotal, prevMonthTotal, monthRange, prevMonthRange),
             thisYear: this.calcChange(yearTotal, prevYearTotal, yearRange, prevYearRange),
         };
-    }
-
-    async _sumSales(startDate, endDate, ownedBy) {
-        const total = await db.order.aggregate({
-            where: {
-                owned_by: ownedBy,
-                created_at: {
-                    gte: startDate,
-                    lte: endDate,
-                },
-                status: "PAID",
-            },
-            _sum: {
-                total_gross: true,
-            },
-        });
-
-        return total._sum.total_gross || 0;
     }
 
     async _sum(startDate, endDate, ownedBy) {

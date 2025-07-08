@@ -67,8 +67,6 @@ class IngredientCostService {
         const percentage = previous === 0 ? 0 : (diff / previous) * 100;
         const isIncrease = diff >= 0;
 
-        console.log(currentRange);
-
         return {
             current,
             previous,

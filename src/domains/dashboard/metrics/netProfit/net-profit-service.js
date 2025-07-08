@@ -1,91 +1,70 @@
 import dayjs from "dayjs";
 import prisma from "../../../../config/db.js";
+import ingredientCostService from "../ingredientCost/ingredient-cost-service.js";
+import salesPerformanceService from "../salesPerformance/sales-performance-service.js";
 
 class NetProfitService {
     async getChartData(startDate, endDate, ownedBy) {
-        const orders = await prisma.order.findMany({
-            where: {
-                created_at: {
-                    gte: startDate,
-                    lte: endDate,
-                },
-                owned_by: ownedBy,
-                status: { in: ["Paid"] },
-            },
-            include: {
-                Order_transaction: true,
-                discount: true,
-            },
-        });
+        const salesPerformance = await salesPerformanceService.getChartData(startDate, endDate, ownedBy);
+        const ingredientCost = await ingredientCostService.getChartData(startDate, endDate, ownedBy);
 
-        if (!orders || orders.length === 0) {
-            return {
-                totalGross: 0,
-                totalAdminFee: 0,
-                netProfit: 0,
-                startDate,
-                endDate,
+        const fullRangeData = [];
+        for (let i = 0; i < salesPerformance.length; i++) {
+            const salesDate = dayjs(salesPerformance[i].date);
+            const ingredientDate = dayjs(ingredientCost[i].date);
+
+            if (salesDate.isSame(ingredientDate, 'day')) {
+                fullRangeData.push({
+                    date: salesPerformance[i].date,
+                    sales: salesPerformance[i].value,
+                    ingredientCost: ingredientCost[i].value,
+                    value: salesPerformance[i].value - ingredientCost[i].value
+                });
+            } else {
+                fullRangeData.push({
+                    date: salesPerformance[i].date,
+                    sales: salesPerformance[i].value,
+                    ingredientCost: 0,
+                    value: salesPerformance[i].value
+                });
+            }
+        }
+
+        return fullRangeData;
+    }
+
+    async compare(ownedBy) {
+        const salesPerformance = await salesPerformanceService.compare(ownedBy);
+        const ingredientCost = await ingredientCostService.compare(ownedBy);
+
+        const periods = ['today', 'thisWeek', 'thisMonth', 'thisYear'];
+
+        const netProfit = {};
+
+        for (const period of periods) {
+            const sales = salesPerformance[period];
+            const cost = ingredientCost[period];
+
+            const current = sales.current - cost.current;
+            const previous = sales.previous - cost.previous;
+            const diff = current - previous;
+
+            const percentage = previous === 0 
+                ? (current === 0 ? 0 : 100) 
+                : (diff / previous) * 100;
+
+            netProfit[period] = {
+                current,
+                previous,
+                diff,
+                percentage: Math.round(percentage),
+                isIncrease: diff >= 0,
+                current_range: sales.current_range,
+                previous_range: sales.previous_range,
             };
         }
 
-        const totalGross = orders.reduce((sum, order) => sum + order.total_gross, 0);
-        const totalAdminFee = orders.reduce((sum, order) => sum + (order.Order_transaction?.admin_fee || 0), 0);
-
-        return {
-            totalGross,
-            totalAdminFee,
-            netProfit: totalGross - totalAdminFee,
-            startDate,
-            endDate,
-        };
-    }
-
-    async compare(mode, ownedBy) {
-        const today = dayjs();
-
-        let currentStart, currentEnd, prevStart, prevEnd;
-
-        switch (mode) {
-            case "daily":
-                currentStart = today.startOf("day");
-                currentEnd = today.endOf("day");
-                prevStart = currentStart.subtract(1, "month");
-                prevEnd = currentEnd.subtract(1, "month");
-                break;
-
-            case "weekly":
-                currentStart = today.startOf("week");
-                currentEnd = today.endOf("week");
-                prevStart = currentStart.subtract(1, "month");
-                prevEnd = currentEnd.subtract(1, "month");
-                break;
-
-            case "monthly":
-                currentStart = today.startOf("month");
-                currentEnd = today.endOf("month");
-                prevStart = currentStart.subtract(1, "month");
-                prevEnd = currentEnd.subtract(1, "month");
-                break;
-
-            case "yearly":
-                currentStart = today.startOf("year");
-                currentEnd = today.endOf("year");
-                prevStart = currentStart.subtract(1, "year");
-                prevEnd = currentEnd.subtract(1, "year");
-                break;
-
-            default:
-                throw new Error("Invalid comparison mode");
-        }
-
-        const current = await this.getNetProfitInRange(currentStart.toDate(), currentEnd.toDate(), ownedBy);
-        const previous = await this.getNetProfitInRange(prevStart.toDate(), prevEnd.toDate(), ownedBy);
-
-        return {
-            current,
-            previous,
-            mode,
-        };
+        return netProfit;
     }
 
     async _sum(startDate, endDate, ownedBy) {

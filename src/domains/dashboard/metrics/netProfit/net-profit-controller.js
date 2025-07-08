@@ -1,37 +1,40 @@
 import NetProfitService from "./net-profit-service.js";
-import { successResponse, errorResponse } from "../../../../utils/response.js";
+import { successResponse } from "../../../../utils/response.js";
 
 class NetProfitController {
     async getByRange(req, res) {
-        try {
-            const { start_date, end_date } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by || ""; // asumsi pakai JWT dan ada user.id
+        const { start_date, end_date } = req.query;
+        const ownedBy = req.user.id;
 
-            if (!start_date || !end_date) {
-                return errorResponse(res, 400, "start_date dan end_date harus diisi");
-            }
+        let startDate, endDate;
 
-            const data = await NetProfitService.getChartData(start_date, end_date, ownedBy);
-            return successResponse(res, data, "Net profit berhasil diambil");
-        } catch (err) {
-            return errorResponse(res, 500, err.message);
+        if (start_date && end_date) {
+            startDate = new Date(start_date);
+            endDate = new Date(end_date);
+        } else {
+            const now = new Date();
+            startDate = new Date(Date.UTC(now.getFullYear(), 0, 1, 0, 0, 0)); // Awal tahun
+            endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)); // Hari ini
         }
+
+        startDate = startDate.toISOString();
+        endDate = endDate.toISOString();
+
+        const data = await NetProfitService.getChartData(
+            startDate, 
+            endDate,
+            ownedBy
+        );
+
+        return successResponse(res, data);
     }
 
     async getComparison(req, res) {
-        try {
-            const { mode } = req.query;
-            const ownedBy = req.user?.id || req.user?.owned_by || "";
+        const ownedBy = req.user.id;
 
-            if (!["daily", "weekly", "monthly", "yearly"].includes(mode)) {
-                return errorResponse(res, 400, "Mode harus salah satu dari: daily, weekly, monthly, yearly");
-            }
+        const data = await NetProfitService.compare(ownedBy);
 
-            const data = await NetProfitService.compare(mode, ownedBy);
-            return successResponse(res, data, `Perbandingan net profit (${mode}) berhasil`);
-        } catch (err) {
-            return errorResponse(res, 500, err.message);
-        }
+        return successResponse(res, data);
     }
 }
 
