@@ -49,7 +49,7 @@ const orderSchema = {
       .items(Joi.string().valid("table", "discount", "Order_item", "Order_transaction"))
       .optional(),
 
-    search: Joi.string().min(1).max(100).optional(),
+    search: Joi.alternatives().try(Joi.string().min(1).max(100), Joi.number().integer()).optional(),
 
     filter: Joi.object({
       status: Joi.string().optional(),

@@ -35,7 +35,7 @@ const staffLogSchema = {
 
     include_relation: Joi.array().items(Joi.string().valid("staff")).optional(),
 
-    search: Joi.string().min(1).max(100).optional(),
+    search: Joi.alternatives().try(Joi.string().min(1).max(100), Joi.number().integer()).optional(),
 
     advSearch: Joi.object({
       shift_date: Joi.date().format("YYYY-MM-DD").optional(),
