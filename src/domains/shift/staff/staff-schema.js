@@ -51,7 +51,7 @@ const staffSchema = {
 
     include_relation: Joi.array().items(Joi.string().valid("Staff_log", "Order")).optional(),
 
-    search: Joi.string().min(1).max(100).optional(),
+    search: Joi.alternatives().try(Joi.string().min(1).max(100), Joi.number().integer()).optional(),
 
     advSearch: Joi.object({
       with_total_shift_minutes: Joi.boolean().truthy("true").falsy("false").default(false).optional(),

@@ -10,13 +10,14 @@ export function buildQueryOptions(modelConfig, query = {}, userId) {
 
   // 🔍 Search
   if (search && searchableFields.length > 0) {
+    const searchTermForPrisma = String(search);
     where.OR = searchableFields.map((fieldPath) => {
       const parts = fieldPath.split(".");
       const last = parts.pop();
 
       // Build nested object, e.g. { discount: { shareable_code: { contains: search } } }
       return parts.reduceRight((acc, curr) => ({ [curr]: acc }), {
-        [last]: { contains: search, mode: "insensitive" },
+        [last]: { contains: searchTermForPrisma, mode: "insensitive" },
       });
     });
   }
