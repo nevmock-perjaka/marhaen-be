@@ -1,50 +1,55 @@
+import { createdResponse, successResponse } from "../../../utils/response.js";
 import SupplierService from "./supplier-service.js";
-import { successResponse, createdResponse } from "../../../utils/response.js";
 
 class SupplierController {
-  async getAll(req, res) {
-    const userId = req.user.id;
-    const query = req.query;
-    const suppliers = await SupplierService.findAll(userId, query);
-    return successResponse(res, suppliers.data, suppliers.count, suppliers.meta);
-  }
+	async getAll(req, res) {
+		const userId = req.user.id;
+		const query = req.query;
+		const suppliers = await SupplierService.findAll(userId, query);
+		return successResponse(
+			res,
+			suppliers.data,
+			suppliers.count,
+			suppliers.meta,
+		);
+	}
 
-  async getById(req, res) {
-    const { id } = req.params;
-    const userId = req.user.id;
-    const supplier = await SupplierService.findById(id, userId);
-    return successResponse(res, supplier);
-  }
+	async getById(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
+		const supplier = await SupplierService.findById(id, userId);
+		return successResponse(res, supplier);
+	}
 
-  async create(req, res) {
-    let value = req.body;
+	async create(req, res) {
+		const value = req.body;
 
-    value.owned_by = req.user.id;
-    value.created_by = req.profile.id;
-    value.updated_by = req.profile.id;
+		value.owned_by = req.user.id;
+		value.created_by = req.profile.id;
+		value.updated_by = req.profile.id;
 
-    const created = await SupplierService.create(value);
-    return createdResponse(res, created);
-  }
+		const created = await SupplierService.create(value);
+		return createdResponse(res, created);
+	}
 
-  async update(req, res) {
-    const { id } = req.params;
-    let value = req.body;
+	async update(req, res) {
+		const { id } = req.params;
+		const value = req.body;
 
-    value.updated_by = req.profile.id;
-    value.owned_by = req.user.id;
+		value.updated_by = req.profile.id;
+		value.owned_by = req.user.id;
 
-    const updated = await SupplierService.update(id, value);
-    return successResponse(res, updated);
-  }
+		const updated = await SupplierService.update(id, value);
+		return successResponse(res, updated);
+	}
 
-  async delete(req, res) {
-    const { id } = req.params;
-    const userId = req.user.id;
+	async delete(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
 
-    const deleted = await SupplierService.delete(id, userId);
-    return successResponse(res, deleted);
-  }
+		const deleted = await SupplierService.delete(id, userId);
+		return successResponse(res, deleted);
+	}
 }
 
 export default new SupplierController();

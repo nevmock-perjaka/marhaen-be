@@ -17,8 +17,7 @@ import Joi from "joi";
 // });
 
 const shiftSchema = Joi.object({
-    staff_id: Joi.string().uuid().required(),
-})
-
+	staff_id: Joi.string().uuid().required(),
+});
 
 export default shiftSchema;

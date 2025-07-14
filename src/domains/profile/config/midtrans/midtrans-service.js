@@ -2,72 +2,72 @@ import db from "../../../../config/db.js";
 import { decrypt, encrypt } from "../../../../utils/hash.js";
 
 class MidtransService {
-    async getMidtransConfig(user_id) {
-        let config = await db.midtrans_User.findUnique({
-            where: {
-                user_id: user_id,
-            },
-            select: {
-                user_id: true,
-                client_key: true,
-                server_key: true,
-                is_production: true,
-                created_at: true,
-                updated_at: true,
-                created_by: true,
-                updated_by: true,
-            }
-        });
+	async getMidtransConfig(user_id) {
+		let config = await db.midtrans_User.findUnique({
+			where: {
+				user_id: user_id,
+			},
+			select: {
+				user_id: true,
+				client_key: true,
+				server_key: true,
+				is_production: true,
+				created_at: true,
+				updated_at: true,
+				created_by: true,
+				updated_by: true,
+			},
+		});
 
-        if (!config){
-            config = {
-                user_id: user_id,
-                client_key: null,
-                server_key: null,
-                is_production: null,
-                created_at: null,
-                updated_at: null,
-                created_by: null,
-                updated_by: null,
-            }
-        }
+		if (!config) {
+			config = {
+				user_id: user_id,
+				client_key: null,
+				server_key: null,
+				is_production: null,
+				created_at: null,
+				updated_at: null,
+				created_by: null,
+				updated_by: null,
+			};
+		}
 
-        return config;
-    }
+		return config;
+	}
 
-    async updateMidtransConfig(user_id, value) {
-        const isConfigExists = await db.midtrans_User.findUnique({
-            where: {
-                user_id: user_id,
-            }
-        })
+	async updateMidtransConfig(user_id, value) {
+		const isConfigExists = await db.midtrans_User.findUnique({
+			where: {
+				user_id: user_id,
+			},
+		});
 
-        value.server_key = encrypt(value.server_key);
-        value.client_key = encrypt(value.client_key);
+		value.server_key = encrypt(value.server_key);
+		value.client_key = encrypt(value.client_key);
 
-        if (!isConfigExists) {
-            const created = await db.midtrans_User.create({
-                data: {
-                    user_id: user_id,
-                    created_by: value.updated_by,
-                    ...value,
-                }
-            });
+		if (!isConfigExists) {
+			const created = await db.midtrans_User.create({
+				data: {
+					user_id: user_id,
+					created_by: value.updated_by,
+					...value,
+				},
+			});
 
-            return created;
-        }
+			return created;
+		}
 
-        const updated = await db.midtrans_User.update({
-            where: {
-                user_id: user_id,
-            },
-            data: {
-                ...value,
-            }
-        });
+		const updated = await db.midtrans_User.update({
+			where: {
+				user_id: user_id,
+			},
+			data: {
+				...value,
+			},
+		});
 
-        return updated;
-    }
+		return updated;
+	}
 }
 
 export default new MidtransService();

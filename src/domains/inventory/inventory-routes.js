@@ -7,31 +7,34 @@ import InventoryController from "./inventory-controller.js";
 import inventorySchema from "./inventory-schema.js";
 
 class InventoryRoutes extends BaseRoutes {
-  routes() {
-    this.router.get("/", [
-      authTokenMiddleware.authenticate,
-      validateParamsCredentials(inventorySchema.params),
-      tryCatch(InventoryController.getAll),
-    ]);
-    this.router.get("/:id", [authTokenMiddleware.authenticate, tryCatch(InventoryController.getById)]);
-    this.router.post("/", [
-      authTokenMiddleware.authenticate,
-      authTokenMiddleware.authorizeRoles(["STAFF"]),
-      validateCredentials(inventorySchema.create),
-      tryCatch(InventoryController.create),
-    ]);
-    this.router.put("/:id", [
-      authTokenMiddleware.authenticate,
-      authTokenMiddleware.authorizeRoles(["STAFF"]),
-      validateCredentials(inventorySchema.update),
-      tryCatch(InventoryController.update),
-    ]);
-    this.router.delete("/:id", [
-      authTokenMiddleware.authenticate,
-      authTokenMiddleware.authorizeRoles(["STAFF"]),
-      tryCatch(InventoryController.delete),
-    ]);
-  }
+	routes() {
+		this.router.get("/", [
+			authTokenMiddleware.authenticate,
+			validateParamsCredentials(inventorySchema.params),
+			tryCatch(InventoryController.getAll),
+		]);
+		this.router.get("/:id", [
+			authTokenMiddleware.authenticate,
+			tryCatch(InventoryController.getById),
+		]);
+		this.router.post("/", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["STAFF"]),
+			validateCredentials(inventorySchema.create),
+			tryCatch(InventoryController.create),
+		]);
+		this.router.put("/:id", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["STAFF"]),
+			validateCredentials(inventorySchema.update),
+			tryCatch(InventoryController.update),
+		]);
+		this.router.delete("/:id", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["STAFF"]),
+			tryCatch(InventoryController.delete),
+		]);
+	}
 }
 
 export default new InventoryRoutes().router;

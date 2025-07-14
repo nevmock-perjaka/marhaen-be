@@ -1,9 +1,9 @@
 import express from "express";
+import AddonRoutes from "./addon/addon-routes.js";
+import addonConfigRoutes from "./addonConfig/addonConfig-routes.js";
+import AddonGroupRoutes from "./addonGroup/addonGroup-routes.js";
 import ProductRoutes from "./product-routes.js";
 import ProductConfigRoutes from "./productConfig/productConfig-routes.js";
-import AddonRoutes from "./addon/addon-routes.js";
-import AddonGroupRoutes from "./addonGroup/addonGroup-routes.js";
-import addonConfigRoutes from "./addonConfig/addonConfig-routes.js";
 
 const router = express.Router();
 

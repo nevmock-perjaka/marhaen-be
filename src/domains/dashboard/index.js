@@ -1,9 +1,9 @@
 import express from "express";
 import DashboardRoutes from "./dashboard-routes.js";
-import SalesPerformanceRoutes from "./metrics/salesPerformance/sales-performance-routes.js";
 import IngredientCostRoutes from "./metrics/ingredientCost/ingredient-cost-routes.js";
-import transactionRoutes from "./metrics/transaction/transaction-routes.js";
 import netProfitRoutes from "./metrics/netProfit/net-profit-routes.js";
+import SalesPerformanceRoutes from "./metrics/salesPerformance/sales-performance-routes.js";
+import transactionRoutes from "./metrics/transaction/transaction-routes.js";
 
 const router = express.Router();
 

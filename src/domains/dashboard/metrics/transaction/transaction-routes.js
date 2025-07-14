@@ -6,14 +6,14 @@ import TransactionController from "./transaction-controller.js";
 import transactionSchema from "./transaction-schema.js";
 
 class TransactionRoutes extends BaseRoutes {
-    routes(){
-        this.router.get("/chart", [
-            authTokenMiddleware.authenticate,
-            authTokenMiddleware.authorizeRoles(['OWNER']),
-            validateParamsCredentials(transactionSchema.params),
-            tryCatch(TransactionController.getByRange)
-        ]);
-    }
+	routes() {
+		this.router.get("/chart", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["OWNER"]),
+			validateParamsCredentials(transactionSchema.params),
+			tryCatch(TransactionController.getByRange),
+		]);
+	}
 }
 
 export default new TransactionRoutes().router;

@@ -7,20 +7,23 @@ import OrderController from "./order-controller.js";
 import orderSchema from "./order-schema.js";
 
 class OrderRoutes extends BaseRoutes {
-  routes() {
-    this.router.get("/", [
-      authTokenMiddleware.authenticate,
-      validateParamsCredentials(orderSchema.params),
-      tryCatch(OrderController.getAll),
-    ]);
-    this.router.get("/:orderId", [authTokenMiddleware.authenticate, tryCatch(OrderController.getById)]);
-    this.router.post("/", [
-      authTokenMiddleware.authenticate,
-      authTokenMiddleware.authorizeRoles(["CASHIER"]),
-      validateCredentials(orderSchema.create),
-      tryCatch(OrderController.create),
-    ]);
-  }
+	routes() {
+		this.router.get("/", [
+			authTokenMiddleware.authenticate,
+			validateParamsCredentials(orderSchema.params),
+			tryCatch(OrderController.getAll),
+		]);
+		this.router.get("/:orderId", [
+			authTokenMiddleware.authenticate,
+			tryCatch(OrderController.getById),
+		]);
+		this.router.post("/", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["CASHIER"]),
+			validateCredentials(orderSchema.create),
+			tryCatch(OrderController.create),
+		]);
+	}
 }
 
 export default new OrderRoutes().router;
