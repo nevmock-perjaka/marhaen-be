@@ -59,6 +59,14 @@ const profileSchema = Joi.object({
 			"string.empty": "Phone number is required.",
 			"string.pattern.base": "Phone number must be a valid phone number.",
 		}),
+	tiktok: Joi.string().allow(null, "").optional(),
+	instagram: Joi.string().allow(null, "").optional(),
+	facebook: Joi.string().allow(null, "").optional(),
+	x: Joi.string().allow(null, "").optional(),
+	logo_uri: Joi.string().allow(null, "").optional(),
+	wifi_name: Joi.string().allow(null, "").optional(),
+	wifi_password: Joi.string().allow(null, "").optional(),
+	address: Joi.string().allow(null, "").optional(),
 });
 
 const sendOtpSchema = Joi.object({

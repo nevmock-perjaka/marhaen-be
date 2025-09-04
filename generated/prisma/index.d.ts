@@ -604,8 +604,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.10.1
-   * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
+   * Prisma Client JS version: 6.8.2
+   * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
    */
   export type PrismaVersion = {
     client: string
@@ -3684,6 +3684,14 @@ export namespace Prisma {
     tax_percentage: number | null
     verified_at: Date | null
     strict_mode: boolean | null
+    logo_uri: string | null
+    tiktok: string | null
+    instagram: string | null
+    facebook: string | null
+    x: string | null
+    wifi_name: string | null
+    wifi_password: string | null
+    address: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -3700,6 +3708,14 @@ export namespace Prisma {
     tax_percentage: number | null
     verified_at: Date | null
     strict_mode: boolean | null
+    logo_uri: string | null
+    tiktok: string | null
+    instagram: string | null
+    facebook: string | null
+    x: string | null
+    wifi_name: string | null
+    wifi_password: string | null
+    address: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -3716,6 +3732,14 @@ export namespace Prisma {
     tax_percentage: number
     verified_at: number
     strict_mode: number
+    logo_uri: number
+    tiktok: number
+    instagram: number
+    facebook: number
+    x: number
+    wifi_name: number
+    wifi_password: number
+    address: number
     created_at: number
     updated_at: number
     _all: number
@@ -3744,6 +3768,14 @@ export namespace Prisma {
     tax_percentage?: true
     verified_at?: true
     strict_mode?: true
+    logo_uri?: true
+    tiktok?: true
+    instagram?: true
+    facebook?: true
+    x?: true
+    wifi_name?: true
+    wifi_password?: true
+    address?: true
     created_at?: true
     updated_at?: true
   }
@@ -3760,6 +3792,14 @@ export namespace Prisma {
     tax_percentage?: true
     verified_at?: true
     strict_mode?: true
+    logo_uri?: true
+    tiktok?: true
+    instagram?: true
+    facebook?: true
+    x?: true
+    wifi_name?: true
+    wifi_password?: true
+    address?: true
     created_at?: true
     updated_at?: true
   }
@@ -3776,6 +3816,14 @@ export namespace Prisma {
     tax_percentage?: true
     verified_at?: true
     strict_mode?: true
+    logo_uri?: true
+    tiktok?: true
+    instagram?: true
+    facebook?: true
+    x?: true
+    wifi_name?: true
+    wifi_password?: true
+    address?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -3879,6 +3927,14 @@ export namespace Prisma {
     tax_percentage: number
     verified_at: Date | null
     strict_mode: boolean
+    logo_uri: string | null
+    tiktok: string | null
+    instagram: string | null
+    facebook: string | null
+    x: string | null
+    wifi_name: string | null
+    wifi_password: string | null
+    address: string | null
     created_at: Date
     updated_at: Date
     _count: UserCountAggregateOutputType | null
@@ -3914,6 +3970,14 @@ export namespace Prisma {
     tax_percentage?: boolean
     verified_at?: boolean
     strict_mode?: boolean
+    logo_uri?: boolean
+    tiktok?: boolean
+    instagram?: boolean
+    facebook?: boolean
+    x?: boolean
+    wifi_name?: boolean
+    wifi_password?: boolean
+    address?: boolean
     created_at?: boolean
     updated_at?: boolean
     profiles?: boolean | User$profilesArgs<ExtArgs>
@@ -3935,6 +3999,14 @@ export namespace Prisma {
     tax_percentage?: boolean
     verified_at?: boolean
     strict_mode?: boolean
+    logo_uri?: boolean
+    tiktok?: boolean
+    instagram?: boolean
+    facebook?: boolean
+    x?: boolean
+    wifi_name?: boolean
+    wifi_password?: boolean
+    address?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["user"]>
@@ -3951,6 +4023,14 @@ export namespace Prisma {
     tax_percentage?: boolean
     verified_at?: boolean
     strict_mode?: boolean
+    logo_uri?: boolean
+    tiktok?: boolean
+    instagram?: boolean
+    facebook?: boolean
+    x?: boolean
+    wifi_name?: boolean
+    wifi_password?: boolean
+    address?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["user"]>
@@ -3967,11 +4047,19 @@ export namespace Prisma {
     tax_percentage?: boolean
     verified_at?: boolean
     strict_mode?: boolean
+    logo_uri?: boolean
+    tiktok?: boolean
+    instagram?: boolean
+    facebook?: boolean
+    x?: boolean
+    wifi_name?: boolean
+    wifi_password?: boolean
+    address?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "phone_number" | "is_banned" | "subs_expired_at" | "subs_level" | "tax_percentage" | "verified_at" | "strict_mode" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "phone_number" | "is_banned" | "subs_expired_at" | "subs_level" | "tax_percentage" | "verified_at" | "strict_mode" | "logo_uri" | "tiktok" | "instagram" | "facebook" | "x" | "wifi_name" | "wifi_password" | "address" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     profiles?: boolean | User$profilesArgs<ExtArgs>
     system_logs?: boolean | User$system_logsArgs<ExtArgs>
@@ -4002,6 +4090,14 @@ export namespace Prisma {
       tax_percentage: number
       verified_at: Date | null
       strict_mode: boolean
+      logo_uri: string | null
+      tiktok: string | null
+      instagram: string | null
+      facebook: string | null
+      x: string | null
+      wifi_name: string | null
+      wifi_password: string | null
+      address: string | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["user"]>
@@ -4442,6 +4538,14 @@ export namespace Prisma {
     readonly tax_percentage: FieldRef<"User", 'Float'>
     readonly verified_at: FieldRef<"User", 'DateTime'>
     readonly strict_mode: FieldRef<"User", 'Boolean'>
+    readonly logo_uri: FieldRef<"User", 'String'>
+    readonly tiktok: FieldRef<"User", 'String'>
+    readonly instagram: FieldRef<"User", 'String'>
+    readonly facebook: FieldRef<"User", 'String'>
+    readonly x: FieldRef<"User", 'String'>
+    readonly wifi_name: FieldRef<"User", 'String'>
+    readonly wifi_password: FieldRef<"User", 'String'>
+    readonly address: FieldRef<"User", 'String'>
     readonly created_at: FieldRef<"User", 'DateTime'>
     readonly updated_at: FieldRef<"User", 'DateTime'>
   }
@@ -34444,6 +34548,14 @@ export namespace Prisma {
     tax_percentage: 'tax_percentage',
     verified_at: 'verified_at',
     strict_mode: 'strict_mode',
+    logo_uri: 'logo_uri',
+    tiktok: 'tiktok',
+    instagram: 'instagram',
+    facebook: 'facebook',
+    x: 'x',
+    wifi_name: 'wifi_name',
+    wifi_password: 'wifi_password',
+    address: 'address',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -34992,6 +35104,14 @@ export namespace Prisma {
     tax_percentage?: FloatFilter<"User"> | number
     verified_at?: DateTimeNullableFilter<"User"> | Date | string | null
     strict_mode?: BoolFilter<"User"> | boolean
+    logo_uri?: StringNullableFilter<"User"> | string | null
+    tiktok?: StringNullableFilter<"User"> | string | null
+    instagram?: StringNullableFilter<"User"> | string | null
+    facebook?: StringNullableFilter<"User"> | string | null
+    x?: StringNullableFilter<"User"> | string | null
+    wifi_name?: StringNullableFilter<"User"> | string | null
+    wifi_password?: StringNullableFilter<"User"> | string | null
+    address?: StringNullableFilter<"User"> | string | null
     created_at?: DateTimeFilter<"User"> | Date | string
     updated_at?: DateTimeFilter<"User"> | Date | string
     profiles?: ProfileListRelationFilter
@@ -35012,6 +35132,14 @@ export namespace Prisma {
     tax_percentage?: SortOrder
     verified_at?: SortOrderInput | SortOrder
     strict_mode?: SortOrder
+    logo_uri?: SortOrderInput | SortOrder
+    tiktok?: SortOrderInput | SortOrder
+    instagram?: SortOrderInput | SortOrder
+    facebook?: SortOrderInput | SortOrder
+    x?: SortOrderInput | SortOrder
+    wifi_name?: SortOrderInput | SortOrder
+    wifi_password?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     profiles?: ProfileOrderByRelationAggregateInput
@@ -35035,6 +35163,14 @@ export namespace Prisma {
     tax_percentage?: FloatFilter<"User"> | number
     verified_at?: DateTimeNullableFilter<"User"> | Date | string | null
     strict_mode?: BoolFilter<"User"> | boolean
+    logo_uri?: StringNullableFilter<"User"> | string | null
+    tiktok?: StringNullableFilter<"User"> | string | null
+    instagram?: StringNullableFilter<"User"> | string | null
+    facebook?: StringNullableFilter<"User"> | string | null
+    x?: StringNullableFilter<"User"> | string | null
+    wifi_name?: StringNullableFilter<"User"> | string | null
+    wifi_password?: StringNullableFilter<"User"> | string | null
+    address?: StringNullableFilter<"User"> | string | null
     created_at?: DateTimeFilter<"User"> | Date | string
     updated_at?: DateTimeFilter<"User"> | Date | string
     profiles?: ProfileListRelationFilter
@@ -35055,6 +35191,14 @@ export namespace Prisma {
     tax_percentage?: SortOrder
     verified_at?: SortOrderInput | SortOrder
     strict_mode?: SortOrder
+    logo_uri?: SortOrderInput | SortOrder
+    tiktok?: SortOrderInput | SortOrder
+    instagram?: SortOrderInput | SortOrder
+    facebook?: SortOrderInput | SortOrder
+    x?: SortOrderInput | SortOrder
+    wifi_name?: SortOrderInput | SortOrder
+    wifi_password?: SortOrderInput | SortOrder
+    address?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -35079,6 +35223,14 @@ export namespace Prisma {
     tax_percentage?: FloatWithAggregatesFilter<"User"> | number
     verified_at?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     strict_mode?: BoolWithAggregatesFilter<"User"> | boolean
+    logo_uri?: StringNullableWithAggregatesFilter<"User"> | string | null
+    tiktok?: StringNullableWithAggregatesFilter<"User"> | string | null
+    instagram?: StringNullableWithAggregatesFilter<"User"> | string | null
+    facebook?: StringNullableWithAggregatesFilter<"User"> | string | null
+    x?: StringNullableWithAggregatesFilter<"User"> | string | null
+    wifi_name?: StringNullableWithAggregatesFilter<"User"> | string | null
+    wifi_password?: StringNullableWithAggregatesFilter<"User"> | string | null
+    address?: StringNullableWithAggregatesFilter<"User"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -37277,6 +37429,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileCreateNestedManyWithoutUserInput
@@ -37297,6 +37457,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileUncheckedCreateNestedManyWithoutUserInput
@@ -37317,6 +37485,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUpdateManyWithoutUserNestedInput
@@ -37337,6 +37513,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUncheckedUpdateManyWithoutUserNestedInput
@@ -37357,6 +37541,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -37373,6 +37565,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37389,6 +37589,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39982,6 +40190,14 @@ export namespace Prisma {
     tax_percentage?: SortOrder
     verified_at?: SortOrder
     strict_mode?: SortOrder
+    logo_uri?: SortOrder
+    tiktok?: SortOrder
+    instagram?: SortOrder
+    facebook?: SortOrder
+    x?: SortOrder
+    wifi_name?: SortOrder
+    wifi_password?: SortOrder
+    address?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -40003,6 +40219,14 @@ export namespace Prisma {
     tax_percentage?: SortOrder
     verified_at?: SortOrder
     strict_mode?: SortOrder
+    logo_uri?: SortOrder
+    tiktok?: SortOrder
+    instagram?: SortOrder
+    facebook?: SortOrder
+    x?: SortOrder
+    wifi_name?: SortOrder
+    wifi_password?: SortOrder
+    address?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -40019,6 +40243,14 @@ export namespace Prisma {
     tax_percentage?: SortOrder
     verified_at?: SortOrder
     strict_mode?: SortOrder
+    logo_uri?: SortOrder
+    tiktok?: SortOrder
+    instagram?: SortOrder
+    facebook?: SortOrder
+    x?: SortOrder
+    wifi_name?: SortOrder
+    wifi_password?: SortOrder
+    address?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -43637,6 +43869,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileCreateNestedManyWithoutUserInput
@@ -43656,6 +43896,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileUncheckedCreateNestedManyWithoutUserInput
@@ -43691,6 +43939,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUpdateManyWithoutUserNestedInput
@@ -43710,6 +43966,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUncheckedUpdateManyWithoutUserNestedInput
@@ -43729,6 +43993,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     system_logs?: System_logCreateNestedManyWithoutUserInput
@@ -43748,6 +44020,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     system_logs?: System_logUncheckedCreateNestedManyWithoutUserInput
@@ -43783,6 +44063,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     system_logs?: System_logUpdateManyWithoutUserNestedInput
@@ -43802,6 +44090,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     system_logs?: System_logUncheckedUpdateManyWithoutUserNestedInput
@@ -43821,6 +44117,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileCreateNestedManyWithoutUserInput
@@ -43840,6 +44144,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileUncheckedCreateNestedManyWithoutUserInput
@@ -43875,6 +44187,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUpdateManyWithoutUserNestedInput
@@ -43894,6 +44214,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUncheckedUpdateManyWithoutUserNestedInput
@@ -43913,6 +44241,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileCreateNestedManyWithoutUserInput
@@ -43932,6 +44268,14 @@ export namespace Prisma {
     tax_percentage?: number
     verified_at?: Date | string | null
     strict_mode?: boolean
+    logo_uri?: string | null
+    tiktok?: string | null
+    instagram?: string | null
+    facebook?: string | null
+    x?: string | null
+    wifi_name?: string | null
+    wifi_password?: string | null
+    address?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     profiles?: ProfileUncheckedCreateNestedManyWithoutUserInput
@@ -43967,6 +44311,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUpdateManyWithoutUserNestedInput
@@ -43986,6 +44338,14 @@ export namespace Prisma {
     tax_percentage?: FloatFieldUpdateOperationsInput | number
     verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     strict_mode?: BoolFieldUpdateOperationsInput | boolean
+    logo_uri?: NullableStringFieldUpdateOperationsInput | string | null
+    tiktok?: NullableStringFieldUpdateOperationsInput | string | null
+    instagram?: NullableStringFieldUpdateOperationsInput | string | null
+    facebook?: NullableStringFieldUpdateOperationsInput | string | null
+    x?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_name?: NullableStringFieldUpdateOperationsInput | string | null
+    wifi_password?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     profiles?: ProfileUncheckedUpdateManyWithoutUserNestedInput

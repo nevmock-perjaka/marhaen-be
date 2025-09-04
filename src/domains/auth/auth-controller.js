@@ -55,12 +55,9 @@ class AuthController {
 	}
 
 	async updateProfile(req, res) {
-		const { name, phone_number } = req.body;
+		const data = req.body;
 
-		const user = await AuthService.updateProfile(req.user.id, {
-			name,
-			phone_number,
-		});
+		const user = await AuthService.updateProfile(req.user.id, data);
 
 		if (!user) {
 			throw Error("Failed to update user profile");
@@ -91,6 +88,16 @@ class AuthController {
 		return successResponse(res, {
 			message: "Strict mode updated successfully",
 		});
+	}
+
+	async uploadLogoImage(req, res) {
+		if (!req.file) {
+			throw new BaseError("No file uploaded", 400);
+		}
+
+		const relativePath = `/public/logo/${req.file.filename}`;
+
+		return successResponse(res, relativePath);
 	}
 }
 

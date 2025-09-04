@@ -49,6 +49,13 @@ class AuthRoutes extends BaseRoutes {
 			authTokenMiddleware.authorizeRoles(["CASHIER"]),
 			tryCatch(AuthController.updateScrictMode),
 		]);
+
+		this.router.post("/upload-logo-image", [
+			authTokenMiddleware.authenticate,
+			authTokenMiddleware.authorizeRoles(["STAFF"]),
+			uploadFile("/logo", "image").single("image"),
+			tryCatch(AuthController.uploadLogoImage),
+		]);
 	}
 }
 

@@ -20,6 +20,14 @@ model User {
   tax_percentage  Float     @default(0)
   verified_at     DateTime?
   strict_mode      Boolean   @default(false)
+  logo_uri      String?
+  tiktok   String?
+  instagram String?
+  facebook  String?
+  x       String?
+  wifi_name  String?
+  wifi_password String?
+  address    String?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
