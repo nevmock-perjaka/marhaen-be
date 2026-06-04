@@ -10,11 +10,14 @@ class DashboardController {
 
         const now = new Date();
 
-        let startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0));
-        let endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59));
-        
-        startDate = new Date(startDate).toISOString();
-        endDate = new Date(endDate).toISOString();
+        let startDate, endDate;
+        if (req.query.start_date && req.query.end_date) {
+            startDate = req.query.start_date;
+            endDate = req.query.end_date;
+        } else {
+            startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1, 0, 0, 0)).toISOString();
+            endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59)).toISOString();
+        }
 
         const [
             netProfit,

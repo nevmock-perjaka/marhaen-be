@@ -61,6 +61,7 @@ class ProfileService {
                         subs_expired_at: true,
                         subs_level: true,
                         tax_percentage: true,
+                        qris_code: true,
                         verified_at: true,
                         created_at: true,
                         updated_at: true
@@ -142,6 +143,31 @@ class ProfileService {
         return { message: "PIN reset successfully." };
     }
 
+    async changePassword(userId, data) {
+        const user = await db.user.findUnique({
+            where: {
+                id: userId,
+            }
+        });
+
+        if (!user) throw BaseError.notFound("User not found");
+
+        if (!await matchPassword(data.current_password, user.password)) {
+            throw BaseError.badRequest("Current password is incorrect");
+        }
+
+        await db.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                password: await hashPassword(data.new_password),
+            }
+        });
+
+        return { message: "Password updated successfully." };
+    }
+
     async resetAccount(userId) {
         return db.$transaction(async (tx) => {
             await tx.profile.updateMany({
@@ -209,6 +235,26 @@ class ProfileService {
                 }
             });
         })
+    }
+
+    async updateQrisCode(userId, qrisCode) {
+        const user = await db.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!user) throw BaseError.notFound("User not found");
+
+        const updated = await db.user.update({
+            where: { id: userId },
+            data: {
+                qris_code: qrisCode
+            }
+        });
+
+        return {
+            message: "QRIS code updated successfully",
+            qris_code_set: !!updated.qris_code
+        };
     }
 }
 

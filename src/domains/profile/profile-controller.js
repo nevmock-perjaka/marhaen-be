@@ -50,6 +50,24 @@ class ProfileController {
 
         return successResponse(res, { message: "PIN reset successfully." });
     }
+
+    async changePassword(req, res) {
+        const userId = req.user.id;
+        const value = req.body;
+
+        await ProfileService.changePassword(userId, value);
+
+        return successResponse(res, { message: "Password updated successfully." });
+    }
+
+    async updateQrisCode(req, res) {
+        const userId = req.user.id;
+        const { qris_code } = req.body;
+
+        const result = await ProfileService.updateQrisCode(userId, qris_code);
+
+        return successResponse(res, result);
+    }
 }
 
 export default new ProfileController();

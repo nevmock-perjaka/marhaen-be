@@ -126,7 +126,7 @@ class TransactionService {
             },
         });
 
-        const topVoucher = await prisma.order.groupBy({
+        const topVoucherAgg = await prisma.order.groupBy({
             by: ['discount_id'],
             where: {
                 owned_by: ownedBy,
@@ -145,6 +145,24 @@ class TransactionService {
             },
             take: 1,
         });
+
+        let topVoucher = [];
+        if (topVoucherAgg.length > 0) {
+            const discountIds = topVoucherAgg.map(v => v.discount_id);
+            const discounts = await prisma.discount.findMany({
+                where: { id: { in: discountIds } },
+                select: { id: true, shareable_code: true, description: true },
+            });
+            topVoucher = topVoucherAgg.map(v => {
+                const discount = discounts.find(d => d.id === v.discount_id);
+                return {
+                    discount_id: v.discount_id,
+                    shareable_code: discount?.shareable_code ?? '-',
+                    description: discount?.description ?? '',
+                    total_usage: v._count.discount_id,
+                };
+            });
+        }
 
         return { totalTransactions, topVoucher, topProduct: result };
     }

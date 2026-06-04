@@ -1,9 +1,5 @@
 import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
-import { userMidtransConfig } from "../../config/midtrans.js";
-import { decrypt } from "../../utils/hash.js";
-
-import crypto from "crypto";
 
 class OrderService {
     async findAll(userId) {
@@ -54,19 +50,14 @@ class OrderService {
         return order;
     }
 
-    async create(data) { 
-        return db.$transaction(async (tx) => {
-            const midtransConfig = await tx.midtrans_User.findUnique({
-                where: { user_id: data.owned_by }
-            });
+    async create(data) {
+        const siteConfig = await db.site_config.findFirst();
 
-            if (!midtransConfig) throw BaseError.badRequest("Midtrans configuration not found for this user.");
-            if (!midtransConfig.server_key || !midtransConfig.client_key) throw BaseError.badRequest("Midtrans server key or client key is not set.");
-
+        return await db.$transaction(async (tx) => {
             const activeShift = await tx.staff_log.findFirst({
                 where: {
                     owned_by: data.owned_by,
-                    end_timestamp: null, // Hanya ambil yang belum clock out
+                    end_timestamp: null,
                 },
                 orderBy: { start_timestamp: "desc" }
             });
@@ -89,7 +80,6 @@ class OrderService {
 
             const timeNow = new Date();
             
-            // Checking Discount
             if (data.discount_id && !discountExists) throw BaseError.notFound("Discount not found.");
             if (data.discount_id && discountExists.owned_by !== data.owned_by) throw BaseError.forbidden("You are not allowed to access this discount.");
             if (data.discount_id && !discountExists.is_active) throw BaseError.badRequest("Discount is not active. Please activate the discount first.");
@@ -115,25 +105,22 @@ class OrderService {
 
             if (productExists.length !== productIds.length) throw BaseError.badRequest("Some products do not exist or are not owned by the user.");
 
-            // Check if the add-ons exist and are owned by the user
             const addOnIds = [...new Set(
                 data.order_items.flatMap(item => item.order_item_add_ons || [])
             )];
 
-            // Ambil semua add_on beserta info grupnya (untuk cek product_id)
             const addOns = await tx.add_on.findMany({
                 where: {
                     id: { in: addOnIds },
                     owned_by: data.owned_by,
                 },
                 include: {
-                    add_on_group: true, // supaya dapat product_id dari group-nya
+                    add_on_group: true,
                 }
             });
 
             if (addOns.length !== addOnIds.length) throw BaseError.badRequest("Some add-ons do not exist or are not owned by the user.");
 
-            // Mapping add_on_id → product_id yang seharusnya
             const addOnToProductMap = new Map(
                 addOns.map(addOn => [addOn.id, addOn.add_on_group.product_id])
             );
@@ -142,21 +129,18 @@ class OrderService {
                 const product = productExists.find(p => p.id === item.product_id);
                 const selectedAddOns = item.order_item_add_ons || [];
 
-                // Ambil semua group add_on untuk product ini
                 const addOnGroups = product.Add_on_group;
 
                 for (const group of addOnGroups) {
                     const addOnsInGroup = group.Add_on.map(a => a.id);
                     const selectedInGroup = selectedAddOns.filter(id => addOnsInGroup.includes(id));
 
-                    // 🛑 Cek max_selection
                     if (selectedInGroup.length > group.max_selection) {
                         throw BaseError.badRequest(
                             `Too many add-ons selected for group '${group.name}' in product '${product.name}'. Max allowed: ${group.max_selection}.`
                         );
                     }
 
-                        // 🛑 Cek is_required
                     if (group.is_required && selectedInGroup.length === 0) {
                         throw BaseError.badRequest(
                             `Add-on group '${group.name}' is required for product '${product.name}' but none were selected.`
@@ -165,8 +149,6 @@ class OrderService {
                 }
             }
 
-
-            // Validasi: pastikan semua order_item_add_ons sesuai dengan product_id parent-nya
             for (const item of data.order_items) {
                 for (const addOnId of item.order_item_add_ons || []) {
                     const expectedProductId = addOnToProductMap.get(addOnId);
@@ -212,7 +194,7 @@ class OrderService {
                         }) : []
                     }
                 }
-            })
+            });
 
             let total_gross = orderItems.reduce((total, item) => {
                 const itemTotal = item.price;
@@ -237,11 +219,9 @@ class OrderService {
                 total_gross -= discount;
             }
 
-            const siteConfig = await tx.site_config.findFirst();
-
-            data = {
+            const orderData = {
                 order_by: data.order_by,
-                status: "Not Paid",
+                status: "Pending Payment",
                 total_gross: total_gross,
                 phone_number: data.phone_number,
                 table_id: data.table_id,
@@ -255,17 +235,22 @@ class OrderService {
                 },
                 Order_transaction: {
                     create: {
-                        is_production: midtransConfig.is_production,
+                        is_production: false,
+                        payment_method: 'manual_qris',
+                        status: 'pending',
+                        gross_amount: total_gross,
+                        admin_fee: total_gross * 0.007,
+                        ppn_fee: total_gross * (siteConfig.ppn_percentage / 100),
+                        ppn_percentage: siteConfig.ppn_percentage,
                         owned_by: data.owned_by,
                         created_by: data.created_by,
                         updated_by: data.updated_by
                     }
                 }
-            }
-
+            };
 
             const order = await tx.order.create({
-                data,
+                data: orderData,
                 include: {
                     table: true,
                     discount: true,
@@ -283,78 +268,7 @@ class OrderService {
                 }
             });
 
-            let item_details = order.Order_item.map(item => {
-                const addOnTotal = item.Order_item_add_on.reduce((sum, addOn) => sum + addOn.price, 0);
-                return {
-                    id: item.product_id,
-                    price: item.price + addOnTotal,
-                    quantity: item.quantity,
-                    name: `${item.product.name}${item.Order_item_add_on.length > 0 ? ` with ` : ``}${item.Order_item_add_on.map(addOn => addOn.add_on.name).join(", ")}`,
-                };
-            });
-
             if (data.discount_id && discountExists) {
-                item_details.push({
-                    id: discountExists.shareable_code,
-                    price: -discount,
-                    quantity: 1,
-                    name: `Discount ${discountExists.shareable_code || "Applied"}`,
-                });
-            }
-
-            const parameter = {
-                transaction_details: {
-                    order_id: order.Order_transaction[0].id,
-                    gross_amount: order.total_gross,
-                },
-                credit_card: {
-                    secure: true,
-                },
-                customer_details: {
-                    first_name: order.order_by,
-                    phone: order.phone_number,
-                },
-                enabled_payments: [
-                    'other_qris'
-                ],
-                item_details: item_details,   
-                metadata: {
-                    "type": "order",
-                    "id": order.id,
-                    "credentials": data.owned_by
-                },
-                expiry: {
-                    "unit": "minutes",
-                    "duration": 5
-                }
-            }
-
-            let snap;
-
-            try {
-                snap = await userMidtransConfig(midtransConfig.is_production, midtransConfig.server_key, midtransConfig.client_key).createTransaction(parameter);
-            } catch (error) {
-                console.error("Midtrans transaction creation failed:", error.ApiResponse);
-                throw BaseError.serviceUnavailable("Failed to create Midtrans transaction. Please try again later.");
-            }
-
-            if (!snap) throw BaseError.serviceUnavailable("Midtrans service is currently unavailable. Please try again later.");
-
-            await tx.order_transaction.update({
-                where: { 
-                    id: order.Order_transaction[0].id 
-                },
-                data: {
-                    admin_fee: order.total_gross * 0.007, // Misalkan admin fee adalah 0.7% dari total gross
-                    ppn_percentage: siteConfig.ppn_percentage, // PPN Diambil dari site config
-                    ppn_fee: order.total_gross * (siteConfig.ppn_percentage / 100), // PPN fee dihitung dari total gross
-                    transaction_token: snap.token,
-                    redirect_url: snap.redirect_url,
-                    gross_amount: order.total_gross,
-                }
-            })
-
-            if (data.discount_id && discountExists){
                 await tx.discount.update({
                     where: {
                         id: discountExists.id
@@ -365,15 +279,100 @@ class OrderService {
                         },
                         updated_by: data.updated_by
                     }
-                })
+                });
             }
 
+            return {
+                id: order.id,
+                order_transaction_id: order.Order_transaction[0].id,
+                order_by: order.order_by,
+                phone_number: order.phone_number,
+                total_gross: order.total_gross,
+                status: order.status,
+                payment_method: 'manual_qris',
+                created_at: order.created_at
+            };
+        }, { timeout: 20000 });
+    }
 
-            snap.id = order.id;
-            
-            return snap;
-        })
-        
+    async confirmPayment(orderId, userId) {
+        return await db.$transaction(async (tx) => {
+            const order = await tx.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    Order_item: {
+                        include: {
+                            product: true,
+                            Order_item_add_on: true
+                        }
+                    },
+                    Order_transaction: true,
+                    discount: true
+                }
+            });
+
+            if (!order) throw BaseError.notFound("Order not found.");
+            if (order.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this order.");
+            if (order.status === 'Paid') throw BaseError.badRequest("Order has already been paid.");
+            if (order.status === 'Canceled') throw BaseError.badRequest("Cannot confirm a canceled order.");
+
+            await tx.order.update({
+                where: { id: orderId },
+                data: {
+                    status: 'Paid',
+                    updated_by: 'system'
+                }
+            });
+
+            await tx.order_transaction.update({
+                where: { id: order.Order_transaction[0].id },
+                data: {
+                    status: 'settlement',
+                    updated_by: 'system'
+                }
+            });
+
+            return {
+                id: order.id,
+                status: 'Paid',
+                message: 'Order payment confirmed successfully'
+            };
+        }, { timeout: 20000 });
+    }
+
+    async cancelOrder(orderId, userId) {
+        return await db.$transaction(async (tx) => {
+            const order = await tx.order.findUnique({
+                where: { id: orderId },
+                include: {
+                    Order_transaction: true,
+                    discount: true
+                }
+            });
+
+            if (!order) throw BaseError.notFound("Order not found.");
+            if (order.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this order.");
+            if (order.status === 'Paid') throw BaseError.badRequest("Cannot cancel a paid order.");
+
+            if (order.discount_id) {
+                await tx.discount.update({
+                    where: { id: order.discount_id },
+                    data: {
+                        used: { decrement: 1 },
+                        updated_by: 'system'
+                    }
+                });
+            }
+
+            await tx.order.delete({
+                where: { id: orderId }
+            });
+
+            return {
+                id: orderId,
+                message: 'Order cancelled successfully'
+            };
+        }, { timeout: 20000 });
     }
 
     async update(orderId, data) {
@@ -387,129 +386,6 @@ class OrderService {
         return await db.order.delete({
             where: { id: orderId }
         });
-    }
-
-    async updateWebhookMidtrans(data){
-        console.info("✅ Transaction notification received. Order ID:", data.order_id, "Transaction status:", data.transaction_status, "Fraud status:", data.fraud_status);
-        const user = await db.user.findUnique({
-            where: { id : data.metadata.credentials }
-        })
-
-        if (!user) throw BaseError.badRequest("User not found");
-
-        const user_midtrans = await db.midtrans_User.findUnique({
-            where: { user_id: user.id }
-        });
-
-        if (!user_midtrans) throw BaseError.badRequest("Midtrans configuration not found for this user.");
-        if (!user_midtrans.server_key || !user_midtrans.client_key) throw BaseError.badRequest("Midtrans server key or client key is not set.");
-
-        const hash = crypto.createHash('sha512').update(`${data.order_id}${data.status_code}${data.gross_amount}${decrypt(user_midtrans.server_key)}`).digest('hex');
-
-        if (data.signature_key !== hash) throw BaseError.badRequest("Invalid signature key");
-
-        const orderTransaction = await db.order_transaction.findUnique({
-            where: { 
-                id: data.order_id
-            },
-            include: {
-                order: {
-                    include: {
-                        discount: true
-                    }
-                }
-            }
-        });
-
-        if (!orderTransaction) throw BaseError.badRequest("Order transaction not found");
-        if (orderTransaction.owned_by !== user.id) throw BaseError.forbidden("You are not allowed to access this order transaction.");
-
-        const order = await db.order.findUnique({
-            where: { id: data.metadata.id },
-        });
-
-        if (!order) throw BaseError.badRequest("Order not found");
-        if (order.owned_by !== user.id) throw BaseError.forbidden("You are not allowed to access this order.");
-
-        if (data.transaction_status === 'capture') {
-            if (data.fraud_status === 'accept') {
-                await db.order_transaction.update({
-                    where: { 
-                        id: orderTransaction.id 
-                    },
-                    data: {
-                        status: data.transaction_status,
-                        updated_by: "system"
-                    }
-                });
-
-                await db.order.update({
-                    where: { id: order.id },
-                    data: {
-                        status: "Paid",
-                        updated_by: "system"
-                    }
-                })
-            }
-        } else if (data.transaction_status === 'settlement') {
-            await db.order_transaction.update({
-                where: { id: orderTransaction.id },
-                data: {
-                    status: data.transaction_status,
-                    updated_by: "system"
-                }
-            });
-
-            await db.order.update({
-                where: { id: order.id },
-                data: {
-                    status: "Paid",
-                    updated_by: "system"
-                }
-            })
-
-        } else if (data.transaction_status === 'cancel' || data.transaction_status === 'deny' || data.transaction_status === 'expire') {
-            await db.order_transaction.update({
-                where: {
-                    id: orderTransaction.id
-                },
-                data: {
-                    status: data.transaction_status,
-                    updated_by: "system"
-                }
-            })
-
-            await db.order.delete({
-                where: { id: order.id }
-            })
-
-            await db.discount.update({
-                where: {
-                    id: orderTransaction.order.discount_id
-                },
-                data: {
-                    used: {
-                        decrement: 1
-                    },
-                    updated_by: "system"
-                }
-            })
-
-        } else if (data.transaction_status === 'pending') {
-            await db.order_transaction.update({
-                where: {
-                    id: orderTransaction.id
-                },
-                data: {
-                    transaction_id: data.transaction_id,
-                    status: data.transaction_status,
-                    payment_method: data.payment_type,
-                    updated_by: "system"
-                }
-            })
-        }
-
-        return true;
     }
 }
 

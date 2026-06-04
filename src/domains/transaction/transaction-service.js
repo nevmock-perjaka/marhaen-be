@@ -1,4 +1,3 @@
-import orderService from "../order/order-service.js";
 import subscriptionService from "./subscription/subscription-service.js";
 
 import crypto from "crypto";
@@ -17,15 +16,6 @@ class TransactionServices {
                 return await subscriptionService.updateSubscriptionTransaction(data);
             }
         }
-
-        if (!data.metadata){
-            return true;
-        }
-
-        if (data.metadata.type == 'order'){
-            await orderService.updateWebhookMidtrans(data);
-        }
-        
 
         return true;
     }  

@@ -3,12 +3,14 @@ import dayjs from "dayjs";
 
 class SalesPerformanceService {
     async getChartData(startDate, endDate, ownedBy) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
         const orders = await prisma.order.findMany({
             where: {
                 owned_by: ownedBy,
                 created_at: {
-                    gte: startDate,
-                    lte: endDate,
+                    gte: start,
+                    lte: end,
                 },
                 status: "Paid", // status order yang sudah dibayar
             },
@@ -89,7 +91,7 @@ class SalesPerformanceService {
                     gte: startDate,
                     lte: endDate,
                 },
-                status: "PAID",
+                status: "Paid",
             },
             _sum: {
                 total_gross: true,
@@ -140,14 +142,18 @@ class SalesPerformanceService {
             },
         });
 
-        let percentageChange = 0;
+        const currentTotal = salesPerformance._sum.total_gross ?? 0;
+        const previousTotal = prevSalesPerformance._sum.total_gross ?? 0;
 
-        percentageChange = ((salesPerformance - prevSalesPerformance) / prevSalesPerformance) * 100;
+        let percentageChange = 0;
+        if (previousTotal > 0) {
+            percentageChange = ((currentTotal - previousTotal) / previousTotal) * 100;
+        }
 
         return {
-            total: salesPerformance._sum.total_gross,
-            difference: salesPerformance._sum.total_gross - prevSalesPerformance._sum.total_gross,
-            percentage: percentageChange
+            total: currentTotal,
+            difference: currentTotal - previousTotal,
+            percentage: Math.round(percentageChange)
         };
     }
 }

@@ -9,11 +9,13 @@ import errorHandler from "./middlewares/error-handler-middleware.js";
 import express from "express";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
+import morgan from "morgan";
 import path from "path";
 import { queryParser } from "express-query-parser";
 
 import BaseError from "./base_classes/base-error.js";
 import routes from "./routes.js";
+import { startCancelPendingOrdersScheduler } from "./jobs/cancel-pending-orders.js";
 
 class ExpressApplication {
   app;
@@ -23,7 +25,7 @@ class ExpressApplication {
     this.app = express();
     this.port = port;
 
-    this.app.use(express.json({ type: "application/json" }));
+    this.app.use(express.json({ type: "application/json", limit: "10mb" }));
     this.app.use(queryParser({
       parseNull: true,
       parseBoolean: true,
@@ -33,18 +35,17 @@ class ExpressApplication {
     this.app.use(cors());
     //  __init__
     this.configureAssets();
+    this.setupLibrary([
+      morgan("dev"),
+      compression(),
+      helmet(),
+    ]);
     this.setupRoute();
     this.setupMiddlewares([
       errorHandler,
       express.json(),
-      express.urlencoded(),
+      express.urlencoded({ extended: true }),
       apicache.middleware("5 minutes"),
-    ]);
-    this.setupLibrary([
-      process.env.NODE_ENV === "development" ? morgan("dev") : "",
-      compression(),
-      helmet(),
-      // cors(),
     ]);
   }
 
@@ -74,9 +75,16 @@ class ExpressApplication {
   }
 
   start() {
-    return this.app.listen(this.port, () => {
+    const server = this.app.listen(this.port, () => {
       logger.info(`Application running on port ${this.port}`);
+      
+      // Start background jobs
+      startCancelPendingOrdersScheduler(
+        parseInt(process.env.CANCEL_PENDING_INTERVAL_MIN || '5'),  // Run every 5 minutes
+        parseInt(process.env.CANCEL_PENDING_TIMEOUT_MIN || '15')   // Cancel after 15 minutes
+      );
     });
+    return server;
   }
 }
 

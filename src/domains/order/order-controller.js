@@ -1,7 +1,5 @@
 import OrderService from "./order-service.js";
 import { successResponse, createdResponse } from "../../utils/response.js";
-import BaseError from "../../base_classes/base-error.js";
-import orderSchema from "./order-schema.js";
 
 class OrderController {
     async getAll(req, res) {
@@ -12,8 +10,7 @@ class OrderController {
 
     async getById(req, res) {
         const { orderId } = req.params;
-        const userId = req.user.id;
-        const order = await OrderService.findById(orderId, userId);
+        const order = await OrderService.findById(orderId);
         return successResponse(res, order);
     }
 
@@ -26,6 +23,22 @@ class OrderController {
 
         const created = await OrderService.create(value);
         return createdResponse(res, created);
+    }
+
+    async confirmPayment(req, res) {
+        const { orderId } = req.params;
+        const userId = req.user.id;
+
+        const result = await OrderService.confirmPayment(orderId, userId);
+        return successResponse(res, result);
+    }
+
+    async cancelOrder(req, res) {
+        const { orderId } = req.params;
+        const userId = req.user.id;
+
+        const result = await OrderService.cancelOrder(orderId, userId);
+        return successResponse(res, result);
     }
 }
 

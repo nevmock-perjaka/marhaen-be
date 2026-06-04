@@ -1,7 +1,6 @@
 import Joi from "joi";
 
 const orderSchema = {
-    // Schema untuk membuat Order
     create: Joi.object({
         order_by: Joi.string().required(),
         phone_number: Joi.string().optional().allow(null, ""),
@@ -15,7 +14,6 @@ const orderSchema = {
         })).required().min(1),
     }),
 
-    // Schema untuk update Order
     update: Joi.object({
         order_by: Joi.string().optional(),
         phone_number: Joi.string().allow(null, "").optional(),
@@ -25,7 +23,7 @@ const orderSchema = {
         discount_id: Joi.string().allow(null, "").optional(),
         updated_by: Joi.string().required(),
         updated_at: Joi.date().default(() => new Date())
-    })
+    }),
 };
 
 export default orderSchema;

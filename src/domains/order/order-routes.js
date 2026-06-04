@@ -21,6 +21,18 @@ class OrderRoutes extends BaseRoutes {
             validateCredentials(orderSchema.create),
             tryCatch(OrderController.create)
         ]);
+
+        this.router.post("/:orderId/confirm-payment", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['CASHIER']),
+            tryCatch(OrderController.confirmPayment)
+        ]);
+
+        this.router.post("/:orderId/cancel", [
+            authTokenMiddleware.authenticate,
+            authTokenMiddleware.authorizeRoles(['CASHIER']),
+            tryCatch(OrderController.cancelOrder)
+        ]);
     }
 }
 

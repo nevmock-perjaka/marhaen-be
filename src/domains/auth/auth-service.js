@@ -193,6 +193,7 @@ class AuthService {
                 subs_expired_at: true,
                 subs_level: true,
                 tax_percentage: true,
+                qris_code: true,
                 verified_at: true,
                 strict_mode: true,
                 created_at: true,
@@ -232,6 +233,7 @@ class AuthService {
                 subs_expired_at: true,
                 subs_level: true,
                 tax_percentage: true,
+                qris_code: true,
                 verified_at: true,
                 created_at: true,
                 updated_at: true

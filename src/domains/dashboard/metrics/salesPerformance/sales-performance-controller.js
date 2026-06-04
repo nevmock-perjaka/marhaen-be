@@ -12,7 +12,7 @@ class SalesPerformanceController {
             ownedBy
         );
 
-        return res.json(successResponse({ data }));
+        return successResponse(res, data, "Sales performance berhasil diambil");
     }
 
     async getComparison(req, res) {
@@ -21,7 +21,7 @@ class SalesPerformanceController {
 
         const data = await SalesPerformanceService.compare(mode, ownedBy);
 
-        return res.json(successResponse({ data }));
+        return successResponse(res, data, "Perbandingan sales performance berhasil diambil");
     }
 }
 

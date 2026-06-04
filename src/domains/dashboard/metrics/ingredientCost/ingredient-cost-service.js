@@ -157,15 +157,15 @@ class IngredientCostService {
                 throw new Error("Invalid mode");
         }
 
-        const current = await this.getIngredientCostInRange(
-            currentRange.start,
-            currentRange.end,
+        const current = await this.getChartData(
+            currentRange.start.toISOString(),
+            currentRange.end.toISOString(),
             ownedBy
         );
 
-        const previous = await this.getIngredientCostInRange(
-            previousRange.start,
-            previousRange.end,
+        const previous = await this.getChartData(
+            previousRange.start.toISOString(),
+            previousRange.end.toISOString(),
             ownedBy
         );
 

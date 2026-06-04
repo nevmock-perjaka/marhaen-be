@@ -2,14 +2,113 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 async function main() {
     // ─────────────────────────────────────────────
     // CONSTANTS
     // ─────────────────────────────────────────────
-    const seedTimestamp   = new Date('2025-06-16T06:58:42.904Z');
-    const ownerUserId     = '7eeeb9fc-6a5f-41a5-984a-f51835340729';   // ← user_id yang diminta
-    const ownerProfileId  = 'profile-owner-warteg-001';               // profile OWNER
+    const seedTimestamp   = new Date();
+    const ownerUserId     = '0e69746b-4323-46c1-8962-2bd39413125f';   
+    const ownerProfileId  = 'profile-owner-warteg-001';
+
+    // Generated UUIDs (proper UUID v4)
+    const supplierIds = [
+        'e0228b85-db72-4e2d-ad2a-08bc45a3688b',
+        '4ca79d06-6e33-4c2e-9409-7a860bad3f85',
+        '20b92d19-b434-42b9-9cfb-26bd9123476b',
+        'a0727bd3-6c8b-4eb6-9a4c-90ffa2462269',
+        '4a7844a7-37eb-473a-9e1c-dc6aab8ed336',
+        'f3655102-fc82-41cf-aa4c-e9e7f7ab5bb5',
+        '5283b129-b7b9-4afb-8b35-b18dd0c49b8c',
+    ];
+
+    const inventoryIds = [
+        '6002d704-616a-47ee-89b6-31bfee038bcf',
+        '51e86ac2-32ff-45c7-acef-9ce0c886246b',
+        '031c65d2-90f7-4d74-8a98-923c82e43c66',
+        '759a8773-e236-47d8-9238-2cb542cfbb8f',
+        '7f187122-d773-4a95-bc5a-a8fce81f9856',
+        '92ad6ce5-1e6d-4e85-985e-e4f51ed008d8',
+        '0c381348-d787-43aa-955b-9aed4da74082',
+        'a04ec933-970a-4b3f-9f46-d3d144479ae2',
+        '55ff5f03-c083-4e53-8150-b4cb7e2cef0e',
+        '898a4763-db05-455b-88de-e42ae8b25e81',
+        'e91bc15b-9806-41c5-8ad3-a2db0a52e510',
+        '52cabbe8-e319-49e5-99a8-fa6244962ec5',
+        '3bf11e44-4281-493b-800f-7f07dce1e99b',
+        '57dedb5e-561e-464c-8489-d0218f6dc195',
+        '8577579d-5122-456b-9367-0326c1b3e713',
+    ];
+
+    const inputHistoryIds = [
+        'cb6eeddf-367e-410b-af38-8b2c87fcb8fd',
+        '6a74e6d5-5325-4504-9192-73b58cf60526',
+        '7f3e8b7e-980c-47bc-be8f-2fa1743caeca',
+        '63ff514f-db7d-415b-b52b-72c5004fb07e',
+        'b54db26e-dd47-452d-9113-8558c6b06941',
+        '9785b274-4963-45e7-b7e4-b4c896a16571',
+        '3300a30b-5a8e-42d6-bfb1-d747dc7ee7ed',
+        'c9441423-6b5a-404f-9bb0-b0dc8b41c4cb',
+        '95a6385f-ce87-4fcf-8e93-1ce0453cba89',
+        'ea49c806-8cc3-416f-806d-9c00c7e60336',
+        '9e912fe2-d265-4745-911b-7000f13a6360',
+        'c12d80f1-52ec-4a1b-9766-d73d0e8958de',
+        '6b2db065-4afd-4401-983c-0cc35ea1160e',
+        'be8480fc-f7de-466e-aced-3a4d95ecb2eb',
+        '532d3910-b6fe-47c6-82a3-a0b4e78f7ab7',
+    ];
+
+    const productIds = [
+        'c9f9f31e-4865-4646-a2c7-12bb7b452212',
+        'd63c863b-9877-4c58-a71b-0ae39623db65',
+        '289edce3-fd0d-4d56-934f-0144594e3ea6',
+        'cbec0ce5-3a74-427f-9a63-f6f0ca8e4e0b',
+        '61c7ca75-518f-4a26-8dcd-1acbc8fa212b',
+        '020f7848-877a-4ff6-b6a7-b1e5c8c3127b',
+        'deedeee6-2b36-40b1-9383-f5a1851031fc',
+        'ce425ac0-cc84-4c87-8241-3d7de3e3a162',
+        '448b67ae-7fef-4402-a0f6-82fe71bf5705',
+        'cba171d5-c779-4987-b847-ce6ee4a17c69',
+        'e293136d-14af-4af1-867a-f9d3f5f60676',
+        '107d89bc-a4c5-4ca0-a222-eb97e9c1698f',
+        'dadd1f67-6b62-4457-ad9d-936dad7b9331',
+        'bfdd0340-cde7-4cb1-ab85-191393463d57',
+        'd5196705-5f41-46f0-84ab-e0a2274dfcbc',
+    ];
+
+    const productConfigIds = [
+        '34db2275-de93-40a7-a6cb-b73e20593e05',
+        '6c23437d-eeae-431e-847e-fefc5776305d',
+        'c188dc30-5993-4264-aa40-63fa70439277',
+        '40ec688b-af67-4c39-b4f9-4294ee90ee81',
+        '4e9b3baf-46a2-4f42-b75e-c177a5565b1e',
+        '5f4e06fb-6832-4879-8485-d33c5a86e7b7',
+        '22911ad0-e9ee-417a-9362-fba4fe5c81d1',
+        '48bbbe7c-e18f-43f9-bc71-ef1de7683761',
+        'b2f84ed6-cf4a-4d0f-a54e-34fee890b816',
+        '2c42e154-176f-4fbf-a647-5c1e7874c8e2',
+        '21103271-67a1-4e4c-ae21-403a83228ade',
+        'bbbacf63-41c7-484b-a7ae-55d9032a5219',
+        'eccb5b20-2dce-402d-bd96-fceeb63b2a5c',
+        '91dddd72-15cf-4c24-9d3d-355b992febee',
+        '1f61a75a-2426-44b4-b2f9-5876e8b6161d',
+        'b00524c2-48a5-440f-b0a4-ce2f7be276f6',
+        'c92b48b7-5847-4c50-89dc-06b165fdb0ec',
+        '97846459-241e-41cd-b456-84014358b261',
+        'ccf76d9e-367d-49eb-8377-42680f90fe9b',
+        '28bf91d7-4fcc-43cf-b060-ef9d4e2035df',
+        '3f09f80f-6e16-4f25-acdc-b9fdc7249913',
+        'e34a5d78-56f6-4037-b871-7680ce76478c',
+        '87ae692f-f207-48df-abeb-e10118115beb',
+        '0f7bf4ad-388b-4a2a-bfcf-eac92e66b434',
+        'e3d749ef-fc43-40bb-8488-eabfb7383b0d',
+        '1a0de084-9c27-4ff9-95f6-28dd48fa9528',
+        'cc3f3e87-fe95-401a-a7cf-695b2e902458',
+        'a8c2a60b-f2a0-4926-9621-d25e5b781f2d',
+        '11c596da-629f-4961-9855-1fa255da1445',
+        'd89d485e-f369-4448-b433-a4b72383fc0b',
+    ];
 
     // ─────────────────────────────────────────────
     // 1. SITE CONFIG
@@ -19,7 +118,7 @@ async function main() {
         update: {},
         create: {
             id: 'a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6',
-            ppn_percentage: 12,
+            ppn_percentage: 11,
         },
     });
     console.log('✅ Site Config seeded.');
@@ -36,7 +135,7 @@ async function main() {
             days:        365,
             price:       1500000,
             level:       1,
-            is_active:   false,
+            is_active:   true,
             created_at:  seedTimestamp,
             updated_at:  seedTimestamp,
         },
@@ -51,8 +150,8 @@ async function main() {
         update: {},
         create: {
             id:             ownerUserId,
-            name:           'Faiz',
-            email:          'faizelfahad2@gmail.com',
+            name:           'Toko Nazila',
+            email:          'azrianr77@gmail.com',
             phone_number:   '082334326639',
             password:       await bcrypt.hash('Prj977je94.', await bcrypt.genSalt(10)),
             is_banned:      false,
@@ -60,31 +159,14 @@ async function main() {
             subs_level:     0,
             tax_percentage: 0,
             verified_at:    seedTimestamp,
+            strict_mode:    false,
             created_at:     seedTimestamp,
             updated_at:     seedTimestamp,
             profiles: {
                 create: [
-                    {
-                        id:         ownerProfileId,
-                        role:       'OWNER',
-                        pin:        null,
-                        created_at: seedTimestamp,
-                        updated_at: seedTimestamp,
-                    },
-                    {
-                        id:         'profile-staff-warteg-001',
-                        role:       'STAFF',
-                        pin:        null,
-                        created_at: seedTimestamp,
-                        updated_at: seedTimestamp,
-                    },
-                    {
-                        id:         'profile-cashier-warteg-001',
-                        role:       'CASHIER',
-                        pin:        null,
-                        created_at: seedTimestamp,
-                        updated_at: seedTimestamp,
-                    },
+                    { id: ownerProfileId, role: 'OWNER', pin: null },
+                    { id: 'profile-staff-001', role: 'STAFF', pin: null },
+                    { id: 'profile-cashier-001', role: 'CASHIER', pin: null },
                 ],
             },
         },
@@ -94,11 +176,14 @@ async function main() {
     // ─────────────────────────────────────────────
     // 4. STAFF
     // ─────────────────────────────────────────────
+    const staffBudiId = uuidv4();
+    const staffLogId = uuidv4();
+    
     await prisma.staff.upsert({
-        where:  { id: 'staff-warteg-budi-001' },
+        where:  { id: staffBudiId },
         update: {},
         create: {
-            id:           'staff-warteg-budi-001',
+            id:           staffBudiId,
             name:         'Budi Santoso',
             phone_number: '081298765432',
             is_active:    true,
@@ -110,11 +195,8 @@ async function main() {
             Staff_log: {
                 create: [
                     {
-                        id:              'stafflog-warteg-001',
-                        start_timestamp: new Date('2025-06-16T07:00:00.000Z'),
-                        end_timestamp:   null,
-                        created_at:      seedTimestamp,
-                        updated_at:      seedTimestamp,
+                        id:              staffLogId,
+                        start_timestamp: seedTimestamp,
                         created_by:      ownerProfileId,
                         updated_by:      ownerProfileId,
                         owned_by:        ownerUserId,
@@ -123,23 +205,22 @@ async function main() {
             },
         },
     });
-    console.log('✅ Staff seeded.');
+    console.log(`✅ Staff seeded with ID: ${staffBudiId}`);
 
     // ─────────────────────────────────────────────
     // 5. TABLES
     // ─────────────────────────────────────────────
     const wartegTables = [
-        { id: 'table-warteg-01', identifier_table: 'T01', table_name: 'Meja 1', min_capacity: 2, max_capacity: 4, is_outdoor: false, barcode: 'WTG-T01' },
-        { id: 'table-warteg-02', identifier_table: 'T02', table_name: 'Meja 2', min_capacity: 2, max_capacity: 4, is_outdoor: false, barcode: 'WTG-T02' },
-        { id: 'table-warteg-03', identifier_table: 'T03', table_name: 'Meja 3', min_capacity: 4, max_capacity: 6, is_outdoor: false, barcode: 'WTG-T03' },
-        { id: 'table-warteg-04', identifier_table: 'T04', table_name: 'Meja Luar', min_capacity: 2, max_capacity: 4, is_outdoor: true, barcode: 'WTG-T04' },
+        { id: 'table-01', identifier_table: 'T01', table_name: 'Meja Dalam 1', min_capacity: 2, max_capacity: 4, is_outdoor: false, barcode: 'WTG-01' },
+        { id: 'table-02', identifier_table: 'T02', table_name: 'Meja Dalam 2', min_capacity: 2, max_capacity: 4, is_outdoor: false, barcode: 'WTG-02' },
+        { id: 'table-03', identifier_table: 'T03', table_name: 'Meja Luar', min_capacity: 4, max_capacity: 6, is_outdoor: true, barcode: 'WTG-03' },
     ];
 
     await prisma.table.createMany({
         data: wartegTables.map((t) => ({
             ...t,
-            table_desc:  `Meja makan sederhana warteg kapasitas ${t.min_capacity}–${t.max_capacity} orang.`,
-            image_uri:   null,
+            table_desc:  `Meja kapasitas ${t.min_capacity} - ${t.max_capacity}`,
+            image_uri:   "",
             is_active:   true,
             created_at:  seedTimestamp,
             updated_at:  seedTimestamp,
@@ -152,656 +233,198 @@ async function main() {
     console.log('✅ Tables seeded.');
 
     // ─────────────────────────────────────────────
-    // 6. SUPPLIERS  (7 supplier untuk bahan warteg)
+    // 6. SUPPLIERS (UUIDs + Realistis)
     // ─────────────────────────────────────────────
-    const wartegSuppliers = [
+    const suppliers = [
         {
-            id:           'supplier-beras-nusantara',
-            name:         'Beras Nusantara',
-            description:  'Supplier beras dan minyak goreng untuk kebutuhan dapur warteg.',
-            address:      'Jl. Pasar Induk No. 12, Jakarta Timur',
-            phone_number: '081200010001',
-            status:       true,
-            price:        32000,
-            unit_type:    'kg',
+            id: supplierIds[0],
+            name: 'Kios Ayam Pasar Dayeuhkolot',
+            description: 'Ayam potong segar, premium grade untuk restoran',
+            address: 'Blok C-12, Pasar Dayeuhkolot, Jl. Padjajaran',
+            phone_number: '08111111111',
+            status: true,
         },
         {
-            id:           'supplier-protein-segar',
-            name:         'Protein Segar',
-            description:  'Supplier ayam potong, telur, lele, dan lauk protein segar harian.',
-            address:      'Jl. Peternakan Raya No. 8, Bogor',
-            phone_number: '081200010002',
-            status:       true,
-            price:        36000,
-            unit_type:    'kg',
+            id: supplierIds[1],
+            name: 'Agen Ikan Segar Sumedang',
+            description: 'Ikan mas, nila, tongkol pindang berkualitas',
+            address: 'Jl. Jenderal Sudirman, Sumedang (20km dari Dayeuhkolot)',
+            phone_number: '08222222222',
+            status: true,
         },
         {
-            id:           'supplier-tempe-tahu-jaya',
-            name:         'Tempe Tahu Jaya',
-            description:  'Supplier tempe dan tahu segar untuk menu harian warteg.',
-            address:      'Jl. Industri UMKM No. 21, Bandung',
-            phone_number: '081200010003',
-            status:       true,
-            price:        5000,
-            unit_type:    'pcs',
+            id: supplierIds[2],
+            name: 'Grosir Telur Bojongsoang',
+            description: 'Telur ayam ras fresh, harga grosir',
+            address: 'Jl. Raya Bojongsoang No. 45, Kab. Bandung',
+            phone_number: '08333333333',
+            status: true,
         },
         {
-            id:           'supplier-sayur-pagi-segar',
-            name:         'Sayur Pagi Segar',
-            description:  'Supplier sayuran pasar tradisional: kangkung, bayam, kol, wortel.',
-            address:      'Jl. Pasar Pagi No. 3, Semarang',
-            phone_number: '081200010004',
-            status:       true,
-            price:        8000,
-            unit_type:    'ikat',
+            id: supplierIds[3],
+            name: 'Pabrik Tahu & Tempe Ciganitri',
+            description: 'Tahu putih, kuning, tempe hidup dari pabrik',
+            address: 'Jl. Ciganitri Km 5, Bojongsoang, Bandung',
+            phone_number: '08444444444',
+            status: true,
         },
         {
-            id:           'supplier-bumbu-pasar-indah',
-            name:         'Bumbu Pasar Indah',
-            description:  'Supplier bawang merah, bawang putih, cabai rawit, dan santan kelapa.',
-            address:      'Jl. Pasar Indah No. 7, Yogyakarta',
-            phone_number: '081200010005',
-            status:       true,
-            price:        15000,
-            unit_type:    'kg',
+            id: supplierIds[4],
+            name: 'Lapak Sayur Pasar Kaget Bojong',
+            description: 'Sayur mayur: terong, toge, kentang, bawang, cabai segar',
+            address: 'Pasar Kaget Jl. Raya Bojongsoang, buka pagi-siang',
+            phone_number: '08555555555',
+            status: true,
         },
         {
-            id:           'supplier-laut-segar-nusantara',
-            name:         'Laut Segar Nusantara',
-            description:  'Supplier ikan tongkol dan hasil laut segar untuk lauk warteg.',
-            address:      'Jl. Pelabuhan Timur No. 14, Cirebon',
-            phone_number: '081200010006',
-            status:       true,
-            price:        28000,
-            unit_type:    'kg',
+            id: supplierIds[5],
+            name: 'Distributor Sembako Bandung Pusat',
+            description: 'Mie instan, nugget, sosis, beras, minyak, bumbu siap pakai',
+            address: 'Jl. Bengawan No. 78, Bandung (25km)',
+            phone_number: '08666666666',
+            status: true,
         },
         {
-            id:           'supplier-daging-harapan',
-            name:         'Daging Harapan',
-            description:  'Supplier daging sapi dan jeroan (ati ampela) segar berkualitas.',
-            address:      'Jl. Sentra Kuliner No. 19, Surabaya',
-            phone_number: '081200010007',
-            status:       true,
-            price:        125000,
-            unit_type:    'kg',
+            id: supplierIds[6],
+            name: 'Pasar Induk Caringin - Bumbu & Rempah',
+            description: 'Cabai, bawang, garam, gula, kecap, saus lengkap',
+            address: 'Jl. Caringin, Bandung',
+            phone_number: '08777777777',
+            status: true,
         },
     ];
 
     await prisma.supplier.createMany({
-        data: wartegSuppliers.map((s) => ({
+        data: suppliers.map(s => ({
             ...s,
-            created_at: seedTimestamp,
-            updated_at: seedTimestamp,
-            created_by: ownerProfileId,
-            updated_by: ownerProfileId,
-            owned_by:   ownerUserId,
-        })),
-        skipDuplicates: true,
+            price: null,
+            unit_type: null,
+            created_at: seedTimestamp, updated_at: seedTimestamp, created_by: ownerProfileId, updated_by: ownerProfileId, owned_by: ownerUserId,
+        })), skipDuplicates: true,
     });
-    console.log('✅ Suppliers seeded.');
+    console.log('✅ Suppliers seeded (7 suppliers with proper UUIDs).');
 
     // ─────────────────────────────────────────────
-    // 7. INVENTORY + INPUT_HISTORY  (18 bahan baku)
+    // 7. INVENTORY (UUIDs + Unit Logis)
     // ─────────────────────────────────────────────
-    const wartegIngredients = [
-        // ── BAHAN POKOK ──────────────────────────
-        {
-            id: 'inventory-beras', product_name: 'Beras',
-            description: 'Beras medium untuk nasi putih dan nasi goreng.',
-            category: 'Bahan Pokok', unit_type: 'kg',
-            supplier_id: 'supplier-beras-nusantara',
-            shipping_fee: 25000, price: 3200000, total_stock: 200, current_stock: 200,
-            input_id: 'input-beras',
-        },
-        {
-            id: 'inventory-minyak-goreng', product_name: 'Minyak Goreng',
-            description: 'Minyak goreng untuk semua menu gorengan dan nasi goreng.',
-            category: 'Bahan Pokok', unit_type: 'liter',
-            supplier_id: 'supplier-beras-nusantara',
-            shipping_fee: 18000, price: 155000, total_stock: 100, current_stock: 100,
-            input_id: 'input-minyak-goreng',
-        },
-        {
-            id: 'inventory-mie-kuning', product_name: 'Mie Kuning',
-            description: 'Mie kuning basah untuk mie goreng warteg.',
-            category: 'Bahan Pokok', unit_type: 'bungkus',
-            supplier_id: 'supplier-beras-nusantara',
-            shipping_fee: 12000, price: 120000, total_stock: 80, current_stock: 80,
-            input_id: 'input-mie-kuning',
-        },
-
-        // ── PROTEIN ──────────────────────────────
-        {
-            id: 'inventory-ayam', product_name: 'Ayam Potong',
-            description: 'Ayam potong segar untuk ayam goreng, bakar, dan soto.',
-            category: 'Protein', unit_type: 'kg',
-            supplier_id: 'supplier-protein-segar',
-            shipping_fee: 30000, price: 4200000, total_stock: 120, current_stock: 120,
-            input_id: 'input-ayam',
-        },
-        {
-            id: 'inventory-telur', product_name: 'Telur Ayam',
-            description: 'Telur ayam untuk telur dadar, balado, dan campuran nasi goreng.',
-            category: 'Protein', unit_type: 'butir',
-            supplier_id: 'supplier-protein-segar',
-            shipping_fee: 20000, price: 560000, total_stock: 2000, current_stock: 2000,
-            input_id: 'input-telur',
-        },
-        {
-            id: 'inventory-lele', product_name: 'Ikan Lele',
-            description: 'Ikan lele segar untuk lele goreng.',
-            category: 'Protein', unit_type: 'ekor',
-            supplier_id: 'supplier-protein-segar',
-            shipping_fee: 25000, price: 540000, total_stock: 120, current_stock: 120,
-            input_id: 'input-lele',
-        },
-        {
-            id: 'inventory-ati-ampela', product_name: 'Ati Ampela',
-            description: 'Ati ampela ayam untuk sambal goreng ati.',
-            category: 'Protein', unit_type: 'kg',
-            supplier_id: 'supplier-protein-segar',
-            shipping_fee: 22000, price: 320000, total_stock: 50, current_stock: 50,
-            input_id: 'input-ati-ampela',
-        },
-        {
-            id: 'inventory-daging-sapi', product_name: 'Daging Sapi',
-            description: 'Daging sapi untuk menu premium warteg.',
-            category: 'Protein', unit_type: 'kg',
-            supplier_id: 'supplier-daging-harapan',
-            shipping_fee: 35000, price: 1450000, total_stock: 60, current_stock: 60,
-            input_id: 'input-daging-sapi',
-        },
-
-        // ── PROTEIN NABATI ────────────────────────
-        {
-            id: 'inventory-tempe', product_name: 'Tempe',
-            description: 'Tempe segar untuk gorengan dan sayur lodeh.',
-            category: 'Protein Nabati', unit_type: 'papan',
-            supplier_id: 'supplier-tempe-tahu-jaya',
-            shipping_fee: 12000, price: 180000, total_stock: 100, current_stock: 100,
-            input_id: 'input-tempe',
-        },
-        {
-            id: 'inventory-tahu', product_name: 'Tahu',
-            description: 'Tahu putih untuk gorengan dan lauk harian.',
-            category: 'Protein Nabati', unit_type: 'pcs',
-            supplier_id: 'supplier-tempe-tahu-jaya',
-            shipping_fee: 12000, price: 150000, total_stock: 200, current_stock: 200,
-            input_id: 'input-tahu',
-        },
-
-        // ── PROTEIN LAUT ──────────────────────────
-        {
-            id: 'inventory-tongkol', product_name: 'Ikan Tongkol',
-            description: 'Tongkol segar untuk lauk balado dan oseng.',
-            category: 'Protein Laut', unit_type: 'kg',
-            supplier_id: 'supplier-laut-segar-nusantara',
-            shipping_fee: 28000, price: 680000, total_stock: 80, current_stock: 80,
-            input_id: 'input-tongkol',
-        },
-
-        // ── SAYURAN ───────────────────────────────
-        {
-            id: 'inventory-kangkung', product_name: 'Kangkung',
-            description: 'Kangkung untuk tumis dan pelengkap menu.',
-            category: 'Sayuran', unit_type: 'ikat',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 10000, price: 75000, total_stock: 100, current_stock: 100,
-            input_id: 'input-kangkung',
-        },
-        {
-            id: 'inventory-bayam', product_name: 'Bayam',
-            description: 'Bayam segar untuk sayur bening dan capcay.',
-            category: 'Sayuran', unit_type: 'ikat',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 10000, price: 70000, total_stock: 100, current_stock: 100,
-            input_id: 'input-bayam',
-        },
-        {
-            id: 'inventory-kol', product_name: 'Kol',
-            description: 'Kol segar untuk sayur lodeh, sop, dan capcay.',
-            category: 'Sayuran', unit_type: 'kg',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 12000, price: 90000, total_stock: 80, current_stock: 80,
-            input_id: 'input-kol',
-        },
-        {
-            id: 'inventory-wortel', product_name: 'Wortel',
-            description: 'Wortel untuk sayur lodeh, sop, dan capcay.',
-            category: 'Sayuran', unit_type: 'kg',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 12000, price: 110000, total_stock: 80, current_stock: 80,
-            input_id: 'input-wortel',
-        },
-        {
-            id: 'inventory-kentang', product_name: 'Kentang',
-            description: 'Kentang untuk perkedel.',
-            category: 'Sayuran', unit_type: 'kg',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 12000, price: 90000, total_stock: 60, current_stock: 60,
-            input_id: 'input-kentang',
-        },
-        {
-            id: 'inventory-tauge', product_name: 'Tauge',
-            description: 'Tauge segar untuk cah tauge dan pelengkap.',
-            category: 'Sayuran', unit_type: 'ikat',
-            supplier_id: 'supplier-sayur-pagi-segar',
-            shipping_fee: 10000, price: 65000, total_stock: 80, current_stock: 80,
-            input_id: 'input-tauge',
-        },
-
-        // ── BUMBU ─────────────────────────────────
-        {
-            id: 'inventory-bawang-merah', product_name: 'Bawang Merah',
-            description: 'Bawang merah untuk bumbu dasar warteg.',
-            category: 'Bumbu', unit_type: 'kg',
-            supplier_id: 'supplier-bumbu-pasar-indah',
-            shipping_fee: 14000, price: 145000, total_stock: 50, current_stock: 50,
-            input_id: 'input-bawang-merah',
-        },
-        {
-            id: 'inventory-bawang-putih', product_name: 'Bawang Putih',
-            description: 'Bawang putih untuk tumisan dan lauk goreng.',
-            category: 'Bumbu', unit_type: 'kg',
-            supplier_id: 'supplier-bumbu-pasar-indah',
-            shipping_fee: 14000, price: 130000, total_stock: 50, current_stock: 50,
-            input_id: 'input-bawang-putih',
-        },
-        {
-            id: 'inventory-cabai-rawit', product_name: 'Cabai Rawit',
-            description: 'Cabai rawit untuk sambal, balado, dan tumisan pedas.',
-            category: 'Bumbu', unit_type: 'kg',
-            supplier_id: 'supplier-bumbu-pasar-indah',
-            shipping_fee: 14000, price: 170000, total_stock: 40, current_stock: 40,
-            input_id: 'input-cabai-rawit',
-        },
-        {
-            id: 'inventory-santan', product_name: 'Santan',
-            description: 'Santan kelapa untuk sayur lodeh dan rendang.',
-            category: 'Bumbu', unit_type: 'liter',
-            supplier_id: 'supplier-bumbu-pasar-indah',
-            shipping_fee: 14000, price: 90000, total_stock: 40, current_stock: 40,
-            input_id: 'input-santan',
-        },
+    const inventories = [
+        { id: inventoryIds[0], product_name: 'Ayam Potong', category: 'Lauk Mentah', unit_type: 'potong', description: 'Ayam potong sedang (1 potong ≈ 150-200g), modal Rp3.5k/potong' },
+        { id: inventoryIds[1], product_name: 'Ikan Mas Segar', category: 'Lauk Mentah', unit_type: 'ekor', description: 'Ikan mas/nila medium (1 ekor ≈ 300-400g), modal Rp4.2k/ekor' },
+        { id: inventoryIds[2], product_name: 'Ikan Tongkol Pindang', category: 'Lauk Mentah', unit_type: 'potong', description: 'Tongkol keranjang siap olah, modal Rp2k/potong' },
+        { id: inventoryIds[3], product_name: 'Telur Ayam Ras', category: 'Lauk Mentah', unit_type: 'butir', description: 'Telur ayam ras (1 butir ≈ 55g), modal Rp1.75k/butir' },
+        { id: inventoryIds[4], product_name: 'Tahu Kuning Segar', category: 'Lauk Mentah', unit_type: 'pcs', description: 'Tahu kuning siap goreng (1 pcs ≈ 100g), modal Rp600/pcs' },
+        { id: inventoryIds[5], product_name: 'Tempe Potong', category: 'Lauk Mentah', unit_type: 'potong', description: 'Tempe siap goreng (1 potong = 60g), modal Rp500/potong' },
+        { id: inventoryIds[6], product_name: 'Usus Siap Olah', category: 'Lauk Mentah', unit_type: 'porsi', description: 'Usus siap goreng porsian, modal Rp2k/porsi' },
+        { id: inventoryIds[7], product_name: 'Nugget Ayam Curah', category: 'Lauk Mentah', unit_type: 'pcs', description: 'Nugget frozen (1 pcs ≈ 25-30g), modal Rp700/pcs' },
+        { id: inventoryIds[8], product_name: 'Sosis Sapi/Ayam', category: 'Lauk Mentah', unit_type: 'pcs', description: 'Sosis merah (1 pcs ≈ 40g), modal Rp2.5k/pcs' },
+        { id: inventoryIds[9], product_name: 'Terong Segar Porsian', category: 'Sayur Mentah', unit_type: 'porsi', description: 'Terong dipotong siap balado (1 porsi ≈ 100g), modal Rp800/porsi' },
+        { id: inventoryIds[10], product_name: 'Toge Segar Porsian', category: 'Sayur Mentah', unit_type: 'porsi', description: 'Toge segar dicuci siap oseng (1 porsi ≈ 80g), modal Rp600/porsi' },
+        { id: inventoryIds[11], product_name: 'Kentang Potong Porsian', category: 'Sayur Mentah', unit_type: 'porsi', description: 'Kentang potong siap goreng (1 porsi ≈ 100g), modal Rp800/porsi' },
+        { id: inventoryIds[12], product_name: 'Mie Telur Porsian', category: 'Karbohidrat', unit_type: 'porsi', description: 'Mie telur porsi siap masak (1 porsi ≈ 80g), modal Rp1k/porsi' },
+        { id: inventoryIds[13], product_name: 'Bumbu & Minyak (Base)', category: 'Bumbu', unit_type: 'porsi', description: 'Estimasi cost bumbu dasar: cabai, bawang, garam, minyak per piring, modal Rp1.5k/porsi' },
     ];
 
     await prisma.inventory.createMany({
-        data: wartegIngredients.map(({ supplier_id, shipping_fee, price, total_stock, current_stock, input_id, ...inv }) => ({
+        data: inventories.map((inv) => ({
             ...inv,
-            created_at: seedTimestamp,
-            updated_at: seedTimestamp,
-            created_by: ownerProfileId,
-            updated_by: ownerProfileId,
-            owned_by:   ownerUserId,
-        })),
-        skipDuplicates: true,
+            created_at: seedTimestamp, updated_at: seedTimestamp, created_by: ownerProfileId, updated_by: ownerProfileId, owned_by: ownerUserId,
+        })), skipDuplicates: true,
     });
-
-    await prisma.input_history.createMany({
-        data: wartegIngredients.map((ing) => ({
-            id:            ing.input_id,
-            supplier_id:   ing.supplier_id,
-            inventory_id:  ing.id,
-            shipping_fee:  ing.shipping_fee,
-            price:         ing.price,
-            total_stock:   ing.total_stock,
-            current_stock: ing.current_stock,
-            input_datetime: seedTimestamp,
-            created_at:    seedTimestamp,
-            updated_at:    seedTimestamp,
-            created_by:    ownerProfileId,
-            updated_by:    ownerProfileId,
-            owned_by:      ownerUserId,
-        })),
-        skipDuplicates: true,
-    });
-
-    console.log('✅ Inventory dan Input History seeded.');
+    console.log('✅ Inventory seeded (14 raw materials with proper UUIDs).');
 
     // ─────────────────────────────────────────────
-    // 8. PRODUCTS (20 menu warteg realistis)
-    //    + PRODUCT_CONFIG (ingredient mapping)
+    // 8. INPUT HISTORY (UUIDs + Pembelian Bahan)
     // ─────────────────────────────────────────────
-    const wartegMenus = [
-        // ── NASI / KARBOHIDRAT ────────────────────────────────────────
-        {
-            id: 'product-nasi-putih',
-            name: 'Nasi Putih',
-            description: 'Nasi putih pulen sebagai menu utama dan pendamping semua lauk.',
-            price: 5000,
-            category: 'Nasi',
-            image_uri: 'https://example.com/images/warteg/nasi-putih.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-beras', value: 1 },
-            ],
-        },
-        {
-            id: 'product-nasi-goreng-warteg',
-            name: 'Nasi Goreng Warteg',
-            description: 'Nasi goreng sederhana dengan telur dan cabai, khas dapur warteg.',
-            price: 14000,
-            category: 'Nasi',
-            image_uri: 'https://example.com/images/warteg/nasi-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-beras',        value: 1 },
-                { inventory_id: 'inventory-telur',        value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-mie-goreng',
-            name: 'Mie Goreng',
-            description: 'Mie goreng dengan telur dan bumbu bawang.',
-            price: 13000,
-            category: 'Mie',
-            image_uri: 'https://example.com/images/warteg/mie-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-mie-kuning',   value: 1 },
-                { inventory_id: 'inventory-telur',        value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── LAUK AYAM ─────────────────────────────────────────────────
-        {
-            id: 'product-ayam-goreng',
-            name: 'Ayam Goreng',
-            description: 'Ayam goreng bumbu kuning yang gurih dan renyah.',
-            price: 18000,
-            category: 'Lauk Ayam',
-            image_uri: 'https://example.com/images/warteg/ayam-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-ayam',         value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 2 },
-            ],
-        },
-        {
-            id: 'product-ayam-bakar',
-            name: 'Ayam Bakar',
-            description: 'Ayam bakar manis pedas khas warteg.',
-            price: 20000,
-            category: 'Lauk Ayam',
-            image_uri: 'https://example.com/images/warteg/ayam-bakar.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-ayam',         value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-            ],
-        },
-        {
-            id: 'product-soto-ayam',
-            name: 'Soto Ayam',
-            description: 'Soto ayam hangat berkuah bening gurih.',
-            price: 15000,
-            category: 'Lauk Ayam',
-            image_uri: 'https://example.com/images/warteg/soto-ayam.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-ayam',         value: 1 },
-                { inventory_id: 'inventory-kol',          value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-            ],
-        },
-
-        // ── LAUK TELUR ────────────────────────────────────────────────
-        {
-            id: 'product-telur-balado',
-            name: 'Telur Balado',
-            description: 'Telur rebus digoreng dengan sambal balado pedas manis.',
-            price: 12000,
-            category: 'Lauk Telur',
-            image_uri: 'https://example.com/images/warteg/telur-balado.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-telur',        value: 2 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 2 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-telur-dadar',
-            name: 'Telur Dadar',
-            description: 'Telur dadar tebal dan gurih untuk lauk simpel sehari-hari.',
-            price: 10000,
-            category: 'Lauk Telur',
-            image_uri: 'https://example.com/images/warteg/telur-dadar.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-telur',        value: 2 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── LAUK IKAN / LAUT ──────────────────────────────────────────
-        {
-            id: 'product-lele-goreng',
-            name: 'Lele Goreng',
-            description: 'Lele goreng renyah dengan sambal lalapan, menu favorit warteg.',
-            price: 16000,
-            category: 'Lauk Ikan',
-            image_uri: 'https://example.com/images/warteg/lele-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-lele',         value: 2 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 2 },
-            ],
-        },
-        {
-            id: 'product-tongkol-balado',
-            name: 'Tongkol Balado',
-            description: 'Ikan tongkol dimasak bumbu balado pedas dan gurih.',
-            price: 15000,
-            category: 'Lauk Ikan',
-            image_uri: 'https://example.com/images/warteg/tongkol-balado.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-tongkol',      value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 2 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── LAUK DAGING / JEROAN ──────────────────────────────────────
-        {
-            id: 'product-daging-sapi-lada-hitam',
-            name: 'Daging Sapi Lada Hitam',
-            description: 'Daging sapi tumis dengan bumbu lada hitam, menu spesial warteg.',
-            price: 35000,
-            category: 'Lauk Daging',
-            image_uri: 'https://example.com/images/warteg/daging-sapi-lada-hitam.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-daging-sapi',  value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-sambal-goreng-ati',
-            name: 'Sambal Goreng Ati',
-            description: 'Ati ampela dimasak bumbu sambal goreng pedas dan gurih.',
-            price: 15000,
-            category: 'Lauk Daging',
-            image_uri: 'https://example.com/images/warteg/sambal-goreng-ati.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-ati-ampela',   value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 2 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── LAUK TEMPE / TAHU ─────────────────────────────────────────
-        {
-            id: 'product-tempe-goreng',
-            name: 'Tempe Goreng',
-            description: 'Tempe goreng hangat, lauk sederhana andalan warteg.',
-            price: 7000,
-            category: 'Lauk Nabati',
-            image_uri: 'https://example.com/images/warteg/tempe-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-tempe',        value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-tahu-goreng',
-            name: 'Tahu Goreng',
-            description: 'Tahu goreng renyah untuk lauk sehari-hari.',
-            price: 7000,
-            category: 'Lauk Nabati',
-            image_uri: 'https://example.com/images/warteg/tahu-goreng.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-tahu',         value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-tempe-orek',
-            name: 'Tempe Orek',
-            description: 'Tempe orek manis pedas kering, cocok sebagai lauk tahan lama.',
-            price: 10000,
-            category: 'Lauk Nabati',
-            image_uri: 'https://example.com/images/warteg/tempe-orek.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-tempe',        value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── SAYUR ─────────────────────────────────────────────────────
-        {
-            id: 'product-oseng-kangkung',
-            name: 'Oseng Kangkung',
-            description: 'Tumis kangkung dengan cabai dan bawang, segar dan gurih.',
-            price: 10000,
-            category: 'Sayur',
-            image_uri: 'https://example.com/images/warteg/oseng-kangkung.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-kangkung',     value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-sayur-lodeh',
-            name: 'Sayur Lodeh',
-            description: 'Sayur lodeh gurih berkuah santan dengan aneka sayuran segar.',
-            price: 10000,
-            category: 'Sayur',
-            image_uri: 'https://example.com/images/warteg/sayur-lodeh.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-santan',       value: 1 },
-                { inventory_id: 'inventory-kol',          value: 1 },
-                { inventory_id: 'inventory-wortel',       value: 1 },
-                { inventory_id: 'inventory-tempe',        value: 1 },
-            ],
-        },
-        {
-            id: 'product-sop-sayur',
-            name: 'Sop Sayur',
-            description: 'Sop sayur bening dengan wortel, kol, dan bayam.',
-            price: 10000,
-            category: 'Sayur',
-            image_uri: 'https://example.com/images/warteg/sop-sayur.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-kol',          value: 1 },
-                { inventory_id: 'inventory-wortel',       value: 1 },
-                { inventory_id: 'inventory-bayam',        value: 1 },
-                { inventory_id: 'inventory-bawang-merah', value: 1 },
-            ],
-        },
-        {
-            id: 'product-capcay-sayur',
-            name: 'Capcay Sayur',
-            description: 'Capcay sayur dengan kol, wortel, bayam, dan bumbu bawang.',
-            price: 12000,
-            category: 'Sayur',
-            image_uri: 'https://example.com/images/warteg/capcay-sayur.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-kol',          value: 1 },
-                { inventory_id: 'inventory-wortel',       value: 1 },
-                { inventory_id: 'inventory-bayam',        value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-        {
-            id: 'product-cah-tauge',
-            name: 'Cah Tauge',
-            description: 'Tauge tumis sederhana untuk lauk sayur cepat saji.',
-            price: 8000,
-            category: 'Sayur',
-            image_uri: 'https://example.com/images/warteg/cah-tauge.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-tauge',        value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-cabai-rawit',  value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
-
-        // ── GORENGAN ──────────────────────────────────────────────────
-        {
-            id: 'product-perkedel-kentang',
-            name: 'Perkedel Kentang',
-            description: 'Perkedel kentang lembut dengan bumbu daun bawang, lauk favorit.',
-            price: 8000,
-            category: 'Gorengan',
-            image_uri: 'https://example.com/images/warteg/perkedel-kentang.jpg',
-            ingredients: [
-                { inventory_id: 'inventory-kentang',      value: 2 },
-                { inventory_id: 'inventory-telur',        value: 1 },
-                { inventory_id: 'inventory-bawang-putih', value: 1 },
-                { inventory_id: 'inventory-minyak-goreng',value: 1 },
-            ],
-        },
+    const inputHistories = [
+        { id: inputHistoryIds[0], supplier_id: supplierIds[0], inventory_id: inventoryIds[0], shipping_fee: 5000, price: 350000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[1], supplier_id: supplierIds[1], inventory_id: inventoryIds[1], shipping_fee: 10000, price: 210000, total_stock: 50, current_stock: 50 },
+        { id: inputHistoryIds[2], supplier_id: supplierIds[1], inventory_id: inventoryIds[2], shipping_fee: 5000, price: 100000, total_stock: 50, current_stock: 50 },
+        { id: inputHistoryIds[3], supplier_id: supplierIds[2], inventory_id: inventoryIds[3], shipping_fee: 5000, price: 262500, total_stock: 150, current_stock: 150 },
+        { id: inputHistoryIds[4], supplier_id: supplierIds[3], inventory_id: inventoryIds[4], shipping_fee: 0, price: 60000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[5], supplier_id: supplierIds[3], inventory_id: inventoryIds[5], shipping_fee: 0, price: 50000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[6], supplier_id: supplierIds[0], inventory_id: inventoryIds[6], shipping_fee: 5000, price: 100000, total_stock: 50, current_stock: 50 },
+        { id: inputHistoryIds[7], supplier_id: supplierIds[5], inventory_id: inventoryIds[7], shipping_fee: 5000, price: 70000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[8], supplier_id: supplierIds[0], inventory_id: inventoryIds[8], shipping_fee: 5000, price: 125000, total_stock: 50, current_stock: 50 },
+        { id: inputHistoryIds[9], supplier_id: supplierIds[4], inventory_id: inventoryIds[9], shipping_fee: 2000, price: 80000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[10], supplier_id: supplierIds[4], inventory_id: inventoryIds[10], shipping_fee: 2000, price: 60000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[11], supplier_id: supplierIds[4], inventory_id: inventoryIds[11], shipping_fee: 3000, price: 80000, total_stock: 100, current_stock: 100 },
+        { id: inputHistoryIds[12], supplier_id: supplierIds[5], inventory_id: inventoryIds[12], shipping_fee: 5000, price: 80000, total_stock: 80, current_stock: 80 },
+        { id: inputHistoryIds[13], supplier_id: supplierIds[6], inventory_id: inventoryIds[13], shipping_fee: 10000, price: 750000, total_stock: 500, current_stock: 500 },
     ];
 
+    await prisma.input_history.createMany({
+        data: inputHistories.map((inp) => ({
+            ...inp,
+            input_datetime: seedTimestamp,
+            created_at: seedTimestamp, updated_at: seedTimestamp, created_by: ownerProfileId, updated_by: ownerProfileId, owned_by: ownerUserId,
+        })), skipDuplicates: true,
+    });
+    console.log('✅ Input History seeded (14 dengan proper UUIDs).');
+
+    // ─────────────────────────────────────────────
+    // 9. PRODUCTS & PRODUCT_CONFIG (UUIDs)
+    // ─────────────────────────────────────────────
+    const menus = [
+        // LAUK AYAM
+        { productId: productIds[0], name: 'Ayam Cabe', price: 9000, category: 'Lauk Ayam', description: 'Ayam potong goreng bumbu cabe kering, pedas nikmat', ingredients: [inventoryIds[0], inventoryIds[13]] },
+        { productId: productIds[1], name: 'Ayam Padang', price: 9000, category: 'Lauk Ayam', description: 'Ayam goreng bumbu rempah khas Padang', ingredients: [inventoryIds[0], inventoryIds[13]] },
+        { productId: productIds[2], name: 'Ayam Bumbu Hitam', price: 9000, category: 'Lauk Ayam', description: 'Ayam potong goreng dengan bumbu hitam menggunakan kecap manis', ingredients: [inventoryIds[0], inventoryIds[13]] },
+
+        // LAUK IKAN
+        { productId: productIds[3], name: 'Ikan', price: 7000, category: 'Lauk Ikan', description: 'Ikan mas/nila segar goreng dengan bumbu tradisional', ingredients: [inventoryIds[1], inventoryIds[13]] },
+        { productId: productIds[4], name: 'Tongkol sambal merah', price: 5000, category: 'Lauk Ikan', description: 'Tongkol pindang dengan sambal merah cabai fresh', ingredients: [inventoryIds[2], inventoryIds[13]] },
+
+        // LAUK TELUR
+        { productId: productIds[5], name: 'Telur Balado', price: 5000, category: 'Lauk Telur', description: 'Telur rebus balado dengan cabai, pedas gurih', ingredients: [inventoryIds[3], inventoryIds[13]] },
+        { productId: productIds[6], name: 'Telur Dadar', price: 5000, category: 'Lauk Telur', description: 'Telur dadar gurih dengan bawang dan tomat', ingredients: [inventoryIds[3], inventoryIds[13]] },
+
+        // LAUK NABATI
+        { productId: productIds[7], name: 'Tahu', price: 3000, category: 'Lauk Nabati', description: 'Tahu kuning goreng dengan sambal kecap', ingredients: [inventoryIds[4], inventoryIds[13]] },
+        { productId: productIds[8], name: 'Tempe', price: 3000, category: 'Lauk Nabati', description: 'Tempe goreng crispy dengan sambal matah atau kecap', ingredients: [inventoryIds[5], inventoryIds[13]] },
+
+        // SAYUR
+        { productId: productIds[9], name: 'Terong Balado', price: 2000, category: 'Sayur', description: 'Terong goreng balado, pedas segar', ingredients: [inventoryIds[9], inventoryIds[13]] },
+        { productId: productIds[10], name: 'Oseng Toge', price: 3000, category: 'Sayur', description: 'Toge digoreng dengan bawang & cabai, renyah', ingredients: [inventoryIds[10], inventoryIds[13]] },
+        { productId: productIds[11], name: 'Sambal goreng kentang', price: 3000, category: 'Sayur', description: 'Kentang potong sambal goreng, gurih pedas', ingredients: [inventoryIds[11], inventoryIds[13]] },
+
+        // LAINNYA
+        { productId: productIds[12], name: 'Mie goreng', price: 3000, category: 'Lainnya', description: 'Mie telur goreng dengan telur & sayuran', ingredients: [inventoryIds[12], inventoryIds[13]] },
+        { productId: productIds[13], name: 'Nugget (instan)', price: 2000, category: 'Lainnya', description: 'Nugget ayam goreng, renyah hangat', ingredients: [inventoryIds[7], inventoryIds[13]] },
+        { productId: productIds[14], name: 'Usus', price: 5000, category: 'Lainnya', description: 'Usus ayam goreng kuning, gurih sedap', ingredients: [inventoryIds[6], inventoryIds[13]] },
+        { productId: productIds[14], name: 'Sosis kuah merah', price: 5000, category: 'Lainnya', description: 'Sosis kuah merah pedas, gurih dengan cabai', ingredients: [inventoryIds[8], inventoryIds[13]] },
+    ];
+
+    // Insert Products
     await prisma.product.createMany({
-        data: wartegMenus.map(({ ingredients, ...product }) => ({
-            ...product,
-            is_active:  true,
-            created_at: seedTimestamp,
-            updated_at: seedTimestamp,
-            created_by: ownerProfileId,
-            updated_by: ownerProfileId,
-            owned_by:   ownerUserId,
-        })),
-        skipDuplicates: true,
+        data: menus.map((m) => ({
+            id: m.productId,
+            name: m.name,
+            price: m.price,
+            category: m.category,
+            description: m.description,
+            image_uri: "",
+            is_active: true,
+            created_at: seedTimestamp, updated_at: seedTimestamp, created_by: ownerProfileId, updated_by: ownerProfileId, owned_by: ownerUserId,
+        })), skipDuplicates: true,
     });
 
+    // Insert Product_config
+    let configIndex = 0;
     await prisma.product_config.createMany({
-        data: wartegMenus.flatMap((menu) =>
-            menu.ingredients.map((ingredient) => ({
-                id:           `config-${menu.id}-${ingredient.inventory_id}`,
-                product_id:   menu.id,
-                inventory_id: ingredient.inventory_id,
-                operation:    'reduce',
-                value:        ingredient.value,
-                created_at:   seedTimestamp,
-                updated_at:   seedTimestamp,
-                created_by:   ownerProfileId,
-                updated_by:   ownerProfileId,
-                owned_by:     ownerUserId,
+        data: menus.flatMap((menu) =>
+            menu.ingredients.map((inv_id) => ({
+                id: productConfigIds[configIndex++],
+                product_id: menu.productId,
+                inventory_id: inv_id,
+                operation: 'REDUCE',
+                value: 1,
+                created_at: seedTimestamp, updated_at: seedTimestamp, created_by: ownerProfileId, updated_by: ownerProfileId, owned_by: ownerUserId,
             }))
-        ),
-        skipDuplicates: true,
+        ), skipDuplicates: true,
     });
 
-    console.log('✅ 20 menu warteg, product_config (ingredient mapping) seeded.');
-
-    console.log('🎉 Seeding complete!');
+    console.log('✅ 15 Produk menu seeded dengan UUID proper.');
+    console.log('🎉 Seeding complete! Toko Nazila siap operasional.');
 }
 
 main()

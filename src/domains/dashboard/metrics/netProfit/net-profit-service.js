@@ -3,11 +3,13 @@ import prisma from "../../../../config/db.js";
 
 class NetProfitService {
     async getChartData(startDate, endDate, ownedBy) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
         const orders = await prisma.order.findMany({
             where: {
                 created_at: {
-                    gte: startDate,
-                    lte: endDate,
+                    gte: start,
+                    lte: end,
                 },
                 owned_by: ownedBy,
                 status: { in: ["Paid"] },
@@ -18,20 +20,25 @@ class NetProfitService {
             },
         });
 
-        if (!orders || orders.length === 0) {
-            return {
-                totalGross: 0,
-                totalAdminFee: 0,
-                netProfit: 0,
-                startDate,
-                endDate,
-            };
+        const grouped = {};
+        for (const order of orders) {
+            const key = dayjs(order.created_at).format("YYYY-MM-DD");
+            if (!grouped[key]) grouped[key] = { totalGross: 0, totalAdminFee: 0, netProfit: 0 };
+            grouped[key].totalGross += order.total_gross;
+            grouped[key].totalAdminFee += order.Order_transaction?.admin_fee || 0;
+            grouped[key].netProfit += order.total_gross - (order.Order_transaction?.admin_fee || 0);
         }
 
-        const totalGross = orders.reduce((sum, order) => sum + order.total_gross, 0);
-        const totalAdminFee = orders.reduce((sum, order) => sum + (order.Order_transaction?.admin_fee || 0), 0);
+        const data = Object.entries(grouped).map(([date, val]) => ({
+            date,
+            ...val,
+        }));
+
+        const totalGross = data.reduce((sum, d) => sum + d.totalGross, 0);
+        const totalAdminFee = data.reduce((sum, d) => sum + d.totalAdminFee, 0);
 
         return {
+            data,
             totalGross,
             totalAdminFee,
             netProfit: totalGross - totalAdminFee,
@@ -78,12 +85,12 @@ class NetProfitService {
                 throw new Error("Invalid comparison mode");
         }
 
-        const current = await this.getNetProfitInRange(currentStart.toDate(), currentEnd.toDate(), ownedBy);
-        const previous = await this.getNetProfitInRange(prevStart.toDate(), prevEnd.toDate(), ownedBy);
+        const current = await this.getChartData(currentStart.toDate(), currentEnd.toDate(), ownedBy);
+        const previous = await this.getChartData(prevStart.toDate(), prevEnd.toDate(), ownedBy);
 
         return {
-            current,
-            previous,
+            current: { totalGross: current.totalGross, totalAdminFee: current.totalAdminFee, netProfit: current.netProfit },
+            previous: { totalGross: previous.totalGross, totalAdminFee: previous.totalAdminFee, netProfit: previous.netProfit },
             mode,
         };
     }
