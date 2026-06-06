@@ -1,0 +1,49 @@
+services:
+  api:
+    image: ghcr.io/${GITHUB_REPOSITORY}:${IMAGE_TAG}
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.api.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.api.entrypoints=https"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.middlewares=security-headers@file"
+      - "traefik.http.services.api.loadbalancer.server.port=${PORT}"
+    environment:
+      - PORT=${PORT}
+      - APP_NAME=${APP_NAME}
+      - APP_REVISION=${APP_REVISION}
+      - NODE_ENV=${APP_ENV}
+      - DATABASE_URL=${DATABASE_URL}
+      - FE_URL=${FE_URL}
+      - BE_URL=${BE_URL}
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - MIDTRANS_SERVER_KEY=${MIDTRANS_SERVER_KEY}
+      - MIDTRANS_CLIENT_KEY=${MIDTRANS_CLIENT_KEY}
+      - PAYMENT_GATEWAY_ENABLED=${PAYMENT_GATEWAY_ENABLED}
+      - QRIS_MITRA_URL=${QRIS_MITRA_URL}
+    deploy:
+      replicas: ${REPLICAS}
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${PORT}/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - traefik
+    restart: unless-stopped
+
+networks:
+  traefik:
+    external: true
