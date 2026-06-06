@@ -1,29 +1,26 @@
 import "dotenv/config";
 
-import { __dirname, __filename } from "./utils/path.js";
-
 import apicache from "apicache";
 import compression from "compression";
 import cors from "cors";
-import errorHandler from "./middlewares/error-handler-middleware.js";
 import express from "express";
+import { queryParser } from "express-query-parser";
 import helmet from "helmet";
 import logger from "./utils/logger.js";
 import morgan from "morgan";
 import path from "path";
-import { queryParser } from "express-query-parser";
-
 import BaseError from "./base_classes/base-error.js";
+import errorHandler from "./middlewares/error-handler-middleware.js";
 import routes from "./routes.js";
 import { startCancelPendingOrdersScheduler } from "./jobs/cancel-pending-orders.js";
 
 class ExpressApplication {
-  app;
-  fileStorage;
-  fileFilter;
-  constructor(port) {
-    this.app = express();
-    this.port = port;
+	app;
+	fileStorage;
+	fileFilter;
+	constructor(port) {
+		this.app = express();
+		this.port = port;
 
     this.app.use(express.json({ type: "application/json", limit: "10mb" }));
     this.app.use(queryParser({
@@ -49,30 +46,30 @@ class ExpressApplication {
     ]);
   }
 
-  setupMiddlewares(middlewaresArr) {
-    middlewaresArr.forEach((middleware) => {
-      this.app.use(middleware);
-    });
-  }
-  setupRoute() {
-    this.app.use("/api/", routes);
+	setupMiddlewares(middlewaresArr) {
+		middlewaresArr.forEach((middleware) => {
+			this.app.use(middleware);
+		});
+	}
+	setupRoute() {
+		this.app.use("/api/", routes);
 
-    this.app.use("/*", () => {
-      throw BaseError.notFound("Route not found");
-    });
-  }
+		this.app.use("/*", () => {
+			throw BaseError.notFound("Route not found");
+		});
+	}
 
-  configureAssets() {
-    this.app.use('/public', express.static(path.join(__filename, 'public')));
-  }
+	configureAssets() {
+		this.app.use("/public", express.static(path.join(__filename, "public")));
+	}
 
-  setupLibrary(libraries) {
-    libraries.forEach((library) => {
-      if (library != "" && library != null) {
-        this.app.use(library);
-      }
-    });
-  }
+	setupLibrary(libraries) {
+		libraries.forEach((library) => {
+			if (library != "" && library != null) {
+				this.app.use(library);
+			}
+		});
+	}
 
   start() {
     const server = this.app.listen(this.port, () => {

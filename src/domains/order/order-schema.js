@@ -1,4 +1,7 @@
-import Joi from "joi";
+import JoiDate from "@joi/date";
+import JoiBase from "joi";
+
+const Joi = JoiBase.extend(JoiDate);
 
 const orderSchema = {
     create: Joi.object({

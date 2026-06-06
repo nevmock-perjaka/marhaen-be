@@ -1,92 +1,97 @@
-import DiscountService from "./discount-service.js";
-import { successResponse, createdResponse } from "../../utils/response.js";
-import BaseError from "../../base_classes/base-error.js";
-import discountSchema from "./discount-schema.js";
 import Joi from "joi";
-import path from "path";
+import { createdResponse, successResponse } from "../../utils/response.js";
+import DiscountService from "./discount-service.js";
 
 class DiscountController {
-    async getAll(req, res) {
-        const userId =  req.user.id;
-        const discounts = await DiscountService.findAll(userId);
-        return successResponse(res, discounts);
-    }
+	async getAll(req, res) {
+		const userId = req.user.id;
+		const query = req.query;
+		const discounts = await DiscountService.findAll(userId, query);
+		return successResponse(
+			res,
+			discounts.data,
+			discounts.count,
+			discounts.meta,
+		);
+	}
 
-    async getById(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
-        const discount = await DiscountService.findById(id, userId);
-        return successResponse(res, discount);
-    }
+	async getById(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
+		const discount = await DiscountService.findById(id, userId);
+		return successResponse(res, discount);
+	}
 
-    async create(req, res) {
-        const value = req.body;
-        
-        value.owned_by = req.user.id;
-        value.created_by = req.profile.id;
-        value.updated_by = req.profile.id;
-        value.used = 0;
+	async create(req, res) {
+		const value = req.body;
 
-        value.start_at = new Date(value.start_at);
-        value.expired_at = new Date(value.expired_at);
+		value.owned_by = req.user.id;
+		value.created_by = req.profile.id;
+		value.updated_by = req.profile.id;
+		value.used = 0;
 
-        // console.log(new Date(), value.start_at);
-        if (value.start_at < new Date()) {
-            let validation = "";
-            let stack = [];
-            validation += "Start date must be greater than or equal to current date. ";
+		value.start_at = new Date(value.start_at);
+		value.expired_at = new Date(value.expired_at);
 
-            stack.push({
-                message: "Start date must be greater than or equal to current date.",
-                path: ["start_at"]
-            });
+		// console.log(new Date(), value.start_at);
+		if (value.start_at < new Date()) {
+			let validation = "";
+			const stack = [];
+			validation +=
+				"Start date must be greater than or equal to current date. ";
 
-            throw new Joi.ValidationError(validation, stack);
-        }
+			stack.push({
+				message: "Start date must be greater than or equal to current date.",
+				path: ["start_at"],
+			});
 
-        if (value.start_at >= value.expired_at) {
-            let validation = "";
-            let stack = [];
+			throw new Joi.ValidationError(validation, stack);
+		}
 
-            validation += "Start date must be less than expired date. ";
+		if (value.start_at >= value.expired_at) {
+			let validation = "";
+			const stack = [];
 
-            stack.push({
-                message: "Start date must be less than expired date.",
-                path: ["start_at"]
-            });
+			validation += "Start date must be less than expired date. ";
 
-            stack.push({
-                message: "Expired date must be greater than start date.",
-                path: ["expired_at"]
-            })
+			stack.push({
+				message: "Start date must be less than expired date.",
+				path: ["start_at"],
+			});
 
-            throw new Joi.ValidationError(validation, stack);
-        }
+			stack.push({
+				message: "Expired date must be greater than start date.",
+				path: ["expired_at"],
+			});
 
-        const created = await DiscountService.create(value);
-        return createdResponse(res, created);
-    }
+			throw new Joi.ValidationError(validation, stack);
+		}
 
-    async update(req, res) {
-        const { id } = req.params;
-        let value = req.body;
+		const created = await DiscountService.create(value);
+		return createdResponse(res, created);
+	}
 
-        value.updated_by = req.profile.id;
-        value.owned_by = req.user.id;
+	async update(req, res) {
+		const { id } = req.params;
+		const value = req.body;
 
-        value.start_at = new Date(value.start_at);
-        value.expired_at = new Date(value.expired_at);
+		value.updated_by = req.profile.id;
+		value.owned_by = req.user.id;
 
-        const updated = await DiscountService.update(id, value);
-        return successResponse(res, updated);
-    }
+		if (value.expired_at) {
+			value.expired_at = new Date(value.expired_at);
+		}
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
-        const deleted = await DiscountService.delete(id, userId);
-        return successResponse(res, deleted);
-    }
+		const updated = await DiscountService.update(id, value);
+		return successResponse(res, updated);
+	}
+
+	async delete(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
+		const deleted = await DiscountService.delete(id, userId);
+		return successResponse(res, deleted);
+	}
 }
 
 export default new DiscountController();

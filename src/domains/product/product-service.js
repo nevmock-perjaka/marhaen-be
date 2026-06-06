@@ -1,172 +1,170 @@
-import db from "../../config/db.js";
-import BaseError from "../../base_classes/base-error.js";
 import { readFileSync, unlinkSync } from "fs";
 import * as XLSX from "xlsx";
+import BaseError from "../../base_classes/base-error.js";
+import db from "../../config/db.js";
 import { buildQueryOptions } from "../../utils/buildQueryOptions.js";
 import productQueryConfig from "./product-query-config.js";
 
 class ProductService {
-    // async findAll(userId, query = {}) {
-    async findAll(userId) {
-        // const options = buildQueryOptions(productQueryConfig, query, userId);
-        // return await db.product.findMany(options);
-        return await db.product.findMany({
-            where: {
-                owned_by: userId
-            },
-            include: {
-                Add_on_group: {
-                    include: {
-                        Add_on: {
-                            include: {
-                                Add_on_config: {
-                                    include: {
-                                        inventory: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                Product_config: {
-                    include: {
-                        inventory: true
-                    }
-                }
-            },
-            orderBy: { created_at: 'desc' }
-        });
-    }
+	async findAll(userId, query) {
+		const options = buildQueryOptions(productQueryConfig, query, userId);
 
-    async findById(id, userId) {
-        const product = await db.product.findUnique({
-            where: { id },
-            include: {
-                Add_on_group: {
-                    include: {
-                        Add_on: {
-                            include: {
-                                Add_on_config: {
-                                    include: {
-                                        inventory: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                Product_config: {
-                    include: {
-                        inventory: true
-                    }
-                }
-            }
-        });
+		const [data, count] = await Promise.all([
+			db.product.findMany(options),
+			db.product.count({
+				where: options.where,
+			}),
+		]);
 
-        if (!product) throw BaseError.notFound("Product not found.");
+		const currentPage = query?.pagination?.page ?? 1;
+		const itemsPerPage = query?.pagination?.limit ?? 10;
+		const totalPages = Math.ceil(count / itemsPerPage);
 
-        if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
-        
-        return product;
-    }
+		return {
+			data,
+			meta:
+				query?.pagination?.page && query?.pagination?.limit
+					? {
+							totalItems: count,
+							totalPages,
+							currentPage,
+							itemsPerPage,
+						}
+					: null,
+			count: data.length,
+		};
+	}
 
-    async create(data) {
-        return await db.product.create({ data });
-    }
+	async findById(id, userId) {
+		const product = await db.product.findUnique({
+			where: { id },
+			include: {
+				Add_on_group: {
+					include: {
+						Add_on: {
+							include: {
+								Add_on_config: {
+									include: {
+										inventory: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				Product_config: {
+					include: {
+						inventory: true,
+					},
+				},
+			},
+		});
 
-    async update(id, data) {
-        await this.checkPermission(id, data.owned_by)
+		if (!product) throw BaseError.notFound("Product not found.");
 
-        return await db.product.update({
-            where: { id },
-            data
-        });
-    }
+		if (product.owned_by !== userId)
+			throw BaseError.forbidden("You are not allowed to access this product.");
 
-    async softDelete(id, userId) {
-        await this.checkPermission(id, userId);
-        return await db.product.update({
-            where: { id },
-            data: { deleted_at: new Date() }
-        });
-    }
+		return product;
+	}
 
-    async delete(id, userId) {
-        await this.checkPermission(id, userId);
+	async create(data) {
+		return await db.product.create({ data });
+	}
 
-        return await db.product.delete({
-            where: { id }
-        });
-    }
+	async update(id, data) {
+		await this.checkPermission(id, data.owned_by);
 
-    async checkPermission(id, userId) {
-        const product = await db.product.findUnique({
-            where: { id },
-        });
+		return await db.product.update({
+			where: { id },
+			data,
+		});
+	}
 
-        if (!product) throw BaseError.notFound("Product not found.");
-        if (product.owned_by !== userId) throw BaseError.forbidden("You are not allowed to access this product.");
-    }
+	async softDelete(id, userId) {
+		await this.checkPermission(id, userId);
+		return await db.product.update({
+			where: { id },
+			data: { deleted_at: new Date() },
+		});
+	}
 
-    async import(filePath, userId, profileId) {
-        const fileBuffer = readFileSync(filePath);
-        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+	async delete(id, userId) {
+		await this.checkPermission(id, userId);
 
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
+		return await db.product.delete({
+			where: { id },
+		});
+	}
 
-        const products = XLSX.utils.sheet_to_json(sheet);
+	async checkPermission(id, userId) {
+		const product = await db.product.findUnique({
+			where: { id },
+		});
 
-        const createdProducts = [];
+		if (!product) throw BaseError.notFound("Product not found.");
+		if (product.owned_by !== userId)
+			throw BaseError.forbidden("You are not allowed to access this product.");
+	}
 
-        let status = {
-            success: 0,
-            failed: 0,
-            skipped: 0,
-            total: products.length,
-        }
+	async import(filePath, userId, profileId) {
+		const fileBuffer = readFileSync(filePath);
+		const workbook = XLSX.read(fileBuffer, { type: "buffer" });
 
-        for (const item of products) {
-            const { name, price, description, category, image_uri } = item;
+		const sheetName = workbook.SheetNames[0];
+		const sheet = workbook.Sheets[sheetName];
 
-            if (!name || !price || !category || !image_uri || !description) {
-                console.warn("Skipping invalid row:", item);
-                status.skipped++;
-                continue;
-            }
+		const products = XLSX.utils.sheet_to_json(sheet);
 
-            // Simpan ke DB
-            try {
-                const product = await db.product.create({
-                    data: {
-                        name,
-                        price: Number(price),
-                        description,
-                        category,
-                        image_uri: "/public/product/" + image_uri,
-                        is_active: true,
-                        created_by: profileId,
-                        updated_by: profileId,
-                        owned_by: userId,
-                    },
-                });
-                status.success++;
-                createdProducts.push(product);
-            } catch (error) {
-                console.error("Error creating product:", error);
-                status.failed++;
-                continue;
-            }
-        }
-        // Hapus file setelah import
-        try {
-            unlinkSync(filePath);
-        } catch (error) {
-            console.error("Error deleting file:", error);
-        }
+		const createdProducts = [];
 
-        return status;
-    }
+		const status = {
+			success: 0,
+			failed: 0,
+			skipped: 0,
+			total: products.length,
+		};
+
+		for (const item of products) {
+			const { name, price, description, category, image_uri } = item;
+
+			if (!name || !price || !category || !image_uri || !description) {
+				console.warn("Skipping invalid row:", item);
+				status.skipped++;
+				continue;
+			}
+
+			// Simpan ke DB
+			try {
+				const product = await db.product.create({
+					data: {
+						name,
+						price: Number(price),
+						description,
+						category,
+						image_uri: "/public/product/" + image_uri,
+						is_active: true,
+						created_by: profileId,
+						updated_by: profileId,
+						owned_by: userId,
+					},
+				});
+				status.success++;
+				createdProducts.push(product);
+			} catch (error) {
+				console.error("Error creating product:", error);
+				status.failed++;
+			}
+		}
+		// Hapus file setelah import
+		try {
+			unlinkSync(filePath);
+		} catch (error) {
+			console.error("Error deleting file:", error);
+		}
+
+		return status;
+	}
 }
 
 export default new ProductService();

@@ -1,0 +1,76 @@
+# name: CI/CD Development
+
+# on:
+#   push:
+#     branches:
+#       - stag
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     environment: Development
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+ 
+#       - name: Install dependencies
+#         run: npm install
+
+#       - name: Docker Login
+#         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+#       - name: Build Docker Image
+#         run: docker build -t nevmock/marhaen-api-stag:latest .
+
+#       - name: Push Docker Image
+#         run: docker push nevmock/marhaen-api-stag:latest
+
+#       - name: Deploy to Server
+#         uses: appleboy/ssh-action@master
+#         env:
+#           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+#           BE_URL: ${{ secrets.BE_URL }}
+#           EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+#           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+#           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+#           MIDTRANS_SERVER_KEY: ${{ secrets.MIDTRANS_SERVER_KEY }}
+#           MIDTRANS_CLIENT_KEY: ${{ secrets.MIDTRANS_CLIENT_KEY }}
+#           ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+#           IV_SECRET: ${{ secrets.IV_SECRET }}
+#           PORT: ${{ secrets.PORT }}
+#         with:
+#           host: ${{ secrets.HOST }}
+#           username: ${{ secrets.USERNAME }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             echo "🔁 Pulling Docker image..."
+#             docker pull nevmock/marhaen-api-stag:latest
+
+#             echo "🛑 Stopping and removing old container (if exists)..."
+#             docker stop marhaen-api-stag || true
+#             docker rm marhaen-api-stag || true
+
+#             echo "🚀 Running new container..."
+#             docker run -d \
+#               --name marhaen-api-stag \
+#               --network dev-postgresql-network \
+#               --restart unless-stopped \
+#               -e PORT=3000 \
+#               -e DATABASE_URL="$DATABASE_URL" \
+#               -e BE_URL="$BE_URL" \
+#               -e EMAIL_USERNAME="$EMAIL_USERNAME" \
+#               -e EMAIL_PASSWORD="$EMAIL_PASSWORD" \
+#               -e JWT_SECRET="$JWT_SECRET" \
+#               -e MIDTRANS_SERVER_KEY="$MIDTRANS_SERVER_KEY" \
+#               -e MIDTRANS_CLIENT_KEY="$MIDTRANS_CLIENT_KEY" \
+#               -e ENCRYPTION_KEY="$ENCRYPTION_KEY" \
+#               -e IV_SECRET="$IV_SECRET" \
+#               -p "$PORT":3000 \
+#               nevmock/marhaen-api-stag:latest
+

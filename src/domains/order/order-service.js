@@ -1,4 +1,4 @@
-import db from "../../config/db.js";
+import crypto from "crypto";
 import BaseError from "../../base_classes/base-error.js";
 
 class OrderService {

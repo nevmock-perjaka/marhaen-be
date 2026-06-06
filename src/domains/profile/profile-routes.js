@@ -1,8 +1,4 @@
 import BaseRoutes from "../../base_classes/base-routes.js";
-import ProfileController from "./profile-controller.js";
-
-import tryCatch from "../../utils/tryCatcher.js";
-import validateCredentials from '../../middlewares/validate-credentials-middleware.js';
 import authTokenMiddleware from "../../middlewares/auth-token-middleware.js";
 import { changePasswordSchema, changePinSchema, loginSchema, resetPinSchema, updateQrisCodeSchema } from "./profile-schema.js";
 

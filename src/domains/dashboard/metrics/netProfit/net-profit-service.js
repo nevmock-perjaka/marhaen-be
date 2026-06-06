@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 import prisma from "../../../../config/db.js";
+import ingredientCostService from "../ingredientCost/ingredient-cost-service.js";
+import salesPerformanceService from "../salesPerformance/sales-performance-service.js";
 
 class NetProfitService {
     async getChartData(startDate, endDate, ownedBy) {

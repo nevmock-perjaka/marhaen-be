@@ -1,84 +1,87 @@
-import db from "../../config/db.js";
 import BaseError from "../../base_classes/base-error.js";
-import { successResponse, createdResponse } from "../../utils/response.js";
-import ProductService from "./product-service.js";
+import db from "../../config/db.js";
 import uploadFile from "../../middlewares/upload-file-middleware.js";
+import { createdResponse, successResponse } from "../../utils/response.js";
+import ProductService from "./product-service.js";
 
 class ProductController {
-    async getAll(req, res) {
-        const userId = req.user.id;
-        // const query = req.query;
-        const products = await ProductService.findAll(userId);
-        // const products = await ProductService.findAll(userId, query);
+	async getAll(req, res) {
+		const userId = req.user.id;
+		const query = req.query;
 
-        return successResponse(res, products);
-    }
+		const products = await ProductService.findAll(userId, query);
 
-    async getById(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
-        
-        const product = await ProductService.findById(id, userId);
+		return successResponse(res, products.data, products.count, products.meta);
+	}
 
-        return successResponse(res, product);
-    }
+	async getById(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
 
-    async create(req, res) {
-        const value = req.body;
+		const product = await ProductService.findById(id, userId);
 
-        value.owned_by = req.user.id;
-        value.created_by = req.profile.id;
-        value.updated_by = req.profile.id;
+		return successResponse(res, product);
+	}
 
-        const created = await ProductService.create(value);
-        return createdResponse(res, created);
-    }
+	async create(req, res) {
+		const value = req.body;
 
-    async update(req, res) {
-        const { id } = req.params;
-        let value = req.body;
+		value.owned_by = req.user.id;
+		value.created_by = req.profile.id;
+		value.updated_by = req.profile.id;
 
-        value.updated_by = req.profile.id;
-        value.owned_by = req.user.id;
+		const created = await ProductService.create(value);
+		return createdResponse(res, created);
+	}
 
-        const updated = await ProductService.update(id, value);
+	async update(req, res) {
+		const { id } = req.params;
+		const value = req.body;
 
-        return successResponse(res, updated);
-    }
+		value.updated_by = req.profile.id;
+		value.owned_by = req.user.id;
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
-        const deleted = await ProductService.softDelete(id, userId);
+		const updated = await ProductService.update(id, value);
 
-        return successResponse(res, deleted);
-    }
+		return successResponse(res, updated);
+	}
 
-    async uploadImage(req, res) {
-        if (!req.file) {
-            throw new BaseError("No file uploaded", 400);
-        }
+	async delete(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
+		const deleted = await ProductService.softDelete(id, userId);
 
-        const relativePath = `/public/product/${req.file.filename}`;
+		return successResponse(res, deleted);
+	}
 
-        return successResponse(res, relativePath);
-    }
+	async uploadImage(req, res) {
+		if (!req.file) {
+			throw new BaseError("No file uploaded", 400);
+		}
 
-    async import(req, res) {
-        if (!req.file) {
-            throw new BaseError("No file uploaded", 400);
-        }
+		const relativePath = `/public/product/${req.file.filename}`;
 
-        const filePath = req.file.path;
-        const userId = req.user.id;
-        const profileId = req.profile.id;
+		return successResponse(res, relativePath);
+	}
 
-        // Call the service to handle the import logic
-        const importedProducts = await ProductService.import(filePath, userId, profileId);
+	async import(req, res) {
+		if (!req.file) {
+			throw new BaseError("No file uploaded", 400);
+		}
 
-        return createdResponse(res, importedProducts);
+		const filePath = req.file.path;
+		const userId = req.user.id;
+		const profileId = req.profile.id;
 
-    }
+		// Call the service to handle the import logic
+		const importedProducts = await ProductService.import(
+			filePath,
+			userId,
+			profileId,
+		);
+
+		return createdResponse(res, importedProducts);
+	}
 }
 
 export default new ProductController();

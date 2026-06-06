@@ -1,11 +1,10 @@
-import BaseError from "../../base_classes/base-error.js";
-
-import { generateVerifEmail } from "../../utils/bodyEmail.js";
-import sendEmail from "../../utils/sendEmail.js";
 import joi from "joi";
+import BaseError from "../../base_classes/base-error.js";
 import db from "../../config/db.js";
-import { parseJWT, generateToken } from "../../utils/jwtTokenConfig.js";
-import { matchPassword, hashPassword } from "../../utils/passwordConfig.js";
+import { generateVerifEmail } from "../../utils/bodyEmail.js";
+import { generateToken, parseJWT } from "../../utils/jwtTokenConfig.js";
+import { hashPassword, matchPassword } from "../../utils/passwordConfig.js";
+import sendEmail from "../../utils/sendEmail.js";
 
 class AuthService {
     async login(email, password) {

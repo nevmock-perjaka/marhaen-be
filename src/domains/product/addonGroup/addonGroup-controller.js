@@ -1,99 +1,104 @@
 import Joi from "joi";
-import { successResponse, createdResponse } from "../../../utils/response.js";
+import { createdResponse, successResponse } from "../../../utils/response.js";
 import productService from "../product-service.js";
 import AddonGroupService from "./addonGroup-service.js";
 
 class AddonGroupController {
-    async getAll(req, res) {
-        const userId = req.user.id;
-        const groups = await AddonGroupService.findAll(userId)
+	async getAll(req, res) {
+		const userId = req.user.id;
+		const query = req.query;
+		const groups = await AddonGroupService.findAll(userId, query);
+		return successResponse(res, groups.data, groups.count, groups.meta);
+	}
 
-        return successResponse(res, groups);
-    }
+	async getById(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
 
-    async getById(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
+		const group = await AddonGroupService.findById(id, userId);
+		return successResponse(res, group);
+	}
 
-        const group = await AddonGroupService.findById(id, userId);
-        return successResponse(res, group);
-    }
+	async create(req, res) {
+		const value = req.body;
 
-    async create(req, res) {
-        const value = req.body;
-        
-        value.owned_by = req.user.id;
-        value.created_by = req.profile.id;
-        value.updated_by = req.profile.id;
-        
-        if (value.add_ons.length > value.max_selection) {
-            let validation = "";
-            let stack = [];
+		value.owned_by = req.user.id;
+		value.created_by = req.profile.id;
+		value.updated_by = req.profile.id;
 
-            validation += `You can only input a maximum of ${value.max_selection} add-ons.`;
+		if (value.add_ons.length > value.max_selection) {
+			let validation = "";
+			const stack = [];
 
-            stack.push({
-                message: `You can only input a maximum of ${value.max_selection} add-ons.`,
-                path: ["add_ons"]
-            });
-        }
+			validation += `You can only input a maximum of ${value.max_selection} add-ons.`;
 
-        try {
-            await productService.findById(value.product_id, value.owned_by);
-        } catch (error) {
-            let validation = "";
-            let stack = [];
+			stack.push({
+				message: `You can only input a maximum of ${value.max_selection} add-ons.`,
+				path: ["add_ons"],
+			});
+		}
 
-            validation += "Product not found.";
+		try {
+			await productService.findById(value.product_id, value.owned_by);
+		} catch (error) {
+			let validation = "";
+			const stack = [];
 
-            stack.push({
-                message: "Product not found.",
-                path: ["product_id"]
-            });
-            throw new Joi.ValidationError(validation, stack);
-        }
+			validation += "Product not found.";
 
-        value.Add_on = {};
-        value.Add_on.createMany = {
-            data: value.add_ons.map(addon => {
-                addon.owned_by = req.user.id;
-                addon.created_by = req.profile.id;
-                addon.updated_by = req.profile.id;
-                return addon;
-            })
-        };
+			stack.push({
+				message: "Product not found.",
+				path: ["product_id"],
+			});
+			throw new Joi.ValidationError(validation, stack);
+		}
 
-        delete value.add_ons; // remove add_ons from value as it is now in Add_on.createMany
+		value.Add_on = {};
+		value.Add_on.createMany = {
+			data: value.add_ons.map((addon) => {
+				addon.owned_by = req.user.id;
+				addon.created_by = req.profile.id;
+				addon.updated_by = req.profile.id;
+				return addon;
+			}),
+		};
 
-        const created = await AddonGroupService.create(value);
-        return createdResponse(res, created);
-    }
+		delete value.add_ons; // remove add_ons from value as it is now in Add_on.createMany
 
-    async update(req, res) {
-        const { id } = req.params;
-        let value = req.body;
+		const created = await AddonGroupService.create(value);
+		return createdResponse(res, created);
+	}
 
-        value.updated_by = req.profile.id;
-        value.owned_by = req.user.id;
+	async update(req, res) {
+		const { id } = req.params;
+		const value = req.body;
 
-        const updateAddOn = value.add_ons.filter(addon => addon.id);
-        const createAddOn = value.add_ons.filter(addon => !addon.id);
+		value.updated_by = req.profile.id;
+		value.owned_by = req.user.id;
 
-        delete value.add_ons; // remove add_ons from value as it will be handled separately
+		const updateAddOn = value.add_ons.filter((addon) => addon.id);
+		const createAddOn = value.add_ons.filter((addon) => !addon.id);
 
-        const updated = await AddonGroupService.update(id, value, updateAddOn, createAddOn);
+		delete value.add_ons; // remove add_ons from value as it will be handled separately
 
-        return successResponse(res, updated);
-    }
+		const updated = await AddonGroupService.update(
+			id,
+			value,
+			updateAddOn,
+			createAddOn,
+		);
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const userId = req.user.id;
+		return successResponse(res, updated);
+	}
 
-        const deleted = await AddonGroupService.delete(id, userId);
+	async delete(req, res) {
+		const { id } = req.params;
+		const userId = req.user.id;
 
-        return successResponse(res, deleted);
-    }
+		const deleted = await AddonGroupService.delete(id, userId);
+
+		return successResponse(res, deleted);
+	}
 }
 
 export default new AddonGroupController();

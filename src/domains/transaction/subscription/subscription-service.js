@@ -1,203 +1,244 @@
 // import BaseError from '../../../base_classes/base-error.js';
-import BaseError from '../../../base_classes/base-error.js';
-import db from '../../../config/db.js';
-import { midtransSnap } from '../../../config/midtrans.js';
+import BaseError from "../../../base_classes/base-error.js";
+import db from "../../../config/db.js";
+import { midtransSnap } from "../../../config/midtrans.js";
 
 class SubscriptionService {
-    async createSnap(plan_id, user) {
-        return db.$transaction(async (tx) => {
-            const plan = await tx.plan.findUnique({
-                where: {
-                    id: plan_id
-                }
-            });
+	async createSnap(plan_id, user) {
+		return db.$transaction(async (tx) => {
+			const plan = await tx.plan.findUnique({
+				where: {
+					id: plan_id,
+				},
+			});
 
-            if (!plan) {
-                throw BaseError.badRequest("Plan not found");
-            }
+			if (!plan) {
+				throw BaseError.badRequest("Plan not found");
+			}
 
-            const subscription_transaction = await tx.subscription_transaction.create({
-                data: {
-                    user_id: user.id,
-                    level: plan.level,
-                    days: plan.days,
-                }
-            });
+			const subscription_transaction = await tx.subscription_transaction.create(
+				{
+					data: {
+						user_id: user.id,
+						level: plan.level,
+						days: plan.days,
+						level_name: plan.name,
+					},
+				},
+			);
 
-            if (!subscription_transaction) {
-                throw BaseError.badRequest("Failed to create subscription transaction");
-            }
+			if (!subscription_transaction) {
+				throw BaseError.badRequest("Failed to create subscription transaction");
+			}
 
-            const parameter = {
-                transaction_details: {
-                    order_id: subscription_transaction.id,
-                    gross_amount: plan.price + Math.ceil(plan.price * 0.007),
-                },
-                credit_card: {
-                    secure: true,
-                },
-                customer_details: {
-                    first_name: user.name,
-                    email: user.email,
-                    phone: user.phone_number,
-                },
-                enabled_payments: [
-                    'other_qris',
-                    'bank_transfer'
-                ],
-                item_details: [
-                    {
-                        id: plan.id,
-                        price: plan.price,
-                        quantity: 1,
-                        name: `${plan.name} ${plan.days} Days`,
-                    },
-                    {
-                        id: 'admin_fee',
-                        price: Math.ceil(plan.price * 0.007),
-                        quantity: 1,
-                        name: 'Transaction Fee',
-                    }
-                ],   
-                metadata: {
-                    "type": "subscription",
-                    "id": subscription_transaction.id,
-                }
-            };
+			const site_config = await tx.site_config.findFirst();
 
-            const snap = await midtransSnap.createTransaction(parameter);
+			if (!site_config)
+				throw BaseError.badRequest("Site configuration not found");
 
-            if (!snap) {
-                throw new Error("Failed to create snap");
-            }
+			const adminFee = Math.ceil(plan.price * 0.007);
+			const taxFee = Math.ceil((plan.price * site_config.ppn_percentage) / 100);
+			const grossAmount = plan.price + adminFee + taxFee;
 
-            await tx.subscription_transaction.update({
-                where: {
-                    id: subscription_transaction.id
-                },
-                data: {
-                    transaction_token: snap.token,
-                    redirect_url: snap.redirect_url,
-                    gross_amount: plan.price + Math.ceil(plan.price * 0.007),
-                    admin_fee: Math.ceil(plan.price * 0.007),
-                }
-            })
+			const parameter = {
+				transaction_details: {
+					order_id: subscription_transaction.id,
+					gross_amount: grossAmount,
+				},
+				credit_card: {
+					secure: true,
+				},
+				customer_details: {
+					first_name: user.name,
+					email: user.email,
+					phone: user.phone_number,
+				},
+				enabled_payments: ["other_qris"],
+				item_details: [
+					{
+						id: plan.id,
+						price: plan.price,
+						quantity: 1,
+						name: `${plan.name} ${plan.days} Days`,
+					},
+					{
+						id: "admin_fee",
+						price: adminFee,
+						quantity: 1,
+						name: "Admin Fee",
+					},
+					{
+						id: "tax_fee",
+						price: taxFee,
+						quantity: 1,
+						name: "Tax Fee",
+					},
+				],
+				metadata: {
+					type: "subscription",
+					id: subscription_transaction.id,
+				},
+			};
 
-            return snap;
-        })
-    }
+			const snap = await midtransSnap.createTransaction(parameter);
 
-    async updateSubscriptionTransaction(data){
-        const subscription_transaction = await db.subscription_transaction.findUnique({
-            where: {
-                id: data.metadata.id
-            }
-        })
-        console.log(`Transaction notification received. Order ID: ${data.order_id}. Transaction status: ${data.transaction_status}. Fraud status: ${data.fraud_status}`);
+			if (!snap) {
+				throw new Error("Failed to create snap");
+			}
 
-        if (!subscription_transaction) {
-            throw BaseError.badRequest("Subscription transaction not found");
-        }
+			await tx.subscription_transaction.update({
+				where: {
+					id: subscription_transaction.id,
+				},
+				data: {
+					transaction_token: snap.token,
+					redirect_url: snap.redirect_url,
+					gross_amount: grossAmount,
+					admin_fee: adminFee,
+					ppn_fee: taxFee,
+					ppn_percentage: site_config.ppn_percentage,
+				},
+			});
 
-        if (data.transaction_status === 'capture') {
-            if (data.fraud_status === 'accept'){
-                await db.subscription_transaction.update({
-                    where: {
-                        id: subscription_transaction.id
-                    },
-                    data: {
-                        status: data.transaction_status,
-                    }
-                });
+			return snap;
+		});
+	}
 
-                const user = await db.user.findUnique({
-                    where: {
-                        id: subscription_transaction.user_id
-                    }
-                })
+	async updateSubscriptionTransaction(data) {
+		const subscription_transaction =
+			await db.subscription_transaction.findUnique({
+				where: {
+					id: data.metadata.id,
+				},
+			});
+		console.log(
+			`Transaction notification received. Order ID: ${data.order_id}. Transaction status: ${data.transaction_status}. Fraud status: ${data.fraud_status}`,
+		);
 
-                const new_expired_date = () => {
-                    const now = new Date();
-                    const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
+		if (!subscription_transaction) {
+			throw BaseError.badRequest("Subscription transaction not found");
+		}
 
-                    if (user.subs_expired_at === null || new Date(user.subs_expired_at) <= now) {
-                        return new Date(now.getTime() + daysToMs);
-                    } else {
-                        return new Date(new Date(user.subs_expired_at).getTime() + daysToMs);
-                    }
-                };
+		if (data.transaction_status === "capture") {
+			if (data.fraud_status === "accept") {
+				await db.subscription_transaction.update({
+					where: {
+						id: subscription_transaction.id,
+					},
+					data: {
+						status: data.transaction_status,
+						paid_at: new Date(),
+					},
+				});
 
-                await db.user.update({
-                    where: {
-                        id: user.id
-                    },
-                    data: {
-                        subs_level: subscription_transaction.level,
-                        subs_expired_at: new_expired_date(),
-                    }
-                })
-            }
-        } else if (data.transaction_status === 'settlement') {
-            await db.subscription_transaction.update({
-                where: {
-                    id: subscription_transaction.id
-                },
-                data: {
-                    status: data.transaction_status,
-                } 
-            });
-            const user = await db.user.findUnique({
-                where: {
-                    id: subscription_transaction.user_id
-                }
-            })
+				const user = await db.user.findUnique({
+					where: {
+						id: subscription_transaction.user_id,
+					},
+				});
 
-            const new_expired_date = () => {
-                const now = new Date();
-                const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
+				const new_expired_date = () => {
+					const now = new Date();
+					const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
 
-                if (user.subs_expired_at === null || new Date(user.subs_expired_at) <= now) {
-                    return new Date(now.getTime() + daysToMs);
-                } else {
-                    return new Date(new Date(user.subs_expired_at).getTime() + daysToMs);
-                }
-            };
+					return new Date(now.getTime() + daysToMs);
+				};
 
-            await db.user.update({
-                where: {
-                    id: user.id
-                },
-                data: {
-                    subs_level: subscription_transaction.level,
-                    subs_expired_at: new_expired_date(),
-                }
-            })
+				await db.user.update({
+					where: {
+						id: user.id,
+					},
+					data: {
+						subs_level: subscription_transaction.level,
+						subs_expired_at: new_expired_date(),
+					},
+				});
+			}
+		} else if (data.transaction_status === "settlement") {
+			await db.subscription_transaction.update({
+				where: {
+					id: subscription_transaction.id,
+				},
+				data: {
+					status: data.transaction_status,
+					paid_at: new Date(),
+				},
+			});
+			const user = await db.user.findUnique({
+				where: {
+					id: subscription_transaction.user_id,
+				},
+			});
 
-        } else if (data.transaction_status === 'cancel' || data.transaction_status === 'deny' || data.transaction_status === 'expire') {
-            await db.subscription_transaction.update({
-                where: {
-                    id: subscription_transaction.id
-                },
-                data: {
-                    status: data.transaction_status,
-                } 
-            });
+			const new_expired_date = () => {
+				const now = new Date();
+				const daysToMs = subscription_transaction.days * 24 * 60 * 60 * 1000;
+				return new Date(now.getTime() + daysToMs);
+			};
 
-        } else if (data.transaction_status === 'pending') {
-            await db.subscription_transaction.update({
-                where: {
-                    id: subscription_transaction.id
-                },
-                data: {
-                    order_id: data.transaction_id,
-                    status: data.transaction_status,
-                    payment_method: data.payment_type,
-                } 
-            });
-        }
+			await db.user.update({
+				where: {
+					id: user.id,
+				},
+				data: {
+					subs_level: subscription_transaction.level,
+					subs_expired_at: new_expired_date(),
+				},
+			});
+		} else if (
+			data.transaction_status === "cancel" ||
+			data.transaction_status === "deny" ||
+			data.transaction_status === "expire"
+		) {
+			await db.subscription_transaction.update({
+				where: {
+					id: subscription_transaction.id,
+				},
+				data: {
+					status: data.transaction_status,
+				},
+			});
+		} else if (data.transaction_status === "pending") {
+			await db.subscription_transaction.update({
+				where: {
+					id: subscription_transaction.id,
+				},
+				data: {
+					order_id: data.transaction_id,
+					status: data.transaction_status,
+					payment_method: data.payment_type,
+				},
+			});
+		}
 
-        return true;
-    }
+		return true;
+	}
+
+	async findAll(userId) {
+		return db.subscription_transaction.findMany({
+			where: {
+				user_id: userId,
+				status: {
+					in: ["capture", "settlement"],
+				},
+			},
+			orderBy: {
+				created_at: "desc",
+			},
+			select: {
+				id: true,
+				level: true,
+				days: true,
+				level_name: true,
+				paid_at: true,
+				created_at: true,
+				gross_amount: true,
+				admin_fee: true,
+				ppn_fee: true,
+				ppn_percentage: true,
+			},
+		});
+	}
 }
 
 export default new SubscriptionService();

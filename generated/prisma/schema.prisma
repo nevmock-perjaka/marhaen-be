@@ -1,0 +1,483 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  email           String    @unique
+  password        String
+  phone_number    String?
+  is_banned       Boolean   @default(false)
+  subs_expired_at DateTime?
+  subs_level      Int       @default(0)
+  tax_percentage  Float     @default(0)
+  verified_at     DateTime?
+  strict_mode     Boolean   @default(false)
+  logo_uri        String?
+  tiktok          String?
+  instagram       String?
+  facebook        String?
+  x               String?
+  wifi_name       String?
+  wifi_password   String?
+  address         String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  profiles                  Profile[]
+  system_logs               System_log[]
+  subscription_transactions Subscription_transaction[]
+  midtrans_user             Midtrans_User[]
+}
+
+model Midtrans_User {
+  id            String  @id @default(uuid())
+  user_id       String  @unique
+  server_key    String?
+  client_key    String?
+  is_production Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  created_by String
+  updated_by String
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Profile {
+  id      String  @id @default(uuid())
+  user_id String
+  role    Role
+  pin     String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+enum Role {
+  OWNER
+  STAFF
+  CASHIER
+}
+
+model Otp {
+  id         String   @id @default(uuid())
+  email      String
+  otp_code   Int
+  expired_at DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Plan {
+  id          String  @id @default(uuid())
+  prefix_code String?
+  name        String
+  days        Int     @default(30)
+  price       Int     @default(0)
+  level       Int
+  is_active   Boolean @default(false)
+  description String?
+  index       Int?    @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Site_config {
+  id             String @id @default(uuid())
+  ppn_percentage Float  @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Subscription_transaction {
+  id      String @id @default(uuid())
+  user_id String
+
+  level      Int // Subscription level
+  days       Int // Subscription duration in days
+  level_name String // Name of the subscription level
+  paid_at    DateTime? // Timestamp when the payment was made
+
+  order_id          String? @unique // Midtrans order_id
+  transaction_token String? // Snap token
+  redirect_url      String? // URL to redirect to payment page
+
+  gross_amount   Float? // Amount in IDR
+  admin_fee      Float? // Admin fee in IDR
+  ppn_fee        Float? // PPN fee in IDR
+  ppn_percentage Float? // PPN percentage
+  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
+  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model System_log {
+  id          String  @id @default(uuid())
+  user_id     String?
+  ip_address  String?
+  device      String?
+  action      String?
+  method      String?
+  description String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+}
+
+model Product {
+  id          String  @id @default(uuid())
+  name        String
+  price       Float
+  description String
+  category    String
+  image_uri   String
+  is_active   Boolean
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+  deleted_at DateTime?
+
+  Order_item       Order_item[]
+  Add_on_group     Add_on_group[]
+  Product_config   Product_config[]
+  Product_discount Product_discount[]
+}
+
+model Discount {
+  id               String   @id @default(uuid())
+  description      String?
+  is_percentage    Boolean?
+  value            Float
+  max_discount     Float?
+  min_order_amount Float
+  shareable_code   String
+  max_use          Int?
+  used             Int
+  start_at         DateTime
+  expired_at       DateTime
+  is_active        Boolean
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  created_by       String
+  updated_by       String
+  owned_by         String
+
+  Product_discount Product_discount[]
+  Order            Order[]
+}
+
+model Product_discount {
+  id          String   @id @default(uuid())
+  product_id  String
+  discount_id String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  created_by  String
+  updated_by  String
+  owned_by    String
+
+  product  Product  @relation(fields: [product_id], references: [id])
+  discount Discount @relation(fields: [discount_id], references: [id])
+}
+
+model Product_config {
+  id           String @id @default(uuid())
+  product_id   String
+  inventory_id String
+  operation    String
+  value        Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  product   Product   @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventory_id], references: [id], onDelete: Cascade)
+}
+
+model Add_on {
+  id              String  @id @default(uuid())
+  add_on_group_id String
+  name            String
+  price           Float
+  is_active       Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  add_on_group      Add_on_group        @relation(fields: [add_on_group_id], references: [id], onDelete: Cascade)
+  Add_on_config     Add_on_config[]
+  Order_item_add_on Order_item_add_on[]
+}
+
+model Add_on_group {
+  id            String  @id @default(uuid())
+  product_id    String
+  name          String
+  is_required   Boolean
+  max_selection Int
+  is_active     Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  product Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  Add_on  Add_on[]
+}
+
+model Add_on_config {
+  id           String @id @default(uuid())
+  add_on_id    String
+  inventory_id String
+  operation    String
+  value        Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  add_on    Add_on    @relation(fields: [add_on_id], references: [id], onDelete: Cascade)
+  inventory Inventory @relation(fields: [inventory_id], references: [id])
+}
+
+model Inventory {
+  id           String @id @default(uuid())
+  product_name String
+  description  String
+  category     String
+  unit_type    String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Input_history  Input_history[]
+  Product_config Product_config[]
+  Add_on_config  Add_on_config[]
+}
+
+model Input_history {
+  id             String   @id @default(uuid())
+  supplier_id    String
+  inventory_id   String
+  shipping_fee   Float
+  price          Float
+  total_stock    Int
+  current_stock  Int
+  input_datetime DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  supplier  Supplier?  @relation(fields: [supplier_id], references: [id])
+  inventory Inventory? @relation(fields: [inventory_id], references: [id])
+
+  Stock_log Stock_log[]
+}
+
+model Supplier {
+  id           String  @id @default(uuid())
+  name         String
+  description  String
+  address      String
+  phone_number String
+  status       Boolean
+  price        Float?
+  unit_type    String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Input_history Input_history[]
+}
+
+model Table {
+  id               String  @id @default(uuid())
+  min_capacity     Int
+  max_capacity     Int
+  image_uri        String?
+  identifier_table String
+  table_name       String
+  table_desc       String
+  is_outdoor       Boolean
+  is_active        Boolean
+  barcode          String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Order Order[]
+}
+
+model Order {
+  id           String  @id @default(uuid())
+  order_by     String
+  phone_number String?
+  status       String
+  total_gross  Float
+  table_id     String?
+  discount_id  String?
+  staff_id     String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  table             Table?              @relation(fields: [table_id], references: [id])
+  discount          Discount?           @relation(fields: [discount_id], references: [id])
+  Staff             Staff               @relation(fields: [staff_id], references: [id], onDelete: NoAction)
+  Order_item        Order_item[]
+  Order_transaction Order_transaction[]
+  Stock_log         Stock_log[]
+}
+
+model Order_item {
+  id         String  @id @default(uuid())
+  order_id   String
+  product_id String
+  quantity   Int
+  price      Float
+  note       String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  order             Order               @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product           Product             @relation(fields: [product_id], references: [id], onDelete: NoAction)
+  Order_item_add_on Order_item_add_on[]
+}
+
+model Order_item_add_on {
+  id            String @id @default(uuid())
+  order_item_id String
+  add_on_id     String
+  price         Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  order_item Order_item @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  add_on     Add_on     @relation(fields: [add_on_id], references: [id], onDelete: NoAction)
+}
+
+model Order_transaction {
+  id                String  @id @default(uuid())
+  order_id          String
+  transaction_id    String? @unique // Midtrans order_id
+  transaction_token String? // Snap token
+  redirect_url      String? // URL to redirect to payment page
+
+  gross_amount   Float? // Amount in IDR
+  admin_fee      Float? // Admin fee in IDR
+  ppn_fee        Float? // PPN fee in IDR
+  ppn_percentage Float?
+  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
+  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
+  is_production  Boolean
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  order Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+model Staff {
+  id           String  @id @default(uuid())
+  name         String
+  phone_number String
+  is_active    Boolean @default(true)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  Staff_log Staff_log[]
+  Order     Order[]
+}
+
+model Staff_log {
+  id              String    @id @default(uuid())
+  staff_id        String
+  start_timestamp DateTime
+  end_timestamp   DateTime?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+  owned_by   String
+
+  staff Staff @relation(fields: [staff_id], references: [id], onDelete: NoAction)
+}
+
+model Stock_log {
+  id       String  @id @default(uuid())
+  action   String // 'REDUCE' | 'ADD'
+  order_id String? @unique
+  input_id String? @unique
+  note     String? // Optional: keterangan manual/otomatis
+
+  created_at DateTime @default(now())
+
+  order        Order?         @relation(fields: [order_id], references: [id])
+  inputHistory Input_history? @relation(fields: [input_id], references: [id])
+}

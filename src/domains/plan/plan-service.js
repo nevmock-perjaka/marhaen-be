@@ -1,76 +1,76 @@
-import db from '../../config/db.js';
-import BaseError from '../../base_classes/base-error.js';
+import BaseError from "../../base_classes/base-error.js";
+import db from "../../config/db.js";
 
 class PlanService {
-    async getAll(){
-        const [ data, total ] = await Promise.all([
-            db.plan.findMany({
-                orderBy: {
-                    index: 'asc'
-                }
-            }),
-            db.plan.count()
-        ])
+	async getAll() {
+		const [data, total] = await Promise.all([
+			db.plan.findMany({
+				orderBy: {
+					index: "asc",
+				},
+			}),
+			db.plan.count(),
+		]);
 
-        return { data, total };
-    }
+		return { data, total };
+	}
 
-    async getById(id){
-        const plan = await db.plan.findUnique({
-            where: {
-                id
-            }
-        });
+	async getById(id) {
+		const plan = await db.plan.findUnique({
+			where: {
+				id,
+			},
+		});
 
-        if (!plan){
-            throw BaseError.notFound("Plan Not Found")
-        }
+		if (!plan) {
+			throw BaseError.notFound("Plan Not Found");
+		}
 
-        return plan;
-    }
+		return plan;
+	}
 
-    async create(data) {
-        const plan = db.plan.create({
-            data
-        });
+	async create(data) {
+		const plan = db.plan.create({
+			data,
+		});
 
-        if (!plan){
-            throw new Error("Failed to create plan");
-        }    
+		if (!plan) {
+			throw new Error("Failed to create plan");
+		}
 
-        return plan;
-    }
+		return plan;
+	}
 
-    async update(id, data){
-        const planExists = await db.plan.findUnique({
-            where: { id }
-        });
+	async update(id, data) {
+		const planExists = await db.plan.findUnique({
+			where: { id },
+		});
 
-        if (!planExists) {
-            throw new BaseError.notFound("Plan not found");
-        }
+		if (!planExists) {
+			throw new BaseError.notFound("Plan not found");
+		}
 
-        const updatedPlan = await db.plan.update({
-            where: { 
-                id 
-            },
-            data
-        });
+		const updatedPlan = await db.plan.update({
+			where: {
+				id,
+			},
+			data,
+		});
 
-        if (!updatedPlan){
-            throw new Error("Failed to update plan");
-        }
+		if (!updatedPlan) {
+			throw new Error("Failed to update plan");
+		}
 
-        return updatedPlan;
-    }
+		return updatedPlan;
+	}
 
-    async deleteById(id){
-        return await db.plan.delete({
-            where: {
-                id
-            }
-        });
-    }
+	async deleteById(id) {
+		return await db.plan.delete({
+			where: {
+				id,
+			},
+		});
+	}
 }
 
 export default new PlanService();

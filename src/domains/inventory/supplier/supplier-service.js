@@ -1,71 +1,91 @@
-import db from "../../../config/db.js";
 import BaseError from "../../../base_classes/base-error.js";
+import db from "../../../config/db.js";
+import { buildQueryOptions } from "../../../utils/buildQueryOptions.js";
+import supplierQueryConfig from "./supplier-query-config.js";
 
 class SupplierService {
-    async findAll(userId) {
-        return await db.supplier.findMany({
-            where: {
-                owned_by: userId
-            },
-            include: {
-                Input_history: true,
-            },
-        });
-    }
+	async findAll(userId, query) {
+		const options = buildQueryOptions(supplierQueryConfig, query, userId);
 
-    async findById(id, userId) {
-        const supplier = await db.supplier.findUnique({
-            where: { id },
-            include: {
-                Input_history: true,
-            },
-        });
+		const [data, count] = await Promise.all([
+			db.supplier.findMany(options),
+			db.supplier.count({
+				where: options.where,
+			}),
+		]);
 
-        if (!supplier) {
-            throw BaseError.notFound("Supplier not found.");
-        }
+		const currentPage = query?.pagination?.page ?? 1;
+		const itemsPerPage = query?.pagination?.limit ?? 10;
+		const totalPages = Math.ceil(count / itemsPerPage);
 
-        if (supplier.owned_by !== userId) {
-            throw BaseError.forbidden("You are not allowed to access this supplier.");
-        }
+		return {
+			data,
+			meta:
+				query?.pagination?.page && query?.pagination?.limit
+					? {
+							totalItems: count,
+							totalPages,
+							currentPage,
+							itemsPerPage,
+						}
+					: null,
+			count: data.length,
+		};
+	}
 
-        return supplier;
-    }
+	async findById(id, userId) {
+		const supplier = await db.supplier.findUnique({
+			where: { id },
+			include: {
+				Input_history: true,
+			},
+		});
 
-    async create(data) {
-        return await db.supplier.create({ data });
-    }
+		if (!supplier) {
+			throw BaseError.notFound("Supplier not found.");
+		}
 
-    async update(id, data) {
-        await this.checkPermission(id, data.owned_by)
+		if (supplier.owned_by !== userId) {
+			throw BaseError.forbidden("You are not allowed to access this supplier.");
+		}
 
-        return await db.supplier.update({
-            where: { id },
-            data,
-        });
-    }
+		return supplier;
+	}
 
-    async delete(id, userId) {
-        await this.checkPermission(id, userId)
+	async create(data) {
+		return await db.supplier.create({ data });
+	}
 
-        return await db.supplier.delete({
-            where: { id }
-        });
-    }
+	async update(id, data) {
+		await this.checkPermission(id, data.owned_by);
 
-    async checkPermission(id, userId) {
-        const supplier = await db.supplier.findUnique({
-            where: { id },
-        });
+		return await db.supplier.update({
+			where: { id },
+			data,
+		});
+	}
 
-        if (!supplier) {
-            throw BaseError.notFound("Supplier not found.");
-        }
+	async delete(id, userId) {
+		await this.checkPermission(id, userId);
 
-        if (supplier.owned_by !== userId) {
-            throw BaseError.forbidden("You are not allowed to access this supplier.");
-        }
-    }
+		return await db.supplier.delete({
+			where: { id },
+		});
+	}
+
+	async checkPermission(id, userId) {
+		const supplier = await db.supplier.findUnique({
+			where: { id },
+		});
+
+		if (!supplier) {
+			throw BaseError.notFound("Supplier not found.");
+		}
+
+		if (supplier.owned_by !== userId) {
+			throw BaseError.forbidden("You are not allowed to access this supplier.");
+		}
+	}
 }
 
 export default new SupplierService();

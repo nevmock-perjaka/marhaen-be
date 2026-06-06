@@ -1,7 +1,5 @@
 import subscriptionService from "./subscription/subscription-service.js";
 
-import crypto from "crypto";
-
 class TransactionServices {
     async notificationSnap(data) {
         const hash = crypto.createHash('sha512').update(`${data.order_id}${data.status_code}${data.gross_amount}${process.env.MIDTRANS_SERVER_KEY}`).digest('hex');

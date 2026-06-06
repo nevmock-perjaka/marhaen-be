@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -87,6 +88,8 @@ model Subscription_transaction {
 
   level Int // Subscription level
   days  Int // Subscription duration in days
+  level_name String // Name of the subscription level
+  paid_at        DateTime? // Timestamp when the payment was made
 
   order_id          String? @unique // Midtrans order_id
   transaction_token String? // Snap token
