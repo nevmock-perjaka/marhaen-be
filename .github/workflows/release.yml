@@ -123,5 +123,5 @@ jobs:
 
             docker compose pull
             docker compose up -d --remove-orphans
-            docker compose exec -T marhaen-be npx prisma migrate deploy
+            docker compose exec -T api npx prisma migrate deploy
             docker image prune -f
