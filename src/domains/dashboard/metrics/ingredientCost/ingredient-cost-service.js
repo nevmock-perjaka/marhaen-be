@@ -18,215 +18,191 @@ import {
 import db from "../../../../config/db.js";
 
 class IngredientCostService {
-	async getChartData(startDate, endDate, ownedBy) {
-		const start = new Date(startDate);
-		const end = new Date(endDate);
-		const isDaily = differenceInDays(end, start) < 31;
+    async getChartData(startDate, endDate, ownedBy) {
+        const start = dayjs(startDate).startOf("day").toDate();
+        const end = dayjs(endDate).endOf("day").toDate();
 
-		const ingredientCosts = await db.input_history.findMany({
-			where: {
-				owned_by: ownedBy,
-				created_at: {
-					gte: start,
-					lte: end,
-				},
-			},
-			select: {
-				price: true,
-				created_at: true,
-			},
-		});
+        const orders = await prisma.order.findMany({
+            where: {
+                created_at: { 
+                    gte: start, 
+                    lte: end 
+                },
+                owned_by: ownedBy,
+            },
+            include: {
+                Order_item: {
+                    include: {
+                        product: {
+                            include: {
+                                Product_config: {
+                                    include: {
+                                        inventory: true,
+                                    },
+                                },
+                            },
+                        },
+                        Order_item_add_on: {
+                            include: {
+                                add_on: {
+                                    include: {
+                                        Add_on_config: {
+                                            include: {
+                                                inventory: true,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
 
-		const groupedData = {};
+        const inventoryMap = new Map();
 
-		ingredientCosts.forEach((cost) => {
-			const key = format(cost.created_at, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
-			if (!groupedData[key]) {
-				groupedData[key] = 0;
-			}
-			groupedData[key] += cost.price;
-		});
+        for (const order of orders) {
+            for (const item of order.Order_item) {
+                const quantity = item.quantity;
 
-		const fullRangeData = [];
-		let current = new Date(start);
+                for (const config of item.product.Product_config) {
+                    const key = config.inventory.id;
+                    const valueUsed = config.value * quantity;
 
-		while (current <= end) {
-			const key = format(current, isDaily ? "yyyy-MM-dd" : "yyyy-MM");
-			fullRangeData.push({
-				date: key,
-				value: groupedData[key] || 0,
-			});
-			current = isDaily ? addDays(current, 1) : addMonths(current, 1);
-		}
+                    if (!inventoryMap.has(key)) {
+                        inventoryMap.set(key, {
+                            inventory: config.inventory,
+                            totalUsed: valueUsed,
+                        });
+                    } else {
+                        inventoryMap.get(key).totalUsed += valueUsed;
+                    }
+                }
 
-		return fullRangeData;
-	}
+                for (const addOnItem of item.Order_item_add_on) {
+                    for (const config of addOnItem.add_on.Add_on_config) {
+                        const key = config.inventory.id;
+                        const valueUsed = config.value * quantity;
 
-	async getTotal(ownedBy, startDate, endDate) {
-		const result = await db.input_history.aggregate({
-			_sum: { price: true },
-			where: {
-				owned_by: ownedBy,
-				created_at: {
-					gte: startDate,
-					lte: endDate,
-				},
-			},
-		});
+                        if (!inventoryMap.has(key)) {
+                            inventoryMap.set(key, {
+                                inventory: config.inventory,
+                                totalUsed: valueUsed,
+                            });
+                        } else {
+                            inventoryMap.get(key).totalUsed += valueUsed;
+                        }
+                    }
+                }
+            }
+        }
 
-		return result._sum.price || 0;
-	}
+        let totalCost = 0;
 
-	calcChange(current, previous, currentRange, previousRange) {
-		const diff = current - previous;
-		const percentage = previous === 0 ? 0 : (diff / previous) * 100;
-		const isIncrease = diff >= 0;
+        for (const [inventoryId, { totalUsed }] of inventoryMap) {
+            const latestInput = await prisma.input_history.findFirst({
+                where: {
+                    inventory_id: inventoryId,
+                    owned_by: ownedBy,
+                },
+                orderBy: {
+                    input_datetime: "desc",
+                },
+            });
 
-		return {
-			current,
-			previous,
-			diff,
-			percentage: Math.round(percentage * 10) / 10, // 1 decimal place
-			isIncrease,
-			current_range: {
-				start_date: currentRange.start_date,
-				end_date: currentRange.end_date,
-			},
-			previous_range: {
-				start_date: previousRange.start_date,
-				end_date: previousRange.end_date,
-			},
-		};
-	}
+            const pricePerUnit = latestInput?.price || 0;
+            totalCost += totalUsed * pricePerUnit;
+        }
 
-	async compare(ownedBy) {
-		const now = new Date();
+        return {
+            total_cost: totalCost,
+            details: Array.from(inventoryMap.values()).map((item) => ({
+                name: item.inventory.product_name,
+                used: item.totalUsed,
+            })),
+        };
+    }
 
-		// Today vs same day last month
-		const todayStart = startOfDay(now);
-		const todayEnd = endOfDay(now);
-		const prevDay = subMonths(todayStart, 1);
-		const prevDayEnd = endOfDay(prevDay);
+    async compare(mode, ownedBy) {
+        const today = dayjs();
+        let currentRange, previousRange;
 
-		// This Week vs same week last month
-		const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Monday
-		const weekEnd = endOfDay(now);
-		const tempWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
+        switch (mode) {
+            case "daily":
+                currentRange = {
+                    start: today.startOf("day"),
+                    end: today.endOf("day"),
+                };
+                previousRange = {
+                    start: today.subtract(1, "month").startOf("day"),
+                    end: today.subtract(1, "month").endOf("day"),
+                };
+                break;
+            case "weekly":
+                currentRange = {
+                    start: today.startOf("week"),
+                    end: today.endOf("week"),
+                };
+                previousRange = {
+                    start: today.subtract(1, "month").startOf("week"),
+                    end: today.subtract(1, "month").endOf("week"),
+                };
+                break;
+            case "monthly":
+                currentRange = {
+                    start: today.startOf("month"),
+                    end: today.endOf("month"),
+                };
+                previousRange = {
+                    start: today.subtract(1, "month").startOf("month"),
+                    end: today.subtract(1, "month").endOf("month"),
+                };
+                break;
+            case "yearly":
+                currentRange = {
+                    start: today.startOf("year"),
+                    end: today.endOf("year"),
+                };
+                previousRange = {
+                    start: today.subtract(1, "year").startOf("year"),
+                    end: today.subtract(1, "year").endOf("year"),
+                };
+                break;
+            default:
+                throw new Error("Invalid mode");
+        }
 
-		const prevWeekStart = subMonths(weekStart, 1);
-		const prevWeekEnd = subMonths(tempWeekEnd, 1);
+        const current = await this.getChartData(
+            currentRange.start.toISOString(),
+            currentRange.end.toISOString(),
+            ownedBy
+        );
 
-		// This Month vs last month
-		const monthStart = startOfMonth(now);
-		const monthEnd = endOfMonth(now);
-		const prevMonthStart = subMonths(monthStart, 1);
-		const prevMonthEnd = endOfMonth(prevMonthStart);
+        const previous = await this.getChartData(
+            previousRange.start.toISOString(),
+            previousRange.end.toISOString(),
+            ownedBy
+        );
 
-		// This Year vs last year
-		const yearStart = startOfYear(now);
-		const yearEnd = endOfYear(now);
-		const prevYearStart = subYears(yearStart, 1);
-		const prevYearEnd = endOfYear(prevYearStart);
+        return {
+            current: current.total_cost,
+            previous: previous.total_cost,
+        };
+    }
 
-		// Get total for each period
-		const [
-			todayTotal,
-			prevDayTotal,
-			weekTotal,
-			prevWeekTotal,
-			monthTotal,
-			prevMonthTotal,
-			yearTotal,
-			prevYearTotal,
-		] = await Promise.all([
-			this.getTotal(ownedBy, todayStart, todayEnd),
-			this.getTotal(ownedBy, prevDay, prevDayEnd),
-			this.getTotal(ownedBy, weekStart, weekEnd),
-			this.getTotal(ownedBy, prevWeekStart, prevWeekEnd),
-			this.getTotal(ownedBy, monthStart, monthEnd),
-			this.getTotal(ownedBy, prevMonthStart, prevMonthEnd),
-			this.getTotal(ownedBy, yearStart, yearEnd),
-			this.getTotal(ownedBy, prevYearStart, prevYearEnd),
-		]);
-		const todayRange = {
-			start_date: formatISO(todayStart),
-			end_date: formatISO(todayEnd),
-		};
-		const prevDayRange = {
-			start_date: formatISO(prevDay),
-			end_date: formatISO(prevDayEnd),
-		};
+    async _sum(ownedBy) {
+        const ingredientCost = await prisma.input_history.aggregate({
+            _sum: {
+                price: true,
+            },
+            where: {
+                owned_by: ownedBy
+            },
+        });
 
-		const weekRange = {
-			start_date: formatISO(weekStart),
-			end_date: formatISO(weekEnd),
-		};
-
-		const prevWeekRange = {
-			start_date: formatISO(prevWeekStart),
-			end_date: formatISO(prevWeekEnd),
-		};
-
-		const monthRange = {
-			start_date: formatISO(monthStart),
-			end_date: formatISO(monthEnd),
-		};
-
-		const prevMonthRange = {
-			start_date: formatISO(prevMonthStart),
-			end_date: formatISO(prevMonthEnd),
-		};
-
-		const yearRange = {
-			start_date: formatISO(yearStart),
-			end_date: formatISO(yearEnd),
-		};
-
-		const prevYearRange = {
-			start_date: formatISO(prevYearStart),
-			end_date: formatISO(prevYearEnd),
-		};
-
-		return {
-			today: this.calcChange(
-				todayTotal,
-				prevDayTotal,
-				todayRange,
-				prevDayRange,
-			),
-			thisWeek: this.calcChange(
-				weekTotal,
-				prevWeekTotal,
-				weekRange,
-				prevWeekRange,
-			),
-			thisMonth: this.calcChange(
-				monthTotal,
-				prevMonthTotal,
-				monthRange,
-				prevMonthRange,
-			),
-			thisYear: this.calcChange(
-				yearTotal,
-				prevYearTotal,
-				yearRange,
-				prevYearRange,
-			),
-		};
-	}
-
-	async _sum(ownedBy) {
-		const ingredientCost = await db.input_history.aggregate({
-			_sum: {
-				price: true,
-			},
-			where: {
-				owned_by: ownedBy,
-			},
-		});
-
-		return ingredientCost._sum.price || 0;
-	}
+        return ingredientCost._sum.price || 0;
+    }
 }
 
 export default new IngredientCostService();

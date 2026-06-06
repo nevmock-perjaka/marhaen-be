@@ -4,166 +4,187 @@ import ingredientCostService from "../ingredientCost/ingredient-cost-service.js"
 import salesPerformanceService from "../salesPerformance/sales-performance-service.js";
 
 class NetProfitService {
-	async getChartData(startDate, endDate, ownedBy) {
-		const salesPerformance = await salesPerformanceService.getChartData(
-			startDate,
-			endDate,
-			ownedBy,
-		);
-		const ingredientCost = await ingredientCostService.getChartData(
-			startDate,
-			endDate,
-			ownedBy,
-		);
+    async getChartData(startDate, endDate, ownedBy) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const orders = await prisma.order.findMany({
+            where: {
+                created_at: {
+                    gte: start,
+                    lte: end,
+                },
+                owned_by: ownedBy,
+                status: { in: ["Paid"] },
+            },
+            include: {
+                Order_transaction: true,
+                discount: true,
+            },
+        });
 
-		const fullRangeData = [];
-		for (let i = 0; i < salesPerformance.length; i++) {
-			const salesDate = dayjs(salesPerformance[i].date);
-			const ingredientDate = dayjs(ingredientCost[i].date);
+        const grouped = {};
+        for (const order of orders) {
+            const key = dayjs(order.created_at).format("YYYY-MM-DD");
+            if (!grouped[key]) grouped[key] = { totalGross: 0, totalAdminFee: 0, netProfit: 0 };
+            grouped[key].totalGross += order.total_gross;
+            grouped[key].totalAdminFee += order.Order_transaction?.admin_fee || 0;
+            grouped[key].netProfit += order.total_gross - (order.Order_transaction?.admin_fee || 0);
+        }
 
-			if (salesDate.isSame(ingredientDate, "day")) {
-				fullRangeData.push({
-					date: salesPerformance[i].date,
-					sales: salesPerformance[i].value,
-					ingredientCost: ingredientCost[i].value,
-					value: salesPerformance[i].value - ingredientCost[i].value,
-				});
-			} else {
-				fullRangeData.push({
-					date: salesPerformance[i].date,
-					sales: salesPerformance[i].value,
-					ingredientCost: 0,
-					value: salesPerformance[i].value,
-				});
-			}
-		}
+        const data = Object.entries(grouped).map(([date, val]) => ({
+            date,
+            ...val,
+        }));
 
-		return fullRangeData;
-	}
+        const totalGross = data.reduce((sum, d) => sum + d.totalGross, 0);
+        const totalAdminFee = data.reduce((sum, d) => sum + d.totalAdminFee, 0);
 
-	async compare(ownedBy) {
-		const salesPerformance = await salesPerformanceService.compare(ownedBy);
-		const ingredientCost = await ingredientCostService.compare(ownedBy);
+        return {
+            data,
+            totalGross,
+            totalAdminFee,
+            netProfit: totalGross - totalAdminFee,
+            startDate,
+            endDate,
+        };
+    }
 
-		const periods = ["today", "thisWeek", "thisMonth", "thisYear"];
+    async compare(mode, ownedBy) {
+        const today = dayjs();
 
-		const netProfit = {};
+        let currentStart, currentEnd, prevStart, prevEnd;
 
-		for (const period of periods) {
-			const sales = salesPerformance[period];
-			const cost = ingredientCost[period];
+        switch (mode) {
+            case "daily":
+                currentStart = today.startOf("day");
+                currentEnd = today.endOf("day");
+                prevStart = currentStart.subtract(1, "month");
+                prevEnd = currentEnd.subtract(1, "month");
+                break;
 
-			const current = sales.current - cost.current;
-			const previous = sales.previous - cost.previous;
-			const diff = current - previous;
+            case "weekly":
+                currentStart = today.startOf("week");
+                currentEnd = today.endOf("week");
+                prevStart = currentStart.subtract(1, "month");
+                prevEnd = currentEnd.subtract(1, "month");
+                break;
 
-			const percentage =
-				previous === 0 ? (current === 0 ? 0 : 100) : (diff / previous) * 100;
+            case "monthly":
+                currentStart = today.startOf("month");
+                currentEnd = today.endOf("month");
+                prevStart = currentStart.subtract(1, "month");
+                prevEnd = currentEnd.subtract(1, "month");
+                break;
 
-			netProfit[period] = {
-				current,
-				previous,
-				diff,
-				percentage: Math.round(percentage),
-				isIncrease: diff >= 0,
-				current_range: sales.current_range,
-				previous_range: sales.previous_range,
-			};
-		}
+            case "yearly":
+                currentStart = today.startOf("year");
+                currentEnd = today.endOf("year");
+                prevStart = currentStart.subtract(1, "year");
+                prevEnd = currentEnd.subtract(1, "year");
+                break;
 
-		return netProfit;
-	}
+            default:
+                throw new Error("Invalid comparison mode");
+        }
 
-	async _sum(startDate, endDate, ownedBy) {
-		const now = new Date();
+        const current = await this.getChartData(currentStart.toDate(), currentEnd.toDate(), ownedBy);
+        const previous = await this.getChartData(prevStart.toDate(), prevEnd.toDate(), ownedBy);
 
-		const prevMonth = now.getMonth() - 1;
-		const year = prevMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
-		const month = (prevMonth + 12) % 12;
+        return {
+            current: { totalGross: current.totalGross, totalAdminFee: current.totalAdminFee, netProfit: current.netProfit },
+            previous: { totalGross: previous.totalGross, totalAdminFee: previous.totalAdminFee, netProfit: previous.netProfit },
+            mode,
+        };
+    }
 
-		let prevStartDate = new Date(Date.UTC(year, month, 1, 0, 0, 0));
-		let prevEndDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
+    async _sum(startDate, endDate, ownedBy) {
+        const now = new Date();
 
-		prevStartDate = prevStartDate.toISOString();
-		prevEndDate = prevEndDate.toISOString();
+        const prevMonth = now.getMonth() - 1;
+        const year = prevMonth < 0 ? now.getFullYear() - 1 : now.getFullYear();
+        const month = (prevMonth + 12) % 12;
 
-		const salesPerformance = await prisma.order.aggregate({
-			_sum: {
-				total_gross: true,
-			},
-			where: {
-				created_at: {
-					gte: startDate,
-					lte: endDate,
-				},
-				owned_by: ownedBy,
-				status: "Paid",
-			},
-		});
+        let prevStartDate = new Date(Date.UTC(year, month, 1, 0, 0, 0));
+        let prevEndDate = new Date(Date.UTC(year, month + 1, 0, 23, 59, 59));
 
-		const ingredientCost = await prisma.input_history.aggregate({
-			_sum: {
-				price: true,
-			},
-			where: {
-				input_datetime: {
-					gte: startDate,
-					lte: endDate,
-				},
-				owned_by: ownedBy,
-			},
-		});
+        prevStartDate = prevStartDate.toISOString();
+        prevEndDate = prevEndDate.toISOString();
 
-		const prevSalesPerformance = await prisma.order.aggregate({
-			_sum: {
-				total_gross: true,
-			},
-			where: {
-				created_at: {
-					gte: prevStartDate,
-					lte: prevEndDate,
-				},
-				owned_by: ownedBy,
-				status: "Paid",
-			},
-		});
+        const salesPerformance = await prisma.order.aggregate({
+            _sum: {
+                total_gross: true,
+            },
+            where: {
+                created_at: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                owned_by: ownedBy,
+                status: "Paid",
+            },
+        });
+        
+        const ingredientCost = await prisma.input_history.aggregate({
+            _sum: {
+                price: true,
+            },
+            where: {
+                input_datetime: {
+                    gte: startDate,
+                    lte: endDate,
+                },
+                owned_by: ownedBy
+            },
+        });
 
-		const prevIngredientCost = await prisma.input_history.aggregate({
-			_sum: {
-				price: true,
-			},
-			where: {
-				input_datetime: {
-					gte: prevStartDate,
-					lte: prevEndDate,
-				},
-				owned_by: ownedBy,
-			},
-		});
+        const prevSalesPerformance = await prisma.order.aggregate({
+            _sum: {
+                total_gross: true,
+            },
+            where: {
+                created_at: {
+                    gte: prevStartDate,
+                    lte: prevEndDate,
+                },
+                owned_by: ownedBy,
+                status: "Paid",
+            },
+        });
+        
+        const prevIngredientCost = await prisma.input_history.aggregate({
+            _sum: {
+                price: true,
+            },
+            where: {
+                input_datetime: {
+                    gte: prevStartDate,
+                    lte: prevEndDate,
+                },
+                owned_by: ownedBy
+            },
+        });
 
-		const currentTotal =
-			salesPerformance._sum.total_gross - ingredientCost._sum.price;
-		const previousTotal =
-			prevSalesPerformance._sum.total_gross - prevIngredientCost._sum.price;
+        const currentTotal = salesPerformance._sum.total_gross - ingredientCost._sum.price;
+        const previousTotal = prevSalesPerformance._sum.total_gross - prevIngredientCost._sum.price;
 
-		let percentageChange = 0;
+        let percentageChange = 0;
 
-		percentageChange = ((currentTotal - previousTotal) / previousTotal) * 100;
+        percentageChange = ((currentTotal - previousTotal) / previousTotal) * 100;
+        
+        // if (previousTotal === 0 && currentTotal > 0) {
+        //     percentageChange = 100;
+        // } else if (previousTotal === 0 && currentTotal === 0) {
+        //     percentageChange = 0;
+        // } else {
+        //     percentageChange = ((currentTotal - previousTotal) / previousTotal) * 100;
+        // }
 
-		// if (previousTotal === 0 && currentTotal > 0) {
-		//     percentageChange = 100;
-		// } else if (previousTotal === 0 && currentTotal === 0) {
-		//     percentageChange = 0;
-		// } else {
-		//     percentageChange = ((currentTotal - previousTotal) / previousTotal) * 100;
-		// }
-
-		return {
-			total: currentTotal,
-			difference: currentTotal - previousTotal,
-			percentage: percentageChange,
-		};
-	}
+        return {
+            total: currentTotal,
+            difference: currentTotal - previousTotal,
+            percentage: percentageChange
+        };
+    }
 }
 
 export default new NetProfitService();

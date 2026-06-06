@@ -20,14 +20,7 @@ model User {
   tax_percentage  Float     @default(0)
   verified_at     DateTime?
   strict_mode      Boolean   @default(false)
-  logo_uri      String?
-  tiktok   String?
-  instagram String?
-  facebook  String?
-  x       String?
-  wifi_name  String?
-  wifi_password String?
-  address    String?
+  qris_code       String?   // QRIS image/code stored as string (base64 or URL)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -35,23 +28,7 @@ model User {
   profiles                  Profile[]
   system_logs               System_log[]
   subscription_transactions Subscription_transaction[]
-  midtrans_user           Midtrans_User[]
-}
-
-model Midtrans_User {
-  id String    @id @default(uuid())
-  user_id String @unique
-  server_key String?
-  client_key String?
-  is_production Boolean @default(false)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  created_by String
-  updated_by String
-
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  midtrans_config           Midtrans_User?
 }
 
 model Profile {
@@ -166,6 +143,10 @@ model Product {
   Add_on_group      Add_on_group[]
   Product_config    Product_config[]
   Product_discount  Product_discount[]
+
+  @@index([owned_by])
+  @@index([category])
+  @@index([is_active])
 }
 
 model Discount {
@@ -189,6 +170,9 @@ model Discount {
 
   Product_discount Product_discount[]
   Order            Order[]
+
+  @@index([owned_by])
+  @@index([shareable_code])
 }
 
 model Product_discount {
@@ -353,6 +337,9 @@ model Table {
   owned_by   String
 
   Order Order[]
+
+  @@index([owned_by])
+  @@index([is_active])
 }
 
 model Order {
@@ -360,6 +347,7 @@ model Order {
   order_by     String
   phone_number String?
   status       String
+  payment_method String @default("Manual QRIS")
   total_gross  Float
   table_id     String?
   discount_id  String?
@@ -370,6 +358,8 @@ model Order {
   created_by String
   updated_by String
   owned_by   String
+  canceled_at DateTime?
+  cancellation_reason String?
 
   table             Table?              @relation(fields: [table_id], references: [id])
   discount          Discount?           @relation(fields: [discount_id], references: [id])
@@ -377,6 +367,10 @@ model Order {
   Order_item        Order_item[]
   Order_transaction Order_transaction[]
   Stock_log Stock_log[]
+
+  @@index([owned_by])
+  @@index([status])
+  @@index([staff_id])
 }
 
 model Order_item {
@@ -396,6 +390,9 @@ model Order_item {
   order   Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
   product Product @relation(fields: [product_id], references: [id], onDelete: NoAction)
   Order_item_add_on Order_item_add_on[]
+
+  @@index([order_id])
+  @@index([product_id])
 }
 
 model Order_item_add_on {
@@ -416,18 +413,18 @@ model Order_item_add_on {
 
 model Order_transaction {
   id             String   @id @default(uuid())
+  transaction_id String?  @unique
   order_id       String
-  transaction_id    String? @unique // Midtrans order_id
-  transaction_token String? // Snap token
-  redirect_url      String? // URL to redirect to payment page
 
-  gross_amount   Float? // Amount in IDR
-  admin_fee      Float? // Admin fee in IDR
-  ppn_fee       Float? // PPN fee in IDR
-  ppn_percentage Float?
-  payment_method String? // e.g., 'bank_transfer', 'credit_card', etc.
-  status         String? // e.g., 'pending', 'settlement', 'cancel', etc.
-  is_production Boolean
+  gross_amount    Float?
+  payment_method  String?
+  admin_fee       Float?
+  ppn_fee         Float?
+  ppn_percentage  Float?
+  is_production   Boolean
+  status          String?
+  transaction_token String?
+  redirect_url    String?
 
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
@@ -452,6 +449,23 @@ model Staff {
 
   Staff_log Staff_log[]
   Order    Order[]
+
+  @@index([owned_by])
+}
+
+model Midtrans_User {
+  id           String   @id @default(uuid())
+  user_id      String   @unique
+  server_key   String?
+  client_key   String?
+  is_production Boolean @default(false)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model Staff_log {
@@ -467,6 +481,8 @@ model Staff_log {
   owned_by   String
 
   staff Staff @relation(fields: [staff_id], references: [id], onDelete: NoAction)
+
+  @@index([owned_by, end_timestamp])
 }
 
 model Stock_log {

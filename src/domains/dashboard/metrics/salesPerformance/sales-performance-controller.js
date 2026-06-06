@@ -28,16 +28,16 @@ class SalesPerformanceController {
 			ownedBy,
 		);
 
-		return successResponse(res, data);
-	}
+        return successResponse(res, data, "Sales performance berhasil diambil");
+    }
 
 	async getComparison(req, res) {
 		const ownedBy = req.user.id;
 
 		const data = await SalesPerformanceService.compare(ownedBy);
 
-		return successResponse(res, data);
-	}
+        return successResponse(res, data, "Perbandingan sales performance berhasil diambil");
+    }
 }
 
 export default new SalesPerformanceController();

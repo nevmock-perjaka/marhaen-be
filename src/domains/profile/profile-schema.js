@@ -44,4 +44,20 @@ const resetPinSchema = Joi.object({
 	}),
 });
 
-export { loginSchema, changePinSchema, resetPinSchema };
+  const changePasswordSchema = Joi.object({
+    current_password: Joi.string().required().messages({
+      "string.empty": "Current Password is required."
+    }),
+    new_password: Joi.string().required().messages({
+      "string.empty": "New Password is required."
+    })
+  });
+
+const updateQrisCodeSchema = Joi.object({
+  qris_code: Joi.string().required().messages({
+    'any.required': 'QRIS code is required.',
+    'string.base': 'QRIS code must be a string (base64 or URL).'
+  })
+});
+
+export { loginSchema, changePinSchema, resetPinSchema, changePasswordSchema, updateQrisCodeSchema };
